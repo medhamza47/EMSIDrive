@@ -339,6 +339,37 @@ et l'API doit être joignable depuis le Wi-Fi (pare-feu Windows autorisant le po
 La permission `INTERNET` est déclarée dans le manifest principal, donc elle est
 présente en debug comme en release.
 
+Pour ne pas répéter l'URL à chaque commande, on passe un fichier de définitions :
+`mobile/.env.example` est versionné, on le copie en `mobile/.env` (ignoré par Git)
+et on renseigne l'IP LAN de sa propre machine.
+
+```bash
+cd mobile
+flutter run --dart-define-from-file=.env                                  # téléphone branché en USB/Wi-Fi
+flutter build apk --release --dart-define-from-file=.env                  # APK à installer à la main
+```
+
+Ces valeurs sont **compilées dans le binaire** : changer d'IP ou de réseau impose
+un rebuild, pas seulement un redémarrage de l'app.
+
+### Mise à jour sur un téléphone physique
+
+L'APK est installé « à la main » (*sideload*), pas depuis le Play Store : il n'y a
+donc **aucun canal de mise à jour automatique**. Toute évolution du code mobile
+exige une reconstruction et une réinstallation.
+
+| Ce qui change | Action |
+| --- | --- |
+| Code Dart (écrans, logique, thème) | `flutter run` → rechargement à chaud (`r` / `R`), ou rebuild + réinstallation |
+| Code natif, manifest, plugin, dépendances | Rebuild complet obligatoire |
+| Back-end uniquement | Aucun rebuild mobile : l'app interroge l'API à l'exécution |
+
+Tant que l'`applicationId` (`ma.emsi.emsidrive.emsidrive_mobile`) et la clé de
+signature restent identiques, la réinstallation est une **mise à jour sur place** :
+les données de l'app (dont les jetons en stockage sécurisé) sont conservées.
+Une désinstallation, ou un changement de clé de signature, efface les données
+(`INSTALL_FAILED_UPDATE_INCOMPATIBLE`).
+
 ### Admin web
 
 - Tests de composants et de services avec le runner du projet ; lint TypeScript obligatoire.
