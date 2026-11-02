@@ -3,6 +3,10 @@
 /// Centralizing them keeps `context.go('/...')` calls free of magic strings and
 /// makes deep links easy to audit.
 abstract final class AppRoutes {
+  // Authentication (outside the bottom navigation shell).
+  static const String login = '/login';
+  static const String register = '/register';
+
   // Shell (bottom navigation) destinations.
   static const String home = '/home';
   static const String rides = '/rides';
@@ -10,7 +14,9 @@ abstract final class AppRoutes {
   static const String profile = '/profile';
 
   /// Initial location shown when the app starts.
-  static const String initial = home;
+  ///
+  /// The app boots on the login screen until session restore is implemented.
+  static const String initial = login;
 }
 
 /// The four top level sections reachable from the bottom navigation bar.

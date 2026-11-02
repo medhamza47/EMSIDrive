@@ -10,16 +10,16 @@ part of 'secure_storage_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Provides the platform secure storage used for tokens.
 ///
-/// Android keystore backed, iOS keychain backed. Override in tests with an
-/// in-memory fake.
+/// Android keystore backed (AES/GCM via EncryptedSharedPreferences), iOS
+/// keychain backed. Override in tests with an in-memory fake.
 
 @ProviderFor(secureStorage)
 final secureStorageProvider = SecureStorageProvider._();
 
 /// Provides the platform secure storage used for tokens.
 ///
-/// Android keystore backed, iOS keychain backed. Override in tests with an
-/// in-memory fake.
+/// Android keystore backed (AES/GCM via EncryptedSharedPreferences), iOS
+/// keychain backed. Override in tests with an in-memory fake.
 
 final class SecureStorageProvider
     extends
@@ -31,8 +31,8 @@ final class SecureStorageProvider
     with $Provider<FlutterSecureStorage> {
   /// Provides the platform secure storage used for tokens.
   ///
-  /// Android keystore backed, iOS keychain backed. Override in tests with an
-  /// in-memory fake.
+  /// Android keystore backed (AES/GCM via EncryptedSharedPreferences), iOS
+  /// keychain backed. Override in tests with an in-memory fake.
   SecureStorageProvider._()
     : super(
         from: null,
@@ -67,4 +67,4 @@ final class SecureStorageProvider
   }
 }
 
-String _$secureStorageHash() => r'a258bda40d2f36685fbecdd5f830905be2798ff2';
+String _$secureStorageHash() => r'7ffbf3a16b763241ad3dff5742be5fc7daf75f49';

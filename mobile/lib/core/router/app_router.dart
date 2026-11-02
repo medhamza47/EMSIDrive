@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
@@ -20,11 +22,20 @@ GoRouter appRouter(Ref ref) => createAppRouter();
 /// Builds the [GoRouter] instance driving the app.
 ///
 /// A [StatefulShellRoute.indexedStack] gives each of the four tabs its own
-/// navigation stack while keeping the bottom bar permanently visible.
+/// navigation stack while keeping the bottom bar permanently visible. The two
+/// authentication routes live outside the shell so they render full screen.
 GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
   return GoRouter(
     initialLocation: initialLocation,
     routes: <RouteBase>[
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),

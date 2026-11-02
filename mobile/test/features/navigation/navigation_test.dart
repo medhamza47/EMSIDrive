@@ -31,7 +31,7 @@ void main() {
 
   group('Navigation shell', () {
     testWidgets('starts on the home tab with four destinations', (tester) async {
-      await pumpEmsiDriveApp(tester);
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.home);
       final l10n = l10nOf();
 
       expect(find.byType(NavigationBar), findsOneWidget);
@@ -43,7 +43,7 @@ void main() {
     });
 
     testWidgets('switches to the rides tab', (tester) async {
-      await pumpEmsiDriveApp(tester);
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.home);
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.navRides));
@@ -55,7 +55,7 @@ void main() {
     });
 
     testWidgets('switches to the notifications tab', (tester) async {
-      await pumpEmsiDriveApp(tester);
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.home);
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.navNotifications));
@@ -66,7 +66,7 @@ void main() {
     });
 
     testWidgets('switches to the profile tab and back to home', (tester) async {
-      await pumpEmsiDriveApp(tester);
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.home);
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.navProfile));

@@ -183,6 +183,216 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de joindre le serveur. Vérifiez votre connexion.'**
   String get networkErrorMessage;
+
+  /// Title of the login screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get loginTitle;
+
+  /// Subtitle of the login screen explaining which email to use
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez votre adresse email étudiant EMSI.'**
+  String get loginSubtitle;
+
+  /// Label of the email field
+  ///
+  /// In fr, this message translates to:
+  /// **'Email étudiant'**
+  String get emailLabel;
+
+  /// Placeholder shown in the email field
+  ///
+  /// In fr, this message translates to:
+  /// **'prenom.nom@emsi-edu.ma'**
+  String get emailHint;
+
+  /// Label of the password field
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get passwordLabel;
+
+  /// Link opening the password reset flow
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié ?'**
+  String get forgotPasswordLabel;
+
+  /// Shown when the user taps the password reset link, which is not implemented yet
+  ///
+  /// In fr, this message translates to:
+  /// **'La réinitialisation du mot de passe sera disponible prochainement.'**
+  String get forgotPasswordUnavailableMessage;
+
+  /// Label of the submit button on the login screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get loginSubmitLabel;
+
+  /// Prompt shown at the bottom of the login screen before the register link
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ?'**
+  String get loginNoAccountPrompt;
+
+  /// Title of the register screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription'**
+  String get registerTitle;
+
+  /// Subtitle of the register screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre compte avec votre email étudiant EMSI.'**
+  String get registerSubtitle;
+
+  /// Label of the full name field
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom complet'**
+  String get fullNameLabel;
+
+  /// Placeholder shown in the full name field
+  ///
+  /// In fr, this message translates to:
+  /// **'Yassine El Amrani'**
+  String get fullNameHint;
+
+  /// Label of the optional phone number field
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone (optionnel)'**
+  String get phoneNumberLabel;
+
+  /// Placeholder shown in the phone number field
+  ///
+  /// In fr, this message translates to:
+  /// **'+212612345678'**
+  String get phoneNumberHint;
+
+  /// Helper text under the password field on the register screen
+  ///
+  /// In fr, this message translates to:
+  /// **'8 caractères minimum.'**
+  String get passwordHelper;
+
+  /// Label of the submit button on the register screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get registerSubmitLabel;
+
+  /// Prompt shown at the bottom of the register screen before the login link
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte ?'**
+  String get registerHasAccountPrompt;
+
+  /// Link switching from the login screen to the register screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get createAccountLinkLabel;
+
+  /// Link switching from the register screen back to the login screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get loginLinkLabel;
+
+  /// Confirmation shown after a successful registration
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte a été créé. Bienvenue sur EMSIDrive !'**
+  String get registerSuccessMessage;
+
+  /// Validation message when the email field is empty
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'adresse email est obligatoire.'**
+  String get validationEmailRequired;
+
+  /// Validation message when the email is malformed
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez une adresse email valide.'**
+  String get validationEmailInvalid;
+
+  /// Validation message when the email does not use an allowed student domain
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez votre adresse email étudiante EMSI (@{domain}).'**
+  String validationEmailDomain(String domain);
+
+  /// Validation message when the password field is empty
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe est obligatoire.'**
+  String get validationPasswordRequired;
+
+  /// Validation message when the password is shorter than the backend minimum
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe doit contenir au moins {min} caractères.'**
+  String validationPasswordTooShort(int min);
+
+  /// Validation message when the password exceeds the backend maximum
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe ne peut pas dépasser {max} caractères.'**
+  String validationPasswordTooLong(int max);
+
+  /// Validation message when the full name field is empty
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom complet est obligatoire.'**
+  String get validationFullNameRequired;
+
+  /// Validation message when the full name exceeds the backend maximum
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom complet ne peut pas dépasser {max} caractères.'**
+  String validationFullNameTooLong(int max);
+
+  /// Validation message when the phone number does not match the backend pattern
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un numéro valide (9 à 20 chiffres, indicatif autorisé).'**
+  String get validationPhoneNumberInvalid;
+
+  /// Message shown when the backend rejects the credentials
+  ///
+  /// In fr, this message translates to:
+  /// **'Email ou mot de passe incorrect.'**
+  String get invalidCredentialsErrorMessage;
+
+  /// Message shown when the email domain is not in the backend allow-list
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'inscription est réservée aux emails étudiants EMSI.'**
+  String get emailDomainNotAllowedErrorMessage;
+
+  /// Message shown when registering with an existing email
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte existe déjà avec cette adresse email.'**
+  String get emailAlreadyUsedErrorMessage;
+
+  /// Message shown when the account is disabled
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est désactivé. Contactez l\'administration.'**
+  String get accountDisabledErrorMessage;
+
+  /// Message shown when the request times out
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur met trop de temps à répondre. Réessayez.'**
+  String get timeoutErrorMessage;
 }
 
 class _AppLocalizationsDelegate

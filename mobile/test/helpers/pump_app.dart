@@ -1,4 +1,6 @@
 import 'package:emsidrive_mobile/app.dart';
+import 'package:emsidrive_mobile/core/router/app_router.dart';
+import 'package:emsidrive_mobile/core/router/routes.dart';
 import 'package:emsidrive_mobile/core/theme/app_theme.dart';
 import 'package:emsidrive_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -38,12 +40,34 @@ Future<void> pumpWidgetWithApp(
 }
 
 /// Pumps the real application, router included.
+///
+/// Pass [initialLocation] to land on a specific route instead of the default
+/// login screen, and [overrides] to swap dependencies such as the repository.
+///
+/// Set [settle] to `false` when a loading state keeps a spinner on screen, as
+/// `pumpAndSettle` would then wait forever.
 Future<void> pumpEmsiDriveApp(
   WidgetTester tester, {
   List<Override> overrides = const <Override>[],
+  String initialLocation = AppRoutes.initial,
+  bool settle = true,
 }) async {
-  await tester.pumpWidget(ProviderScope(overrides: overrides, child: const EmsiDriveApp()));
-  await tester.pumpAndSettle();
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: <Override>[
+        appRouterProvider.overrideWithValue(
+          createAppRouter(initialLocation: initialLocation),
+        ),
+        ...overrides,
+      ],
+      child: const EmsiDriveApp(),
+    ),
+  );
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump();
+  }
 }
 
 /// Generated localization strings for the French locale.

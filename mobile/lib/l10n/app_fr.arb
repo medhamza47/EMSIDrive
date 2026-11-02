@@ -59,5 +59,166 @@
   "networkErrorMessage": "Impossible de joindre le serveur. Vérifiez votre connexion.",
   "@networkErrorMessage": {
     "description": "Message shown when the API cannot be reached"
+  },
+  "loginTitle": "Connexion",
+  "@loginTitle": {
+    "description": "Title of the login screen"
+  },
+  "loginSubtitle": "Utilisez votre adresse email étudiant EMSI.",
+  "@loginSubtitle": {
+    "description": "Subtitle of the login screen explaining which email to use"
+  },
+  "emailLabel": "Email étudiant",
+  "@emailLabel": {
+    "description": "Label of the email field"
+  },
+  "emailHint": "prenom.nom@emsi-edu.ma",
+  "@emailHint": {
+    "description": "Placeholder shown in the email field"
+  },
+  "passwordLabel": "Mot de passe",
+  "@passwordLabel": {
+    "description": "Label of the password field"
+  },
+  "forgotPasswordLabel": "Mot de passe oublié ?",
+  "@forgotPasswordLabel": {
+    "description": "Link opening the password reset flow"
+  },
+  "forgotPasswordUnavailableMessage": "La réinitialisation du mot de passe sera disponible prochainement.",
+  "@forgotPasswordUnavailableMessage": {
+    "description": "Shown when the user taps the password reset link, which is not implemented yet"
+  },
+  "loginSubmitLabel": "Se connecter",
+  "@loginSubmitLabel": {
+    "description": "Label of the submit button on the login screen"
+  },
+  "loginNoAccountPrompt": "Pas encore de compte ?",
+  "@loginNoAccountPrompt": {
+    "description": "Prompt shown at the bottom of the login screen before the register link"
+  },
+  "registerTitle": "Inscription",
+  "@registerTitle": {
+    "description": "Title of the register screen"
+  },
+  "registerSubtitle": "Créez votre compte avec votre email étudiant EMSI.",
+  "@registerSubtitle": {
+    "description": "Subtitle of the register screen"
+  },
+  "fullNameLabel": "Nom complet",
+  "@fullNameLabel": {
+    "description": "Label of the full name field"
+  },
+  "fullNameHint": "Yassine El Amrani",
+  "@fullNameHint": {
+    "description": "Placeholder shown in the full name field"
+  },
+  "phoneNumberLabel": "Téléphone (optionnel)",
+  "@phoneNumberLabel": {
+    "description": "Label of the optional phone number field"
+  },
+  "phoneNumberHint": "+212612345678",
+  "@phoneNumberHint": {
+    "description": "Placeholder shown in the phone number field"
+  },
+  "passwordHelper": "8 caractères minimum.",
+  "@passwordHelper": {
+    "description": "Helper text under the password field on the register screen"
+  },
+  "registerSubmitLabel": "Créer mon compte",
+  "@registerSubmitLabel": {
+    "description": "Label of the submit button on the register screen"
+  },
+  "registerHasAccountPrompt": "Déjà un compte ?",
+  "@registerHasAccountPrompt": {
+    "description": "Prompt shown at the bottom of the register screen before the login link"
+  },
+  "createAccountLinkLabel": "Créer un compte",
+  "@createAccountLinkLabel": {
+    "description": "Link switching from the login screen to the register screen"
+  },
+  "loginLinkLabel": "Se connecter",
+  "@loginLinkLabel": {
+    "description": "Link switching from the register screen back to the login screen"
+  },
+  "registerSuccessMessage": "Votre compte a été créé. Bienvenue sur EMSIDrive !",
+  "@registerSuccessMessage": {
+    "description": "Confirmation shown after a successful registration"
+  },
+  "validationEmailRequired": "L'adresse email est obligatoire.",
+  "@validationEmailRequired": {
+    "description": "Validation message when the email field is empty"
+  },
+  "validationEmailInvalid": "Saisissez une adresse email valide.",
+  "@validationEmailInvalid": {
+    "description": "Validation message when the email is malformed"
+  },
+  "validationEmailDomain": "Utilisez votre adresse email étudiante EMSI (@{domain}).",
+  "@validationEmailDomain": {
+    "description": "Validation message when the email does not use an allowed student domain",
+    "placeholders": {
+      "domain": {
+        "type": "String",
+        "example": "emsi-edu.ma"
+      }
+    }
+  },
+  "validationPasswordRequired": "Le mot de passe est obligatoire.",
+  "@validationPasswordRequired": {
+    "description": "Validation message when the password field is empty"
+  },
+  "validationPasswordTooShort": "Le mot de passe doit contenir au moins {min} caractères.",
+  "@validationPasswordTooShort": {
+    "description": "Validation message when the password is shorter than the backend minimum",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "validationPasswordTooLong": "Le mot de passe ne peut pas dépasser {max} caractères.",
+  "@validationPasswordTooLong": {
+    "description": "Validation message when the password exceeds the backend maximum",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationFullNameRequired": "Le nom complet est obligatoire.",
+  "@validationFullNameRequired": {
+    "description": "Validation message when the full name field is empty"
+  },
+  "validationFullNameTooLong": "Le nom complet ne peut pas dépasser {max} caractères.",
+  "@validationFullNameTooLong": {
+    "description": "Validation message when the full name exceeds the backend maximum",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationPhoneNumberInvalid": "Saisissez un numéro valide (9 à 20 chiffres, indicatif autorisé).",
+  "@validationPhoneNumberInvalid": {
+    "description": "Validation message when the phone number does not match the backend pattern"
+  },
+  "invalidCredentialsErrorMessage": "Email ou mot de passe incorrect.",
+  "@invalidCredentialsErrorMessage": {
+    "description": "Message shown when the backend rejects the credentials"
+  },
+  "emailDomainNotAllowedErrorMessage": "L'inscription est réservée aux emails étudiants EMSI.",
+  "@emailDomainNotAllowedErrorMessage": {
+    "description": "Message shown when the email domain is not in the backend allow-list"
+  },
+  "emailAlreadyUsedErrorMessage": "Un compte existe déjà avec cette adresse email.",
+  "@emailAlreadyUsedErrorMessage": {
+    "description": "Message shown when registering with an existing email"
+  },
+  "accountDisabledErrorMessage": "Ce compte est désactivé. Contactez l'administration.",
+  "@accountDisabledErrorMessage": {
+    "description": "Message shown when the account is disabled"
+  },
+  "timeoutErrorMessage": "Le serveur met trop de temps à répondre. Réessayez.",
+  "@timeoutErrorMessage": {
+    "description": "Message shown when the request times out"
   }
 }
