@@ -89,21 +89,23 @@ EMSIDrive/
 │           ├── java/ma/emsi/emsidrive/   # Tests unitaires et d'intégration
 │           └── resources/application-test.yml  # Profil de test (H2, Flyway off)
 │
-├── mobile/                       # Application Flutter (échafaudage)
+├── mobile/                       # Application Flutter
 │   ├── pubspec.yaml
 │   ├── l10n.yaml                 # Configuration de la génération des traductions
+│   ├── assets/images/            # Logo EMSIDrive (extrait des maquettes)
 │   ├── lib/
 │   │   ├── main.dart
 │   │   ├── app.dart              # MaterialApp.router, thème, routes
 │   │   ├── core/                 # theme/, constants/, network/, router/, errors/
-│   │   ├── data/                 # models/, datasources/, repositories/ (à venir)
-│   │   ├── domain/               # Entités et cas d'usage (à venir)
 │   │   ├── features/             # auth/, user/, ride/, booking/, tracking/, fuel/,
 │   │   │                         # rating/, schedule/, matching/, notifications/
-│   │   │                         # (chaque module : presentation/, application/, data/)
+│   │   │                         # (chaque module : domain/, data/, application/,
+│   │   │                         #  presentation/)
 │   │   ├── l10n/                 # app_fr.arb + fichiers générés
 │   │   └── shared/               # widgets/, utils/
 │   ├── test/                     # Tests unitaires et widget tests
+│   │   ├── helpers/              # pump_app.dart, fakes partagés
+│   │   └── features/<feature>/   # Un dossier de tests par fonctionnalité
 │   └── integration_test/         # Tests d'intégration (à venir)
 │
 ├── admin-web/                    # Back-office web (à venir)
@@ -202,18 +204,23 @@ Chaque composant est autonome : il possède son propre outillage, ses tests et s
 | JSON | `fromJson` / `toJson` | `RideRequest.fromJson()` |
 
 - Un dossier par fonctionnalité dans `lib/features/<feature>/`
-  (`presentation/`, `application/`, `data/`).
+  (`domain/`, `data/`, `application/`, `presentation/`).
 - Aucun appel HTTP direct depuis un widget : passer par un repository.
 - **État** : Riverpod avec génération de code (`@riverpod` / `@Riverpod(keepAlive: true)`),
   fichiers `*.g.dart` versionnés, régénérés par `dart run build_runner build`.
 - **Navigation** : go_router avec un `StatefulShellRoute.indexedStack`
-  (un onglet = une branche, chacune conserve sa pile).
+  (un onglet = une branche, chacune conserve sa pile). Les écrans
+  d'authentification (`/login`, `/register`) vivent au-dessus du shell.
 - **Réseau** : un seul client `Dio` exposé par provider ; les erreurs sont
   converties en `AppFailure` par `ErrorMapper`.
 - **Widgets partagés** : `lib/shared/widgets/` (bouton, champ, carte, badge,
   barre de navigation) ; toute nouvelle primitive du design system va dans ce dossier.
 - **Aucun texte français codé en dur** dans un widget : passer par les ARB
   (`flutter gen-l10n`).
+- **Tests de widgets** : `test/features/<feature>/`, helpers partagés dans
+  `test/helpers/` (`pumpEmsiDriveApp` pour l'app complète). Les tests qui
+  observent un état de chargement passent `settle: false` et augmentent la
+  surface de test (`tester.binding.setSurfaceSize`) pour éviter les taps hors écran.
 
 ### Admin web (TypeScript / React)
 
@@ -354,6 +361,20 @@ cd admin-web && npm test && npm run lint
 - Validation systématique des entrées côté API (Bean Validation) ; le mobile ne fait qu'aider l'utilisateur.
 - Autorisations vérifiées côté serveur : un étudiant n'accède qu'à ses propres trajets, réservations et données.
 - Données personnelles (position, emploi du temps) minimisées et non exposées dans les logs.
+
+### Côté mobile
+
+- Les tokens sont stockés dans `flutter_secure_storage` sous les clés
+  `emsidrive.access_token` et `emsidrive.refresh_token` ; jamais en préférences
+  partagées, jamais dans un fichier, jamais dans un log.
+- Les erreurs de l'API sont traduites en `AppFailure` puis présentées en
+  français par `AuthErrorPresenter` ; les codes serveur inconnus ne sont jamais
+  affichés bruts.
+- Les validateurs de formulaire reprennent les contraintes Bean Validation du
+  back-end (email, mot de passe 8–72, nom 120, téléphone optionnel) ; le serveur
+  reste l'autorité finale.
+- La restauration de session au démarrage et la garde de redirection ne sont
+  **pas encore implémentées** : l'app démarre sur `/login`.
 
 ### Variables d'environnement de sécurité
 
