@@ -1,0 +1,63 @@
+{
+  "@@locale": "fr",
+  "appName": "EMSIDrive",
+  "@appName": {
+    "description": "Application name shown in the app bar and store listing"
+  },
+  "navHome": "Accueil",
+  "@navHome": {
+    "description": "Bottom navigation label for the home tab"
+  },
+  "navRides": "Trajets",
+  "@navRides": {
+    "description": "Bottom navigation label for the rides tab"
+  },
+  "navNotifications": "Notifications",
+  "@navNotifications": {
+    "description": "Bottom navigation label for the notifications tab"
+  },
+  "navProfile": "Profil",
+  "@navProfile": {
+    "description": "Bottom navigation label for the profile tab"
+  },
+  "homeTitle": "Accueil",
+  "@homeTitle": {
+    "description": "Title of the home screen"
+  },
+  "ridesTitle": "Trajets",
+  "@ridesTitle": {
+    "description": "Title of the rides screen"
+  },
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": {
+    "description": "Title of the notifications screen"
+  },
+  "profileTitle": "Profil",
+  "@profileTitle": {
+    "description": "Title of the profile screen"
+  },
+  "placeholderMessage": "Cet écran sera disponible dans une prochaine version.",
+  "@placeholderMessage": {
+    "description": "Shown on screens that are not implemented yet"
+  },
+  "retryLabel": "Réessayer",
+  "@retryLabel": {
+    "description": "Label of the retry action shown after a failed request"
+  },
+  "showPasswordTooltip": "Afficher le mot de passe",
+  "@showPasswordTooltip": {
+    "description": "Tooltip of the password visibility toggle when the password is hidden"
+  },
+  "hidePasswordTooltip": "Masquer le mot de passe",
+  "@hidePasswordTooltip": {
+    "description": "Tooltip of the password visibility toggle when the password is visible"
+  },
+  "genericErrorMessage": "Une erreur est survenue. Veuillez réessayer.",
+  "@genericErrorMessage": {
+    "description": "Fallback message for unexpected failures"
+  },
+  "networkErrorMessage": "Impossible de joindre le serveur. Vérifiez votre connexion.",
+  "@networkErrorMessage": {
+    "description": "Message shown when the API cannot be reached"
+  }
+}

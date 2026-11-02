@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../features/home/presentation/home_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/rides/presentation/rides_screen.dart';
+import '../../shared/widgets/app_bottom_nav_bar.dart';
+import 'routes.dart';
+
+part 'app_router.g.dart';
+
+/// Router instance exposed to the app.
+///
+/// Kept alive so the navigation state survives rebuilds of the widget tree.
+@Riverpod(keepAlive: true)
+GoRouter appRouter(Ref ref) => createAppRouter();
+
+/// Builds the [GoRouter] instance driving the app.
+///
+/// A [StatefulShellRoute.indexedStack] gives each of the four tabs its own
+/// navigation stack while keeping the bottom bar permanently visible.
+GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    routes: <RouteBase>[
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: <StatefulShellBranch>[
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: AppRoutes.rides,
+                builder: (context, state) => const RidesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: AppRoutes.notifications,
+                builder: (context, state) => const NotificationsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+/// Shell hosting the four tab branches and the bottom navigation bar.
+class AppShell extends StatelessWidget {
+  const AppShell({required this.navigationShell, super.key});
+
+  /// Branch container maintained by the router.
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: navigationShell,
+      bottomNavigationBar: AppBottomNavBar(
+        currentTab: AppTab.values[navigationShell.currentIndex],
+        onTabSelected: (tab) => navigationShell.goBranch(
+          tab.index,
+          initialLocation: tab.index == navigationShell.currentIndex,
+        ),
+      ),
+    );
+  }
+}
