@@ -1,0 +1,25 @@
+name: emsidrive
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: emsidrive-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-emsidrive}
+      POSTGRES_USER: ${POSTGRES_USER:-emsidrive}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-emsidrive}
+    ports:
+      # Host port 5433 avoids collisions with a locally installed PostgreSQL on 5432.
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - emsidrive-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-emsidrive} -d ${POSTGRES_DB:-emsidrive}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  emsidrive-postgres-data:

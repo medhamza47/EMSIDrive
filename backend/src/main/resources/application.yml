@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: emsidrive-api
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/emsidrive}
+    username: ${DB_USERNAME:emsidrive}
+    password: ${DB_PASSWORD:emsidrive}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: public
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    ma.emsi.emsidrive: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,333 @@
+# CONTEXT.md — EMSIDrive
+
+Document de référence du projet : contexte, architecture, structure des dossiers et conventions.
+À lire avant toute contribution. Toute décision structurante doit être répercutée ici.
+
+---
+
+## 1. Le projet
+
+**EMSIDrive** est une plateforme de covoiturage réservée aux étudiants de l'**EMSI Marrakech**.
+
+Elle permet à un étudiant de publier ou de demander un trajet, de trouver des conducteurs proches,
+de partager les frais d'essence, d'importer son emploi du temps et de recevoir des suggestions
+de trajets partagés, puis d'évaluer le trajet effectué.
+
+### Composants
+
+| Composant | Rôle | Technologie |
+|-----------|------|-------------|
+| **API** | Back-end métier, authentification, persistance, notifications | Spring Boot 3.5 (Java 17) + PostgreSQL 16 |
+| **Mobile** | Application étudiante (conducteur / passager) | Flutter (Dart) |
+| **Admin web** | Back-office de modération et de supervision | Application web (React + TypeScript) |
+
+### Périmètre fonctionnel (issu des maquettes)
+
+1. Connexion / inscription étudiant
+2. Nouvelle demande de trajet
+3. Conducteurs proches (géolocalisation)
+4. Fiche conducteur
+5. Partage des frais d'essence
+6. Évaluation du trajet
+7. Import de l'emploi du temps
+8. Créneaux détectés automatiquement
+9. Suggestions de trajets partagés + détail d'une suggestion
+10. Notifications et propositions
+
+La référence visuelle mobile est [EMSIDrive_maquettes_mobile.html](EMSIDrive_maquettes_mobile.html).
+
+### Rôles utilisateurs
+
+- **Étudiant** : publie une demande, réserve une place, évalue.
+- **Conducteur** : étudiant proposant des places sur son trajet.
+- **Administrateur** : modère via l'admin web (comptes, signalements, statistiques).
+
+---
+
+## 2. Structure des dossiers
+
+Monorepo : les trois composants vivent dans le même dépôt et évoluent ensemble.
+L'arborescence ci-dessous est la **cible** du projet ; les entrées marquées *(à venir)*
+seront créées au fil des sprints. Le seul composant déjà implémenté est `backend/`.
+
+```
+EMSIDrive/
+├── CONTEXT.md                    # Ce document
+├── README.md                     # Démarrage rapide
+├── .editorconfig                 # Indentation et fins de ligne
+├── .gitignore
+├── EMSIDrive_maquettes_mobile.html  # Maquettes mobiles (référence UI)
+│
+├── backend/                      # API Spring Boot + PostgreSQL
+│   ├── pom.xml
+│   ├── docker-compose.yml        # PostgreSQL 16 pour le développement local
+│   ├── README.md
+│   └── src/
+│       ├── main/java/ma/emsi/emsidrive/
+│       │   ├── EmsiDriveApplication.java
+│       │   ├── config/           # Sécurité, OpenAPI, CORS
+│       │   ├── common/           # web/ (health), exception/ (contrat d'erreur)
+│       │   ├── auth/             # Inscription, connexion, refresh token
+│       │   ├── user/             # Étudiants, profils
+│       │   ├── vehicle/          # Véhicules des conducteurs
+│       │   ├── ride/             # Trajets proposés
+│       │   ├── booking/          # Réservations de places
+│       │   ├── tracking/         # Suivi temps réel du trajet
+│       │   ├── fuel/             # Frais d'essence et répartition
+│       │   ├── rating/           # Évaluations conducteur/passager
+│       │   ├── schedule/         # Emploi du temps et créneaux détectés
+│       │   ├── matching/         # Suggestions de trajets partagés
+│       │   ├── notification/     # Notifications et propositions
+│       │   └── admin/            # Back-office et modération
+│       │       (chaque module : controller/ service/ repository/ entity/ dto/ mapper/)
+│       ├── main/resources/
+│       │   ├── application.yml
+│       │   ├── application-dev.yml
+│       │   ├── application-prod.yml            # (à venir)
+│       │   └── db/migration/     # Scripts Flyway versionnés
+│       └── test/
+│           ├── java/ma/emsi/emsidrive/   # Tests unitaires et d'intégration
+│           └── resources/application-test.yml  # Profil de test (H2, Flyway off)
+│
+├── mobile/                       # Application Flutter (à venir)
+│   ├── pubspec.yaml
+│   ├── lib/
+│   │   ├── main.dart
+│   │   ├── app.dart              # MaterialApp, thème, routes
+│   │   ├── core/                 # theme/, constants/, network/, router/, errors/
+│   │   ├── data/                 # models/, datasources/, repositories/
+│   │   ├── domain/               # Entités et cas d'usage
+│   │   ├── features/             # auth/, user/, ride/, booking/, tracking/, fuel/,
+│   │   │                         # rating/, schedule/, matching/, notifications/
+│   │   └── shared/               # widgets/, utils/
+│   ├── test/                     # Tests unitaires et widget tests
+│   └── integration_test/         # Tests d'intégration
+│
+├── admin-web/                    # Back-office web (à venir)
+│   ├── package.json
+│   └── src/
+│       ├── assets/
+│       ├── components/           # Composants réutilisables
+│       ├── features/             # users/, rides/, reports/, dashboard/
+│       ├── layouts/
+│       ├── router/
+│       ├── services/             # Appels API
+│       ├── styles/               # Thème, tokens de design
+│       └── types/
+│
+├── docs/                                     # (à venir)
+│   ├── scrum/                    # Backlog, sprints, rétrospectives
+│   ├── api/                      # Contrat OpenAPI exporté
+│   ├── db/                       # Schéma et diagrammes
+│   └── design/                   # Thème, composants UI
+│
+├── scripts/                      # (à venir) Scripts de dev (seed, migration, lint)
+└── .github/workflows/            # (à venir) CI : build, tests, lint
+```
+
+Chaque composant est autonome : il possède son propre outillage, ses tests et son pipeline.
+
+---
+
+## 3. Méthode de travail : SCRUM
+
+- **Sprints de 2 semaines**, revue et rétrospective en fin de sprint.
+- **Backlog** dans `docs/scrum/` : user stories au format
+  `En tant que <rôle>, je veux <objectif> afin de <bénéfice>`, avec critères d'acceptation.
+- **Estimation** en story points ; priorisation par valeur métier.
+- **Board** : `To Do` → `In Progress` → `In Review` → `Done`.
+
+### Definition of Ready (DoR)
+
+- User story formulée avec critères d'acceptation testables.
+- Maquette ou description UI disponible (mobile : maquettes HTML).
+- Dépendances API identifiées.
+
+### Definition of Done (DoD)
+
+- Code revu et approuvé par au moins un pair (Pull Request).
+- **Tests écrits et passants** (voir section 6) ; aucun test désactivé sans justification.
+- CI verte : build, tests, lint.
+- Textes d'interface en français, code et commentaires en anglais.
+- Documentation mise à jour si le comportement ou le contrat API change.
+
+---
+
+## 4. Conventions de nommage
+
+### Règle de langue
+
+- **Code, identifiants, noms de fichiers techniques, commentaires, logs, messages de commit : anglais.**
+- **Textes d'interface visibles par l'utilisateur : français** (labels, boutons, erreurs, emails).
+- Les traductions sont centralisées (fichiers ARB en Flutter, fichiers i18n en admin web).
+  Aucun libellé français codé en dur dans les widgets ou composants.
+
+### API (Spring Boot / Java)
+
+| Élément | Convention | Exemple |
+|---------|-----------|---------|
+| Classes | `PascalCase` | `RideRequestService` |
+| Méthodes / variables | `camelCase` | `findNearbyDrivers()` |
+| Constantes | `UPPER_SNAKE_CASE` | `MAX_SEATS_PER_RIDE` |
+| Packages | minuscules, par domaine | `ma.emsi.emsidrive.ride` |
+| DTO | suffixés `Request` / `Response` / `Dto` | `RideCreateRequest` |
+| Entités JPA | nom métier au singulier | `Ride`, `RideBooking` |
+| Endpoints REST | pluriel, minuscules, kebab-case | `/api/v1/ride-requests` |
+| Champs JSON | `camelCase` | `departureTime` |
+
+- Versionnement d'API dans l'URL : `/api/v1/...`.
+- Réponses d'erreur normalisées :
+  `{ "timestamp": "...", "status": 400, "code": "VALIDATION_ERROR", "message": "...", "details": [...] }`.
+- Aucune entité JPA exposée directement par un contrôleur (toujours un DTO).
+
+### Base de données (PostgreSQL)
+
+- Tables et colonnes en `snake_case`, tables au **pluriel** : `ride_requests`, `created_at`.
+- Clés primaires `id` (UUID), clés étrangères `<entité>_id` : `driver_id`.
+- Index nommés `idx_<table>_<colonnes>` : `idx_ride_requests_departure_time`.
+- Chaque évolution de schéma passe par une migration Flyway : `V<numéro>__<description>.sql`.
+
+### Flutter (Dart)
+
+| Élément | Convention | Exemple |
+|---------|-----------|---------|
+| Fichiers | `snake_case` | `ride_request_screen.dart` |
+| Classes / widgets | `PascalCase` | `RideRequestCard` |
+| Écrans | suffixe `Screen` | `NearbyDriversScreen` |
+| Providers / blocs | suffixe `Provider` / `Bloc` | `AuthBloc` |
+| Membres privés | préfixe `_` | `_isLoading` |
+| JSON | `fromJson` / `toJson` | `RideRequest.fromJson()` |
+
+- Un dossier par fonctionnalité dans `lib/features/<feature>/`
+  (`presentation/`, `application/`, `data/`).
+- Aucun appel HTTP direct depuis un widget : passer par un repository.
+
+### Admin web (TypeScript / React)
+
+| Élément | Convention | Exemple |
+|---------|-----------|---------|
+| Composants | `PascalCase`, un par fichier | `UserTable.tsx` |
+| Hooks | préfixe `use` | `useRideFilters.ts` |
+| Fonctions / variables | `camelCase` | `fetchPendingReports()` |
+| Types / interfaces | `PascalCase`, sans préfixe `I` | `RideSummary` |
+| Fichiers utilitaires | `kebab-case` | `format-date.ts` |
+
+### Git — nommage des branches
+
+Format : `<type>/<ticket>-<slug-court-en-anglais>`
+
+| Type | Usage | Exemple |
+|------|-------|---------|
+| `feature/` | Nouvelle fonctionnalité | `feature/EMSI-42-nearby-drivers` |
+| `fix/` | Correction de bug | `fix/EMSI-57-null-seats` |
+| `hotfix/` | Correctif urgent en production | `hotfix/EMSI-61-auth-crash` |
+| `chore/` | Maintenance, dépendances, CI | `chore/EMSI-33-upgrade-deps` |
+| `docs/` | Documentation seule | `docs/EMSI-12-api-contract` |
+| `release/` | Préparation de version | `release/1.4.0` |
+
+Branches longues : `main` (production) et `develop` (intégration).
+Toute branche part de `develop` et y revient via Pull Request ; `hotfix/` part de `main`.
+
+### Git — format des commits
+
+**Conventional Commits**, en anglais, à l'impératif, sans point final.
+
+```
+<type>(<scope>): <subject>
+
+<body — quoi et pourquoi, pas comment>
+
+Refs: EMSI-42
+```
+
+- **Types** : `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- **Scopes** : `api`, `mobile`, `admin`, `db`, `auth`, `rides`, `notifications`, `ci`, `docs`.
+- Sujet : minuscule, ≤ 72 caractères, pas de « update » seul — décrire l'effet.
+- Un commit = un changement cohérent et compilable.
+- Référencer le ticket dans le pied de commit (`Refs: EMSI-42`, `Closes: EMSI-42` en fin de story).
+
+Exemples :
+
+```
+feat(api): add nearby driver search endpoint
+
+fix(mobile): prevent empty seat count on booking
+
+test(api): cover ride expense split calculation edge cases
+```
+
+---
+
+## 5. Design system
+
+Thème **vert EMSI**. Les couleurs ne sont jamais écrites en dur dans les écrans :
+elles passent par des tokens partagés entre mobile et admin web.
+
+| Token | Valeur | Usage |
+|-------|--------|-------|
+| `primary` | `#015629` | Vert foncé : app bar, titres, boutons principaux |
+| `primaryContainer` | `#015629` (teintes dérivées) | Surfaces d'accentuation |
+| `secondary` / `accent` | `#7ECC18` | Vert clair : CTA secondaires, badges, états actifs |
+| `success` | `#7ECC18` | Confirmations |
+| `error` | rouge standard du design system | Erreurs de validation |
+| `surface` | blanc / gris très clair | Fonds de cartes et d'écrans |
+
+- Contraste : texte blanc sur `#015629` ; texte `#015629` sur `#7ECC18`.
+- Les tokens sont définis une seule fois :
+  - mobile : `lib/core/theme/`
+  - admin web : `src/styles/`
+  - documentation : `docs/design/`
+- Typographie, rayons et espacements suivent la même source unique.
+
+---
+
+## 6. Tests et qualité
+
+Les tests font partie de la Definition of Done : aucune story n'est terminée sans eux.
+
+### Back-end (API)
+
+- **Tests unitaires** : JUnit 5 + Mockito sur les services et la logique métier
+  (répartition des frais, détection de créneaux, matching des suggestions).
+- **Tests d'intégration** : `@SpringBootTest` + Testcontainers (PostgreSQL réel).
+- **Tests de contrat** : vérification des DTO et codes HTTP des contrôleurs.
+- Objectif de couverture : **≥ 80 %** sur les services et la logique métier.
+
+```bash
+cd backend && ./mvnw verify
+```
+
+### Mobile (Flutter)
+
+- **Tests unitaires** : repositories, modèles, logique de présentation.
+- **Widget tests** : écrans clés (connexion, nouvelle demande, conducteurs proches).
+- **Tests d'intégration** : parcours complet demande → suggestion → évaluation.
+
+```bash
+cd mobile && flutter test && flutter analyze
+```
+
+### Admin web
+
+- Tests de composants et de services avec le runner du projet ; lint TypeScript obligatoire.
+
+```bash
+cd admin-web && npm test && npm run lint
+```
+
+### Règles
+
+- Un bug corrigé s'accompagne d'un test de non-régression.
+- Les tests ne dépendent pas de données de production ; les jeux de données viennent de `scripts/`.
+- La CI exécute build + tests + lint sur chaque Pull Request ; une PR rouge n'est pas fusionnée.
+
+---
+
+## 7. Sécurité et configuration
+
+- Authentification par **JWT** (access token court + refresh token).
+- Mots de passe hachés (BCrypt), jamais journalisés.
+- Secrets et identifiants **hors du dépôt** : variables d'environnement ou `.env` ignoré par Git.
+- Validation systématique des entrées côté API (Bean Validation) ; le mobile ne fait qu'aider l'utilisateur.
+- Autorisations vérifiées côté serveur : un étudiant n'accède qu'à ses propres trajets, réservations et données.
+- Données personnelles (position, emploi du temps) minimisées et non exposées dans les logs.

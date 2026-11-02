@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/emsidrive}
+    username: ${DB_USERNAME:emsidrive}
+    password: ${DB_PASSWORD:emsidrive}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    clean-disabled: false
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    ma.emsi.emsidrive: DEBUG
