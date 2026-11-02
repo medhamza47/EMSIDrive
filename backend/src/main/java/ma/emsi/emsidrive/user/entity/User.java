@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ma.emsi.emsidrive.common.entity.AuditableEntity;
 
-/** Student, driver or administrator account. */
+/** Student or administrator account. */
 @Getter
 @Setter
 @Builder

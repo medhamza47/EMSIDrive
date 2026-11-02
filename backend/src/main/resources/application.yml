@@ -27,6 +27,16 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+app:
+  security:
+    jwt:
+      # Development-only fallback. Production MUST provide JWT_SECRET (>= 256 bits).
+      secret: ${JWT_SECRET:emsidrive-local-development-secret-change-me-32b}
+      access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:PT15M}
+      refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:P7D}
+    # Comma-separated list of domains accepted at registration.
+    student-email-domains: ${STUDENT_EMAIL_DOMAINS:emsi-edu.ma}
+
 server:
   port: ${SERVER_PORT:8080}
   error:

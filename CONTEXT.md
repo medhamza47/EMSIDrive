@@ -326,8 +326,21 @@ cd admin-web && npm test && npm run lint
 ## 7. Sécurité et configuration
 
 - Authentification par **JWT** (access token court + refresh token).
+- Deux rôles seulement : `STUDENT` (inscription publique) et `ADMIN` (créé côté serveur). Toute autre valeur est refusée par la contrainte `chk_users_role`.
+- Les refresh tokens sont **persistés côté serveur** (seul le hash SHA-256 est stocké) et **rotatifs** : chaque `/auth/refresh` révoque le token présenté et en émet un nouveau.
+- L'inscription est limitée aux domaines étudiants, configurables via `app.security.student-email-domains`.
 - Mots de passe hachés (BCrypt), jamais journalisés.
 - Secrets et identifiants **hors du dépôt** : variables d'environnement ou `.env` ignoré par Git.
 - Validation systématique des entrées côté API (Bean Validation) ; le mobile ne fait qu'aider l'utilisateur.
 - Autorisations vérifiées côté serveur : un étudiant n'accède qu'à ses propres trajets, réservations et données.
 - Données personnelles (position, emploi du temps) minimisées et non exposées dans les logs.
+
+### Variables d'environnement de sécurité
+
+| Variable | Défaut | Rôle |
+|----------|--------|------|
+| `JWT_SECRET` | secret de développement | Clé HMAC-SHA256, **32 octets minimum** ; obligatoire en production |
+| `JWT_ACCESS_TOKEN_TTL` | `PT15M` | Durée de vie de l'access token |
+| `JWT_REFRESH_TOKEN_TTL` | `P7D` | Durée de vie du refresh token |
+| `STUDENT_EMAIL_DOMAINS` | `emsi-edu.ma` | Domaines autorisés à l'inscription, séparés par des virgules |
+

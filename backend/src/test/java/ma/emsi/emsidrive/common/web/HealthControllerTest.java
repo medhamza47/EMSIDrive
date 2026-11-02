@@ -1,5 +1,8 @@
 package ma.emsi.emsidrive.common.web;
 
+import ma.emsi.emsidrive.auth.security.JwtAuthenticationFilter;
+import ma.emsi.emsidrive.auth.security.JwtService;
+import ma.emsi.emsidrive.auth.security.RestAuthenticationEntryPoint;
 import ma.emsi.emsidrive.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(HealthController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtService.class, JwtAuthenticationFilter.class, RestAuthenticationEntryPoint.class})
 class HealthControllerTest {
 
     @Autowired

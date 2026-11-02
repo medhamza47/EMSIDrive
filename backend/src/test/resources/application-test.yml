@@ -13,6 +13,14 @@ spring:
   flyway:
     enabled: false
 
+app:
+  security:
+    jwt:
+      secret: emsidrive-test-secret-key-with-at-least-32-bytes
+      access-token-ttl: PT15M
+      refresh-token-ttl: P7D
+    student-email-domains: emsi-edu.ma
+
 logging:
   level:
     root: WARN
