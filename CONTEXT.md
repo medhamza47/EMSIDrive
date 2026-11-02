@@ -333,6 +333,11 @@ flutter test && flutter analyze
 
 L'URL de l'API est injectée par `--dart-define=API_BASE_URL=…`
 (défaut : `http://10.0.2.2:8080`, l'hôte de l'émulateur Android).
+Sur un téléphone physique, l'émulateur n'existe pas : il faut passer l'IP LAN de
+la machine de développement (`--dart-define=API_BASE_URL=http://192.168.1.110:8080`)
+et l'API doit être joignable depuis le Wi-Fi (pare-feu Windows autorisant le port 8080).
+La permission `INTERNET` est déclarée dans le manifest principal, donc elle est
+présente en debug comme en release.
 
 ### Admin web
 
