@@ -89,19 +89,22 @@ EMSIDrive/
 │           ├── java/ma/emsi/emsidrive/   # Tests unitaires et d'intégration
 │           └── resources/application-test.yml  # Profil de test (H2, Flyway off)
 │
-├── mobile/                       # Application Flutter (à venir)
+├── mobile/                       # Application Flutter (échafaudage)
 │   ├── pubspec.yaml
+│   ├── l10n.yaml                 # Configuration de la génération des traductions
 │   ├── lib/
 │   │   ├── main.dart
-│   │   ├── app.dart              # MaterialApp, thème, routes
+│   │   ├── app.dart              # MaterialApp.router, thème, routes
 │   │   ├── core/                 # theme/, constants/, network/, router/, errors/
-│   │   ├── data/                 # models/, datasources/, repositories/
-│   │   ├── domain/               # Entités et cas d'usage
+│   │   ├── data/                 # models/, datasources/, repositories/ (à venir)
+│   │   ├── domain/               # Entités et cas d'usage (à venir)
 │   │   ├── features/             # auth/, user/, ride/, booking/, tracking/, fuel/,
 │   │   │                         # rating/, schedule/, matching/, notifications/
+│   │   │                         # (chaque module : presentation/, application/, data/)
+│   │   ├── l10n/                 # app_fr.arb + fichiers générés
 │   │   └── shared/               # widgets/, utils/
 │   ├── test/                     # Tests unitaires et widget tests
-│   └── integration_test/         # Tests d'intégration
+│   └── integration_test/         # Tests d'intégration (à venir)
 │
 ├── admin-web/                    # Back-office web (à venir)
 │   ├── package.json
@@ -201,6 +204,16 @@ Chaque composant est autonome : il possède son propre outillage, ses tests et s
 - Un dossier par fonctionnalité dans `lib/features/<feature>/`
   (`presentation/`, `application/`, `data/`).
 - Aucun appel HTTP direct depuis un widget : passer par un repository.
+- **État** : Riverpod avec génération de code (`@riverpod` / `@Riverpod(keepAlive: true)`),
+  fichiers `*.g.dart` versionnés, régénérés par `dart run build_runner build`.
+- **Navigation** : go_router avec un `StatefulShellRoute.indexedStack`
+  (un onglet = une branche, chacune conserve sa pile).
+- **Réseau** : un seul client `Dio` exposé par provider ; les erreurs sont
+  converties en `AppFailure` par `ErrorMapper`.
+- **Widgets partagés** : `lib/shared/widgets/` (bouton, champ, carte, badge,
+  barre de navigation) ; toute nouvelle primitive du design system va dans ce dossier.
+- **Aucun texte français codé en dur** dans un widget : passer par les ARB
+  (`flutter gen-l10n`).
 
 ### Admin web (TypeScript / React)
 
@@ -304,8 +317,15 @@ cd backend && ./mvnw verify
 - **Tests d'intégration** : parcours complet demande → suggestion → évaluation.
 
 ```bash
-cd mobile && flutter test && flutter analyze
+cd mobile
+flutter pub get
+flutter gen-l10n                              # traductions depuis les ARB
+dart run build_runner build                   # providers Riverpod (*.g.dart)
+flutter test && flutter analyze
 ```
+
+L'URL de l'API est injectée par `--dart-define=API_BASE_URL=…`
+(défaut : `http://10.0.2.2:8080`, l'hôte de l'émulateur Android).
 
 ### Admin web
 
