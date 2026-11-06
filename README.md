@@ -22,10 +22,28 @@ docker compose up -d                                         # PostgreSQL 16 sur
 mvn spring-boot:run -Dspring-boot.run.profiles=dev           # API sur http://localhost:8080
 ```
 
+Sur Windows, un script fait les deux et attend que `/health` réponde (idempotent) :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-backend.ps1
+```
+
 | Endpoint | Description |
 |----------|-------------|
 | `GET /health` | Sonde de disponibilité (public) |
 | `GET /swagger-ui.html` | Documentation interactive |
+
+## Démarrage rapide (mobile)
+
+```bash
+cd mobile
+flutter run --dart-define-from-file=.env                     # émulateur Android
+```
+
+`mobile/.env` (ignoré par Git, modèle dans `mobile/.env.example`) porte
+`API_BASE_URL` : `http://10.0.2.2:8080` pour l'émulateur, l'IP LAN de la machine
+pour un téléphone physique. La valeur est **compilée dans l'APK** : changer de
+cible impose un rebuild.
 
 ## Tests
 

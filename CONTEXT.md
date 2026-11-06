@@ -126,7 +126,8 @@ EMSIDrive/
 │   ├── db/                       # Schéma et diagrammes
 │   └── design/                   # Thème, composants UI
 │
-├── scripts/                      # (à venir) Scripts de dev (seed, migration, lint)
+├── scripts/                      # Scripts de dev (démarrage de la pile locale)
+│   └── start-backend.ps1         # PostgreSQL + API, attend que /health réponde
 └── .github/workflows/            # (à venir) CI : build, tests, lint
 ```
 
@@ -351,6 +352,15 @@ flutter build apk --release --dart-define-from-file=.env                  # APK 
 
 Ces valeurs sont **compilées dans le binaire** : changer d'IP ou de réseau impose
 un rebuild, pas seulement un redémarrage de l'app.
+
+Symptôme d'une cible injoignable (mauvaise IP, ou API arrêtée) : l'app attend
+puis affiche « Le serveur prend beaucoup de temps à répondre » (timeout de 20 s).
+Avant de suspecter l'app, vérifier que l'API répond :
+
+```powershell
+Invoke-WebRequest http://localhost:8080/health -UseBasicParsing   # doit renvoyer 200
+powershell -ExecutionPolicy Bypass -File scripts\start-backend.ps1 # sinon, relancer la pile
+```
 
 ### Mise à jour sur un téléphone physique
 
