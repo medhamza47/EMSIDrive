@@ -17,4 +17,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     Optional<Vehicle> findByPlateNumberIgnoreCase(String plateNumber);
 
     boolean existsByPlateNumberIgnoreCase(String plateNumber);
+
+    Optional<Vehicle> findByIdAndOwnerId(UUID id, UUID ownerId);
 }

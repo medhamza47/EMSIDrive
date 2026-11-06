@@ -2,6 +2,8 @@ package ma.emsi.emsidrive.vehicle.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,8 +41,12 @@ public class Vehicle extends AuditableEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @Column(name = "plate_number", nullable = false, unique = true, length = 20)
+    @Column(name = "plate_number", unique = true, length = 20)
     private String plateNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 10)
+    private VehicleType type;
 
     @Column(name = "brand", nullable = false, length = 60)
     private String brand;

@@ -184,7 +184,30 @@ Chaque composant est autonome : il possède son propre outillage, ses tests et s
 - Versionnement d'API dans l'URL : `/api/v1/...`.
 - Réponses d'erreur normalisées :
   `{ "timestamp": "...", "status": 400, "code": "VALIDATION_ERROR", "message": "...", "details": [...] }`.
+  Le champ `details` porte la liste `[{ "field": "...", "message": "..." }]` et n'est
+  présent que pour les erreurs de validation.
 - Aucune entité JPA exposée directement par un contrôleur (toujours un DTO).
+
+Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
+
+| Code | HTTP | Origine |
+|------|------|---------|
+| `VALIDATION_ERROR` | 400 | Bean Validation sur un DTO |
+| `MALFORMED_REQUEST_BODY` | 400 | Corps JSON illisible ou type incompatible |
+| `INVALID_PARAMETER` | 400 | Paramètre de chemin / requête mal typé (ex. UUID invalide) |
+| `EMAIL_DOMAIN_NOT_ALLOWED` | 400 | Inscription hors domaines étudiants |
+| `INVALID_CREDENTIALS` | 401 | Email ou mot de passe incorrect |
+| `INVALID_REFRESH_TOKEN` | 401 | Refresh token inconnu, expiré ou révoqué |
+| `UNAUTHORIZED` | 401 | Requête sans jeton valide sur une route protégée |
+| `ACCOUNT_DISABLED` | 403 | Compte désactivé |
+| `USER_NOT_FOUND` | 404 | Utilisateur du jeton absent en base |
+| `VEHICLE_NOT_FOUND` | 404 | Véhicule inexistant **ou** appartenant à un autre utilisateur |
+| `EMAIL_ALREADY_USED` | 409 | Inscription sur un email déjà pris |
+
+- Un véhicule d'autrui répond `404 VEHICLE_NOT_FOUND`, jamais `403` : on ne révèle
+  pas l'existence d'une ressource à laquelle on n'a pas droit.
+- Swagger est protégé par le schéma `bearerAuth` : le bouton **Authorize** accepte
+  directement l'`accessToken` renvoyé par `/api/v1/auth/login`.
 
 ### Base de données (PostgreSQL)
 
@@ -315,7 +338,7 @@ Les tests font partie de la Definition of Done : aucune story n'est terminée sa
 - Objectif de couverture : **≥ 80 %** sur les services et la logique métier.
 
 ```bash
-cd backend && ./mvnw verify
+cd backend && mvn verify
 ```
 
 ### Mobile (Flutter)

@@ -32,6 +32,19 @@ powershell -ExecutionPolicy Bypass -File scripts\start-backend.ps1
 |----------|-------------|
 | `GET /health` | Sonde de disponibilité (public) |
 | `GET /swagger-ui.html` | Documentation interactive |
+| `POST /api/v1/auth/register` | Inscription étudiante (public) |
+| `POST /api/v1/auth/login` | Connexion (public) |
+| `POST /api/v1/auth/refresh` | Renouvellement du jeton (public) |
+| `GET /api/v1/me` | Profil de l'utilisateur connecté |
+| `PUT /api/v1/me` | Mise à jour du profil (nom, filière, année, photo) |
+| `GET /api/v1/me/vehicles` | Véhicules de l'utilisateur connecté |
+| `POST /api/v1/me/vehicles` | Ajout d'un véhicule (MOTO ou VOITURE) |
+| `PUT /api/v1/me/vehicles/{id}` | Modification d'un de ses véhicules |
+| `DELETE /api/v1/me/vehicles/{id}` | Suppression d'un de ses véhicules |
+
+Toutes les routes `/api/v1/**` (hors `/auth/**`) exigent un en-tête
+`Authorization: Bearer <accessToken>`. Dans Swagger, le bouton **Authorize** accepte
+directement ce jeton.
 
 ## Démarrage rapide (mobile)
 
@@ -52,7 +65,9 @@ cd backend
 mvn clean verify
 ```
 
-Les tests tournent sur H2 (`application-test.yml`), sans Docker.
+Les tests unitaires tournent sur H2 (`application-test.yml`), sans Docker. Les tests
+d'intégration (`*IntegrationTest`) démarrent un conteneur PostgreSQL 16 jetable via
+Testcontainers : Docker doit être démarré.
 
 ## Méthode
 
