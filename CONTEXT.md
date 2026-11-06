@@ -97,14 +97,14 @@ EMSIDrive/
 │   │   ├── main.dart
 │   │   ├── app.dart              # MaterialApp.router, thème, routes
 │   │   ├── core/                 # theme/, constants/, network/, router/, errors/
-│   │   ├── features/             # auth/, user/, ride/, booking/, tracking/, fuel/,
-│   │   │                         # rating/, schedule/, matching/, notifications/
+│   │   ├── features/             # auth/, home/, rides/, notifications/, profile/
 │   │   │                         # (chaque module : domain/, data/, application/,
 │   │   │                         #  presentation/)
 │   │   ├── l10n/                 # app_fr.arb + fichiers générés
-│   │   └── shared/               # widgets/, utils/
+│   │   └── shared/               # widgets/ (design system), utils/
 │   ├── test/                     # Tests unitaires et widget tests
 │   │   ├── helpers/              # pump_app.dart, fakes partagés
+│   │   ├── shared/widgets/       # Tests des widgets du design system
 │   │   └── features/<feature>/   # Un dossier de tests par fonctionnalité
 │   └── integration_test/         # Tests d'intégration (à venir)
 │
@@ -230,6 +230,12 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
 - Un dossier par fonctionnalité dans `lib/features/<feature>/`
   (`domain/`, `data/`, `application/`, `presentation/`).
 - Aucun appel HTTP direct depuis un widget : passer par un repository.
+- **Pattern repository** : chaque fonctionnalité expose une interface abstraite
+  (`abstract interface class <Feature>Repository`) dans `data/`, une
+  implémentation `Fake<Feature>Repository` (données réalistes en français) et un
+  provider Riverpod `@Riverpod(keepAlive: true)`. Tant que l'API n'est pas
+  branchée, le provider retourne le Fake ; il suffira de changer le provider.
+  Les tests surchargent ce provider avec `overrideWithValue`.
 - **État** : Riverpod avec génération de code (`@riverpod` / `@Riverpod(keepAlive: true)`),
   fichiers `*.g.dart` versionnés, régénérés par `dart run build_runner build`.
 - **Navigation** : go_router avec un `StatefulShellRoute.indexedStack`
@@ -237,8 +243,10 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
   d'authentification (`/login`, `/register`) vivent au-dessus du shell.
 - **Réseau** : un seul client `Dio` exposé par provider ; les erreurs sont
   converties en `AppFailure` par `ErrorMapper`.
-- **Widgets partagés** : `lib/shared/widgets/` (bouton, champ, carte, badge,
-  barre de navigation) ; toute nouvelle primitive du design system va dans ce dossier.
+- **Widgets partagés** : `lib/shared/widgets/` (`PrimaryButton`, `OutlineButton`,
+  `AppTextField`, `AppCard`, `AppBadge`, `Avatar`, `RatingStars`, `SectionTitle`,
+  `SkeletonLoader`, `EmptyState`, `ErrorState`, barre de navigation) ; toute
+  nouvelle primitive du design system va dans ce dossier.
 - **Aucun texte français codé en dur** dans un widget : passer par les ARB
   (`flutter gen-l10n`).
 - **Tests de widgets** : `test/features/<feature>/`, helpers partagés dans

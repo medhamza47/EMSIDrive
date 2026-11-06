@@ -82,6 +82,10 @@ abstract final class AppColors {
   static const Color warningContainerDark = Color(0xFF683C00);
   static const Color onWarningContainerDark = Color(0xFFFFDDB3);
 
+  /// Gold used by rating stars, taken from the mockups (`--gold`).
+  static const Color ratingLight = Color(0xFFF2A900);
+  static const Color ratingDark = Color(0xFFFFC94D);
+
   static const Color infoLight = Color(0xFF1B5E8C);
   static const Color onInfoLight = Color(0xFFFFFFFF);
   static const Color infoContainerLight = Color(0xFFCFE7FA);

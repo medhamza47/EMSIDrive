@@ -22,6 +22,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.onInfo,
     required this.infoContainer,
     required this.onInfoContainer,
+    required this.rating,
   });
 
   final Color success;
@@ -39,6 +40,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final Color infoContainer;
   final Color onInfoContainer;
 
+  /// Gold used by rating stars.
+  final Color rating;
+
   /// Palette for the light theme.
   static const AppSemanticColors light = AppSemanticColors(
     success: AppColors.successLight,
@@ -53,6 +57,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     onInfo: AppColors.onInfoLight,
     infoContainer: AppColors.infoContainerLight,
     onInfoContainer: AppColors.onInfoContainerLight,
+    rating: AppColors.ratingLight,
   );
 
   /// Palette for the dark theme.
@@ -69,6 +74,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     onInfo: AppColors.onInfoDark,
     infoContainer: AppColors.infoContainerDark,
     onInfoContainer: AppColors.onInfoContainerDark,
+    rating: AppColors.ratingDark,
   );
 
   @override
@@ -85,6 +91,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? onInfo,
     Color? infoContainer,
     Color? onInfoContainer,
+    Color? rating,
   }) {
     return AppSemanticColors(
       success: success ?? this.success,
@@ -99,6 +106,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       onInfo: onInfo ?? this.onInfo,
       infoContainer: infoContainer ?? this.infoContainer,
       onInfoContainer: onInfoContainer ?? this.onInfoContainer,
+      rating: rating ?? this.rating,
     );
   }
 
@@ -120,6 +128,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       onInfo: Color.lerp(onInfo, other.onInfo, t)!,
       infoContainer: Color.lerp(infoContainer, other.infoContainer, t)!,
       onInfoContainer: Color.lerp(onInfoContainer, other.onInfoContainer, t)!,
+      rating: Color.lerp(rating, other.rating, t)!,
     );
   }
 }

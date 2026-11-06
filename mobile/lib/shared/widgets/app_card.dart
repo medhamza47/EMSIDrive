@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 
 /// Rounded surface used to group related content.
@@ -15,6 +16,8 @@ class AppCard extends StatelessWidget {
     this.margin,
     this.trailing,
     this.leading,
+    this.radius = AppRadius.lg,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
     super.key,
   });
 
@@ -33,6 +36,12 @@ class AppCard extends StatelessWidget {
   /// Optional widget rendered before [child] on the leading edge.
   final Widget? leading;
 
+  /// Corner radius of the card surface.
+  final double radius;
+
+  /// Vertical alignment of [leading], [child] and [trailing].
+  final CrossAxisAlignment crossAxisAlignment;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -40,7 +49,7 @@ class AppCard extends StatelessWidget {
     final content = Padding(
       padding: padding,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: crossAxisAlignment,
         children: <Widget>[
           if (leading != null) ...<Widget>[
             leading!,
@@ -60,7 +69,7 @@ class AppCard extends StatelessWidget {
       child: Material(
         color: scheme.surfaceContainerLow,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(radius),
           side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
         ),
         clipBehavior: Clip.antiAlias,

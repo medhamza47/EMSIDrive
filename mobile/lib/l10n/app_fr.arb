@@ -220,5 +220,87 @@
   "timeoutErrorMessage": "Le serveur met trop de temps à répondre. Réessayez.",
   "@timeoutErrorMessage": {
     "description": "Message shown when the request times out"
+  },
+  "homeGreeting": "Bonjour",
+  "@homeGreeting": {
+    "description": "Greeting prefix shown above the student first name on the home screen"
+  },
+  "homeSearchRideTitle": "Je cherche un trajet",
+  "@homeSearchRideTitle": {
+    "description": "Title of the home action leading to the ride search"
+  },
+  "homeSearchRideSubtitle": "Trouvez un étudiant qui part dans votre direction.",
+  "@homeSearchRideSubtitle": {
+    "description": "Subtitle of the home action leading to the ride search"
+  },
+  "homeOfferRideTitle": "Je propose un trajet",
+  "@homeOfferRideTitle": {
+    "description": "Title of the home action leading to publishing a ride"
+  },
+  "homeOfferRideSubtitle": "Partagez votre moto ou votre voiture et les frais d'essence.",
+  "@homeOfferRideSubtitle": {
+    "description": "Subtitle of the home action leading to publishing a ride"
+  },
+  "homeUpcomingTripsTitle": "Prochains trajets",
+  "@homeUpcomingTripsTitle": {
+    "description": "Title of the upcoming trips section on the home screen"
+  },
+  "homeTripRoute": "{origin} vers {destination}",
+  "@homeTripRoute": {
+    "description": "Route line of an upcoming trip card",
+    "placeholders": {
+      "origin": {
+        "type": "String",
+        "example": "Guéliz"
+      },
+      "destination": {
+        "type": "String",
+        "example": "EMSI Marrakech"
+      }
+    }
+  },
+  "homeTripWithDriver": "{time} - avec {driver}",
+  "@homeTripWithDriver": {
+    "description": "Subtitle of an upcoming trip card that names the driver",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Demain, 08:15"
+      },
+      "driver": {
+        "type": "String",
+        "example": "Salma B."
+      }
+    }
+  },
+  "homeTripPending": "{time} - en attente",
+  "@homeTripPending": {
+    "description": "Subtitle of an upcoming trip card whose booking is not confirmed yet",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Jeudi, 17:30"
+      }
+    }
+  },
+  "homeNoUpcomingTripsTitle": "Aucun trajet à venir",
+  "@homeNoUpcomingTripsTitle": {
+    "description": "Empty state title when the student has no upcoming trip"
+  },
+  "homeNoUpcomingTripsMessage": "Vos prochains trajets confirmés apparaîtront ici.",
+  "@homeNoUpcomingTripsMessage": {
+    "description": "Empty state message when the student has no upcoming trip"
+  },
+  "homeErrorTitle": "Impossible de charger l'accueil",
+  "@homeErrorTitle": {
+    "description": "Title of the error state on the home screen"
+  },
+  "tripStatusConfirmed": "Confirmé",
+  "@tripStatusConfirmed": {
+    "description": "Badge label for a confirmed trip"
+  },
+  "tripStatusPending": "En attente",
+  "@tripStatusPending": {
+    "description": "Badge label for a trip waiting for the driver answer"
   }
 }

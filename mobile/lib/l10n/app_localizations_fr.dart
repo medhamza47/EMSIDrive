@@ -178,4 +178,55 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get timeoutErrorMessage =>
       'Le serveur met trop de temps à répondre. Réessayez.';
+
+  @override
+  String get homeGreeting => 'Bonjour';
+
+  @override
+  String get homeSearchRideTitle => 'Je cherche un trajet';
+
+  @override
+  String get homeSearchRideSubtitle =>
+      'Trouvez un étudiant qui part dans votre direction.';
+
+  @override
+  String get homeOfferRideTitle => 'Je propose un trajet';
+
+  @override
+  String get homeOfferRideSubtitle =>
+      'Partagez votre moto ou votre voiture et les frais d\'essence.';
+
+  @override
+  String get homeUpcomingTripsTitle => 'Prochains trajets';
+
+  @override
+  String homeTripRoute(String origin, String destination) {
+    return '$origin vers $destination';
+  }
+
+  @override
+  String homeTripWithDriver(String time, String driver) {
+    return '$time - avec $driver';
+  }
+
+  @override
+  String homeTripPending(String time) {
+    return '$time - en attente';
+  }
+
+  @override
+  String get homeNoUpcomingTripsTitle => 'Aucun trajet à venir';
+
+  @override
+  String get homeNoUpcomingTripsMessage =>
+      'Vos prochains trajets confirmés apparaîtront ici.';
+
+  @override
+  String get homeErrorTitle => 'Impossible de charger l\'accueil';
+
+  @override
+  String get tripStatusConfirmed => 'Confirmé';
+
+  @override
+  String get tripStatusPending => 'En attente';
 }

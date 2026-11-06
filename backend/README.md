@@ -133,7 +133,7 @@ Unit and slice tests (`*Test`) run against an in-memory H2 database
 
 `AuthIntegrationTest` and `ProfileVehicleIntegrationTest` run against a real PostgreSQL 16 container
 (`postgres:16-alpine`) through Testcontainers, with the full Flyway migration chain and
-`ddl-auto: validate`, so they need a running Docker daemon. The whole suite is 70 tests.
+`ddl-auto: validate`, so they need a running Docker daemon. The whole suite is 71 tests.
 
 ## Module layout
 

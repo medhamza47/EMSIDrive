@@ -27,6 +27,8 @@ void main() {
     test('both themes expose the semantic color extension', () {
       expect(AppTheme.light().semanticColors.success, AppColors.successLight);
       expect(AppTheme.dark().semanticColors.success, AppColors.successDark);
+      expect(AppTheme.light().semanticColors.rating, AppColors.ratingLight);
+      expect(AppTheme.dark().semanticColors.rating, AppColors.ratingDark);
       expect(AppTheme.light().extension<AppSemanticColors>(), isA<AppSemanticColors>());
     });
 

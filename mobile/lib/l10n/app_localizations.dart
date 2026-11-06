@@ -393,6 +393,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le serveur met trop de temps à répondre. Réessayez.'**
   String get timeoutErrorMessage;
+
+  /// Greeting prefix shown above the student first name on the home screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour'**
+  String get homeGreeting;
+
+  /// Title of the home action leading to the ride search
+  ///
+  /// In fr, this message translates to:
+  /// **'Je cherche un trajet'**
+  String get homeSearchRideTitle;
+
+  /// Subtitle of the home action leading to the ride search
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouvez un étudiant qui part dans votre direction.'**
+  String get homeSearchRideSubtitle;
+
+  /// Title of the home action leading to publishing a ride
+  ///
+  /// In fr, this message translates to:
+  /// **'Je propose un trajet'**
+  String get homeOfferRideTitle;
+
+  /// Subtitle of the home action leading to publishing a ride
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez votre moto ou votre voiture et les frais d\'essence.'**
+  String get homeOfferRideSubtitle;
+
+  /// Title of the upcoming trips section on the home screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochains trajets'**
+  String get homeUpcomingTripsTitle;
+
+  /// Route line of an upcoming trip card
+  ///
+  /// In fr, this message translates to:
+  /// **'{origin} vers {destination}'**
+  String homeTripRoute(String origin, String destination);
+
+  /// Subtitle of an upcoming trip card that names the driver
+  ///
+  /// In fr, this message translates to:
+  /// **'{time} - avec {driver}'**
+  String homeTripWithDriver(String time, String driver);
+
+  /// Subtitle of an upcoming trip card whose booking is not confirmed yet
+  ///
+  /// In fr, this message translates to:
+  /// **'{time} - en attente'**
+  String homeTripPending(String time);
+
+  /// Empty state title when the student has no upcoming trip
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun trajet à venir'**
+  String get homeNoUpcomingTripsTitle;
+
+  /// Empty state message when the student has no upcoming trip
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos prochains trajets confirmés apparaîtront ici.'**
+  String get homeNoUpcomingTripsMessage;
+
+  /// Title of the error state on the home screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger l\'accueil'**
+  String get homeErrorTitle;
+
+  /// Badge label for a confirmed trip
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmé'**
+  String get tripStatusConfirmed;
+
+  /// Badge label for a trip waiting for the driver answer
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get tripStatusPending;
 }
 
 class _AppLocalizationsDelegate
