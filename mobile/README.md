@@ -5,8 +5,8 @@ students. UI text is French; code, comments and tests are English.
 
 ## Requirements
 
-- Flutter 3.47+ / Dart 3.13+
-- Android SDK 23+ (required by `flutter_secure_storage`)
+- Flutter with the Dart version declared in [pubspec.yaml](./pubspec.yaml)
+- Android Studio and the Android SDK components requested by `flutter doctor`
 
 ## Setup
 
@@ -53,9 +53,10 @@ lib/
   shared/widgets/   reusable design-system widgets
 ```
 
-Feature folders follow `lib/features/<feature>/{presentation,application,data}`.
-Only `presentation` exists so far: navigation placeholders are in place, business
-features land in later sprints.
+Feature folders follow `lib/features/<feature>/{presentation,application,data,domain}`
+where applicable. Authentication, ride listings, acceptance notifications, chat
+and live location use the backend. See the [project status](../README.md#état-du-projet)
+for features still using demo data.
 
 ## Theme
 
@@ -73,7 +74,7 @@ extension, reachable through `Theme.of(context).semanticColors`.
 
 Never hardcode French strings in widgets. Add a key to
 `lib/l10n/app_fr.arb`, run `flutter gen-l10n`, then use
-`AppLocalizations.of(context)!.keyName`.
+`AppLocalizations.of(context).keyName`.
 
 ## Marrakech ride map
 

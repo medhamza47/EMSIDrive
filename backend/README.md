@@ -39,6 +39,22 @@ The API is then available on <http://localhost:8080>.
 | `PUT /api/v1/me/vehicles/{id}` | Update one of the caller's vehicles |
 | `DELETE /api/v1/me/vehicles/{id}` | Delete one of the caller's vehicles (204) |
 
+## Ride marketplace
+
+Routes under `/api/v1/marketplace` require a bearer token. Use Swagger to explore
+the routes and their request fields.
+
+| Endpoint relative to `/api/v1/marketplace` | Description |
+| --- | --- |
+| `GET /listings?kind=REQUEST` or `kind=OFFER` | Browse upcoming requests or offers |
+| `POST /listings` | Publish a campus ride with a city point validated against the shared map asset |
+| `GET /listings/{kind}/{id}` | Read an announcement with an approximate city point |
+| `POST /listings/{kind}/{id}/accept` | Reserve a seat or match a request, then notify its author |
+| `GET /trips`, `GET /trips/{id}` | Read accepted rides and their exact endpoints as a participant |
+| `GET /trips/{id}/messages`, `POST /trips/{id}/messages` | Read and send private messages |
+| `PUT /trips/{id}/location`, `DELETE /trips/{id}/location` | Share or clear the latest position as the driver |
+| `GET /notifications`, `PUT /notifications/{id}/read` | List acceptance notifications and mark one as read |
+
 ## Authentication
 
 Every successful call on `/api/v1/auth/*` returns an access token and a refresh token:
