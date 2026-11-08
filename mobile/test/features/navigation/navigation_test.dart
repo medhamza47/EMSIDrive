@@ -1,13 +1,21 @@
 import 'package:emsidrive_mobile/core/router/routes.dart';
+import 'package:emsidrive_mobile/core/constants/storage_keys.dart';
+import 'package:emsidrive_mobile/features/auth/presentation/login_screen.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository_provider.dart';
 import 'package:emsidrive_mobile/features/home/domain/home_overview.dart';
 import 'package:emsidrive_mobile/features/home/presentation/home_screen.dart';
+import 'package:emsidrive_mobile/core/network/dio_client_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../helpers/pump_app.dart';
+import '../../helpers/fake_http_adapter.dart';
 
 const HomeOverview _overview = HomeOverview(displayName: 'Yassine');
 
@@ -21,6 +29,8 @@ List<Override> get _homeOverrides => <Override>[
 ];
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+
   group('AppTab', () {
     test('follows the bottom navigation order', () {
       expect(AppTab.values, <AppTab>[
@@ -46,7 +56,9 @@ void main() {
   });
 
   group('Navigation shell', () {
-    testWidgets('starts on the home tab with four destinations', (tester) async {
+    testWidgets('starts on the home tab with four destinations', (
+      tester,
+    ) async {
       await pumpEmsiDriveApp(
         tester,
         initialLocation: AppRoutes.home,
@@ -76,7 +88,7 @@ void main() {
 
       final navBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(navBar.selectedIndex, AppTab.rides.index);
-      expect(find.text(l10n.placeholderMessage), findsOneWidget);
+      expect(find.text(l10n.requestTitle), findsOneWidget);
     });
 
     testWidgets('switches to the notifications tab', (tester) async {
@@ -116,6 +128,115 @@ void main() {
         AppTab.home.index,
       );
       expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
+    testWidgets('signing out removes both tokens and returns to login', (
+      tester,
+    ) async {
+      FlutterSecureStorage.setMockInitialValues({
+        StorageKeys.accessToken: 'access-token',
+        StorageKeys.refreshToken: 'refresh-token',
+      });
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.profile);
+
+      await tester.tap(find.text(l10nOf().signOutLabel));
+      await tester.pumpAndSettle();
+
+      const storage = FlutterSecureStorage();
+      expect(await storage.read(key: StorageKeys.accessToken), isNull);
+      expect(await storage.read(key: StorageKeys.refreshToken), isNull);
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+    });
+
+    testWidgets('publishes a request with the selected city point', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      FlutterSecureStorage.setMockInitialValues({
+        StorageKeys.accessToken: 'test-token',
+      });
+      final adapter = FakeHttpAdapter((options) async {
+        if (options.method == 'POST') {
+          return jsonResponse({'id': 'test-request'});
+        }
+        return ResponseBody.fromString(
+          '[]',
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      await pumpEmsiDriveApp(
+        tester,
+        initialLocation: AppRoutes.rideRequest,
+        overrides: [
+          dioClientProvider.overrideWithValue(dioWithAdapter(adapter)),
+        ],
+      );
+      final l10n = l10nOf();
+
+      await tester.tap(find.text(l10n.fromCampus));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.chooseMapPoint));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pumpAndSettle();
+
+      final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+      map.options.onTap!(
+        const TapPosition(Offset.zero, Offset.zero),
+        const LatLng(33.57, -7.59),
+      );
+      await tester.pump();
+      expect(find.text(l10n.pointOutsideMarrakech), findsOneWidget);
+
+      map.options.onTap!(
+        const TapPosition(Offset.zero, Offset.zero),
+        const LatLng(31.632, -8.0111),
+      );
+      await tester.pump();
+      await tester.tap(find.text(l10n.confirmMapPoint));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.changeMapPoint), findsOneWidget);
+
+      await tester.ensureVisible(find.text(l10n.publishRequest));
+      await tester.tap(find.text(l10n.publishRequest));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.rideRequests), findsOneWidget);
+      expect(find.text(l10n.rideOffers), findsOneWidget);
+      final request = adapter.requests.singleWhere(
+        (request) => request.method == 'POST',
+      );
+      expect(request.path, '/marketplace/listings');
+      expect(request.data['kind'], 'REQUEST');
+      expect(request.data['toCampus'], isFalse);
+      expect(request.data['point'], {'latitude': 31.632, 'longitude': -8.0111});
+    });
+
+    testWidgets('follows the schedule demo through to a suggestion', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.scheduleImport);
+      final l10n = l10nOf();
+
+      for (final action in [
+        l10n.analyzeSchedule,
+        l10n.searchSharedTrips,
+        l10n.proposeAction,
+      ]) {
+        final control = find.text(action).first;
+        await tester.ensureVisible(control);
+        await tester.tap(control);
+        await tester.pumpAndSettle();
+      }
+      expect(find.text(l10n.compatibilityTitle), findsOneWidget);
+      expect(find.text(l10n.fuelPerTrip), findsOneWidget);
     });
   });
 }

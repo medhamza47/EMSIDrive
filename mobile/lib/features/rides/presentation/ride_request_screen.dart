@@ -1,0 +1,263 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../../../core/router/routes.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/flow_page.dart';
+import '../../../shared/widgets/primary_button.dart';
+import '../data/marketplace_api.dart';
+import '../domain/marketplace_models.dart';
+import '../domain/marrakech_trip.dart';
+import 'marrakech_map_screen.dart';
+
+class RideRequestScreen extends ConsumerStatefulWidget {
+  const RideRequestScreen({this.isOffer = false, super.key});
+
+  final bool isOffer;
+
+  @override
+  ConsumerState<RideRequestScreen> createState() => _RideRequestScreenState();
+}
+
+class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
+  final _notes = TextEditingController();
+  bool _publishing = false;
+  late final _initialDeparture = DateTime.now().add(const Duration(hours: 1));
+  late DateTime _date = DateUtils.dateOnly(_initialDeparture);
+  late TimeOfDay _time = TimeOfDay.fromDateTime(_initialDeparture);
+  int _vehicle = 0;
+  int _seats = 1;
+  EmsiCampus _campus = EmsiCampus.centre;
+  CampusDirection _direction = CampusDirection.toCampus;
+  LatLng? _cityPoint;
+
+  @override
+  void dispose() {
+    _notes.dispose();
+    super.dispose();
+  }
+
+  Future<void> _publish(LatLng cityPoint) async {
+    final l = AppLocalizations.of(context);
+    final departure = DateTime(
+      _date.year,
+      _date.month,
+      _date.day,
+      _time.hour,
+      _time.minute,
+    );
+    if (!departure.isAfter(DateTime.now())) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.departureMustBeFuture)));
+      return;
+    }
+    setState(() => _publishing = true);
+    try {
+      await ref
+          .read(marketplaceApiProvider)
+          .publish(
+            kind: widget.isOffer ? ListingKind.offer : ListingKind.request,
+            trip: MarrakechTrip(
+              campus: _campus,
+              direction: _direction,
+              cityPoint: cityPoint,
+            ),
+            departure: departure,
+            seats: _seats,
+            vehicle: const ['MOTO', 'CAR', 'ANY'][_vehicle],
+            notes: _notes.text.trim(),
+          );
+      if (mounted) {
+        context.go(
+          '${AppRoutes.rides}?tab=${widget.isOffer ? 'offers' : 'requests'}',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.publishRideError)));
+      }
+    } finally {
+      if (mounted) setState(() => _publishing = false);
+    }
+  }
+
+  String _campusName(EmsiCampus campus, AppLocalizations l) => switch (campus) {
+    EmsiCampus.targa => l.campusTarga,
+    EmsiCampus.centre => l.campusCentre,
+  };
+
+  Future<void> _chooseCityPoint() async {
+    final l = AppLocalizations.of(context);
+    final point = await Navigator.of(context, rootNavigator: true).push<LatLng>(
+      MaterialPageRoute(
+        builder: (_) => MarrakechMapScreen(
+          campus: _campus,
+          direction: _direction,
+          campusLabel: _campusName(_campus, l),
+          initialPoint: _cityPoint,
+        ),
+      ),
+    );
+    if (mounted && point != null) setState(() => _cityPoint = point);
+  }
+
+  Future<void> _pickDate() async {
+    final today = DateUtils.dateOnly(DateTime.now());
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+    );
+    if (mounted && date != null) setState(() => _date = date);
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(context: context, initialTime: _time);
+    if (mounted && time != null) setState(() => _time = time);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final vehicles = [l.vehicleMotorcycle, l.vehicleCar, l.vehicleAny];
+    final cityPoint = _cityPoint;
+    final toCampus = _direction == CampusDirection.toCampus;
+    final campusField = DropdownButtonFormField<EmsiCampus>(
+      initialValue: _campus,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: toCampus ? l.tripDestination : l.tripOrigin,
+        prefixIcon: const Icon(Icons.school_outlined),
+        helperText: _campus == EmsiCampus.centre ? l.campusCentreAddress : null,
+      ),
+      items: [
+        for (final campus in EmsiCampus.values)
+          DropdownMenuItem(value: campus, child: Text(_campusName(campus, l))),
+      ],
+      onChanged: (campus) {
+        if (campus != null) setState(() => _campus = campus);
+      },
+    );
+    final cityField = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(toCampus ? l.tripOrigin : l.tripDestination),
+        OutlinedButton.icon(
+          onPressed: _chooseCityPoint,
+          icon: const Icon(Icons.map_outlined),
+          label: Text(cityPoint == null ? l.chooseMapPoint : l.changeMapPoint),
+        ),
+        if (cityPoint != null)
+          Text(
+            l.chosenCoordinates(
+              cityPoint.latitude.toStringAsFixed(5),
+              cityPoint.longitude.toStringAsFixed(5),
+            ),
+          ),
+      ],
+    );
+    return FlowPage(
+      title: widget.isOffer ? l.offerTitle : l.requestTitle,
+      children: [
+        Text(l.campusDirectionHint),
+        SegmentedButton<CampusDirection>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(
+              value: CampusDirection.toCampus,
+              label: Text(l.towardCampus),
+            ),
+            ButtonSegment(
+              value: CampusDirection.fromCampus,
+              label: Text(l.fromCampus),
+            ),
+          ],
+          selected: {_direction},
+          onSelectionChanged: (selection) =>
+              setState(() => _direction = selection.single),
+        ),
+        if (toCampus) ...[
+          cityField,
+          campusField,
+        ] else ...[
+          campusField,
+          cityField,
+        ],
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _pickDate,
+                icon: const Icon(Icons.calendar_today_outlined),
+                label: Text(DateFormat.MMMEd('fr').format(_date)),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _pickTime,
+                icon: const Icon(Icons.schedule),
+                label: Text(_time.format(context)),
+              ),
+            ),
+          ],
+        ),
+        Text(
+          l.vehiclePreference,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final (index, vehicle) in vehicles.indexed)
+              ChoiceChip(
+                label: Text(vehicle),
+                selected: _vehicle == index,
+                onSelected: (_) => setState(() {
+                  _vehicle = index;
+                  if (index == 0) _seats = 1;
+                }),
+              ),
+          ],
+        ),
+        Text(l.seatCount, style: Theme.of(context).textTheme.titleSmall),
+        Row(
+          children: [
+            Expanded(child: Text(l.seatsValue(_seats))),
+            IconButton.outlined(
+              tooltip: l.removeSeat,
+              icon: const Icon(Icons.remove),
+              onPressed: _seats > 1 ? () => setState(() => _seats--) : null,
+            ),
+            IconButton.outlined(
+              tooltip: l.addSeat,
+              icon: const Icon(Icons.add),
+              onPressed: _vehicle != 0 && _seats < 4
+                  ? () => setState(() => _seats++)
+                  : null,
+            ),
+          ],
+        ),
+        TextField(
+          controller: _notes,
+          maxLength: 500,
+          maxLines: 3,
+          decoration: InputDecoration(
+            labelText: l.optionalMessage,
+            hintText: l.demoRideMessage,
+          ),
+        ),
+        PrimaryButton(
+          label: widget.isOffer ? l.publishOffer : l.publishRequest,
+          isLoading: _publishing,
+          onPressed: cityPoint == null ? null : () => _publish(cityPoint),
+        ),
+      ],
+    );
+  }
+}

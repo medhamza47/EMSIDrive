@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/notifications/data/ride_notices_provider.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/matching/presentation/suggestion_screens.dart';
+import '../../features/rides/data/demo_drivers.dart';
+import '../../features/rides/domain/marketplace_models.dart';
+import '../../features/rides/presentation/accepted_ride_screen.dart';
+import '../../features/rides/presentation/marketplace_screens.dart';
+import '../../features/rides/presentation/driver_screens.dart';
+import '../../features/rides/presentation/ride_completion_screens.dart';
+import '../../features/rides/presentation/ride_request_screen.dart';
+import '../../features/rides/presentation/ride_tracking_screen.dart';
 import '../../features/rides/presentation/rides_screen.dart';
+import '../../features/schedule/presentation/schedule_screens.dart';
 import '../../shared/widgets/app_bottom_nav_bar.dart';
 import 'routes.dart';
 
@@ -36,6 +48,11 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
         path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
       ),
+      GoRoute(
+        path: '/trip/:id',
+        builder: (_, state) =>
+            AcceptedRideScreen(id: state.pathParameters['id']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
@@ -52,7 +69,82 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
             routes: <RouteBase>[
               GoRoute(
                 path: AppRoutes.rides,
-                builder: (context, state) => const RidesScreen(),
+                builder: (_, state) => RidesScreen(
+                  key: ValueKey(state.uri.queryParameters['tab']),
+                  initialTab: state.uri.queryParameters['tab'] == 'offers'
+                      ? 1
+                      : 0,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'listings/:kind/:id',
+                    builder: (_, state) => ListingDetailScreen(
+                      kind: state.pathParameters['kind'] == 'offer'
+                          ? ListingKind.offer
+                          : ListingKind.request,
+                      id: state.pathParameters['id']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'request',
+                    builder: (_, _) => const RideRequestScreen(),
+                  ),
+                  GoRoute(
+                    path: 'offer',
+                    builder: (_, _) => const RideRequestScreen(isOffer: true),
+                  ),
+                  GoRoute(
+                    path: 'nearby',
+                    builder: (_, _) => const NearbyDriversScreen(),
+                  ),
+                  GoRoute(
+                    path: 'driver/:id',
+                    builder: (_, state) => DriverDetailScreen(
+                      driver: DemoDriver.find(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'tracking',
+                    builder: (_, _) =>
+                        RideTrackingScreen(driver: DemoDriver.all.first),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => RideTrackingScreen(
+                          driver: DemoDriver.find(state.pathParameters['id']),
+                        ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'fuel',
+                    builder: (_, _) => const FuelSplitScreen(),
+                  ),
+                  GoRoute(
+                    path: 'review',
+                    builder: (_, _) => const RideReviewScreen(),
+                  ),
+                  GoRoute(
+                    path: 'schedule',
+                    builder: (_, _) => const ScheduleImportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'slots',
+                    builder: (_, _) => const ScheduleSlotsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'suggestions',
+                    builder: (_, _) => const SuggestionsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => SuggestionDetailScreen(
+                          driver: DemoDriver.find(state.pathParameters['id']),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -79,18 +171,20 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
 }
 
 /// Shell hosting the four tab branches and the bottom navigation bar.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({required this.navigationShell, super.key});
 
   /// Branch container maintained by the router.
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notices = ref.watch(rideNoticesProvider).value;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: AppBottomNavBar(
         currentTab: AppTab.values[navigationShell.currentIndex],
+        hasUnreadNotifications: notices?.any((notice) => !notice.seen) ?? false,
         onTabSelected: (tab) => navigationShell.goBranch(
           tab.index,
           initialLocation: tab.index == navigationShell.currentIndex,

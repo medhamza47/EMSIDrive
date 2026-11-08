@@ -13,6 +13,22 @@ abstract final class AppRoutes {
   static const String notifications = '/notifications';
   static const String profile = '/profile';
 
+  static const String rideRequest = '$rides/request';
+  static const String rideOffer = '$rides/offer';
+  static const String nearbyDrivers = '$rides/nearby';
+  static const String rideTracking = '$rides/tracking';
+  static const String fuelSplit = '$rides/fuel';
+  static const String rideReview = '$rides/review';
+  static const String scheduleImport = '$rides/schedule';
+  static const String scheduleSlots = '$rides/slots';
+  static const String suggestions = '$rides/suggestions';
+
+  static String driverDetail(String driverId) => '$rides/driver/$driverId';
+  static String trackingFor(String driverId) => '$rideTracking/$driverId';
+  static String suggestionDetail(String driverId) => '$suggestions/$driverId';
+  static String listing(String kind, String id) => '$rides/listings/$kind/$id';
+  static String acceptedRide(String id) => '/trip/$id';
+
   /// Initial location shown when the app starts.
   ///
   /// The app boots on the login screen until session restore is implemented.

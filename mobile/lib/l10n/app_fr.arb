@@ -302,5 +302,310 @@
   "tripStatusPending": "En attente",
   "@tripStatusPending": {
     "description": "Badge label for a trip waiting for the driver answer"
+  },
+  "requestTitle": "Nouvelle demande",
+  "offerTitle": "Proposer un trajet",
+  "vehicleMotorcycle": "Moto",
+  "vehicleCar": "Voiture",
+  "vehicleAny": "Peu importe",
+  "flowRequired": "Renseignez ce champ.",
+  "demoOrigin": "Guéliz, Marrakech",
+  "demoDistrict": "Guéliz",
+  "demoCampus": "EMSI Marrakech",
+  "tripOrigin": "Départ",
+  "tripDestination": "Destination",
+  "vehiclePreference": "Véhicule souhaité",
+  "seatCount": "Nombre de places",
+  "removeSeat": "Retirer une place",
+  "addSeat": "Ajouter une place",
+  "optionalMessage": "Message (facultatif)",
+  "demoRideMessage": "Je peux aussi partir à 08:30.",
+  "publishOffer": "Publier le trajet",
+  "publishRequest": "Publier la demande",
+  "demoOfferSaved": "Trajet proposé dans la démonstration.",
+  "nearbyTitle": "Conducteurs proches",
+  "nearestSort": "Plus proches",
+  "ratingSort": "Mieux notés",
+  "driverTitle": "Conducteur",
+  "averageRating": "Note moyenne",
+  "vehicleLabel": "Véhicule",
+  "offeredTrip": "Trajet proposé",
+  "demoDay": "Lundi 2 nov.",
+  "remainingSeats": "Places restantes",
+  "fuelContribution": "Part des frais d’essence",
+  "sendRequest": "Envoyer une demande",
+  "trackingTitle": "Suivi du trajet",
+  "arrivalDistance": "À 1,2 km de votre point de départ.",
+  "onTheWay": "En route",
+  "messageDriver": "Message",
+  "callDriver": "Appeler",
+  "cancelRideRequest": "Annuler la demande",
+  "demoOnlyAction": "Action indisponible dans la démonstration.",
+  "fuelTitle": "Frais d’essence",
+  "fuelSummary": "Total 40 MAD, partagé entre 4 personnes",
+  "yourShare": "Votre part",
+  "costBreakdown": "Répartition",
+  "totalAmount": "Montant total",
+  "passengers": "Passagers",
+  "sharePerPerson": "Part de chacun",
+  "participants": "Participants",
+  "youLabel": "Vous",
+  "confirmShare": "Confirmer ma part",
+  "reviewTitle": "Évaluer le trajet",
+  "reviewPrompt": "Comment était le trajet avec Salma ?",
+  "demoRoute": "Guéliz vers EMSI Marrakech",
+  "reviewHighlights": "Ce qui vous a plu",
+  "reviewPunctual": "Ponctuelle",
+  "reviewSafe": "Conduite sûre",
+  "reviewFriendly": "Sympathique",
+  "reviewClean": "Véhicule propre",
+  "reviewComment": "Commentaire (facultatif)",
+  "demoReviewComment": "Trajet agréable, arrivée à l’heure avant le cours.",
+  "submitReview": "Envoyer l’évaluation",
+  "demoReviewSaved": "Évaluation envoyée dans la démonstration.",
+  "scheduleTitle": "Mon emploi du temps",
+  "scheduleImportTitle": "Importez votre emploi du temps",
+  "scheduleFormats": "Photo, capture d’écran ou PDF",
+  "chooseFile": "Choisir un fichier",
+  "takePhoto": "Prendre une photo",
+  "removeFile": "Retirer",
+  "demoPhotoName": "emploi_du_temps_2DSI.jpg",
+  "demoPdfName": "emploi_du_temps_2DSI.pdf",
+  "demoFileReady": "Fichier de démonstration · prêt à analyser",
+  "scheduleAssistant": "L’assistant repère vos heures d’arrivée et de départ et cherche les conducteurs aux mêmes horaires. Cet aperçu utilise un emploi du temps de démonstration.",
+  "analyzeSchedule": "Analyser mon emploi du temps",
+  "slotsTitle": "Vérifier mes créneaux",
+  "reviewSlotsHint": "Corrigez si besoin avant de lancer la recherche.",
+  "mondayShort": "Lun",
+  "tuesdayShort": "Mar",
+  "wednesdayShort": "Mer",
+  "thursdayShort": "Jeu",
+  "fridayShort": "Ven",
+  "monday": "Lundi",
+  "tuesday": "Mardi",
+  "wednesday": "Mercredi",
+  "thursday": "Jeudi",
+  "friday": "Vendredi",
+  "demoMondayHours": "08:30 – 12:30",
+  "demoTuesdayHours": "08:30 – 10:30",
+  "demoWednesdayHours": "16:00 – 18:30",
+  "morningTrip": "Trajet du matin",
+  "eveningTrip": "Trajet du soir",
+  "searchSharedTrips": "Chercher des trajets partagés",
+  "aiLabel": "IA",
+  "suggestionsTitle": "Suggestions",
+  "suggestionsIntro": "4 conducteurs ont des horaires proches des vôtres. Triés par compatibilité.",
+  "mondayMorning": "Lun matin",
+  "tuesdayMorning": "Mar matin",
+  "thursdayMorning": "Jeu matin",
+  "wednesdayEvening": "Mer soir",
+  "fridayEvening": "Ven soir",
+  "proposeAction": "Proposer",
+  "compatibilityTitle": "Compatibilité",
+  "yourClasses": "Vos cours",
+  "driverClasses": "Ses cours",
+  "sharedClasses": "En commun",
+  "matchEveningTime": "Retour 18:30",
+  "matchRoundTrip": "Aller 08:15 – retour 12:30",
+  "fuelPerTrip": "Part d’essence par trajet",
+  "proposeCarpool": "Proposer le covoiturage",
+  "ignoreSuggestion": "Ignorer",
+  "demoProposalSaved": "Proposition envoyée dans la démonstration.",
+  "proposalNotification": "Omar K. vous propose de covoiturer",
+  "proposalNotificationBody": "4 créneaux en commun : lundi, mardi et jeudi matin. Compatibilité 85 %.",
+  "acceptedNotification": "Salma B. a accepté votre proposition",
+  "acceptedNotificationBody": "Premier trajet lundi à 08:15, départ Guéliz.",
+  "matchNotification": "Nouveau conducteur compatible",
+  "matchNotificationBody": "Imane R. a un trajet mercredi soir qui correspond à votre emploi du temps.",
+  "reminderNotification": "Rappel de trajet",
+  "reminderNotificationBody": "Demain 08:15 avec Salma B. Pensez à confirmer votre part d’essence.",
+  "acceptProposal": "Accepter",
+  "declineProposal": "Refuser",
+  "proposalAccepted": "Proposition acceptée",
+  "proposalDeclined": "Proposition refusée",
+  "signOutLabel": "Se déconnecter",
+  "signOutError": "La déconnexion a échoué. Réessayez.",
+  "rideRequests": "Demandes",
+  "rideOffers": "Offres",
+  "myAcceptedRides": "Mes trajets",
+  "refreshListings": "Actualiser",
+  "marketplaceLoadError": "Connexion au service indisponible. Réessayez.",
+  "noRideRequests": "Aucune demande à venir.",
+  "noRideOffers": "Aucune offre à venir.",
+  "noAcceptedRides": "Aucun trajet accepté.",
+  "rideRequestDetail": "Demande de trajet",
+  "rideOfferDetail": "Offre de trajet",
+  "approximatePickup": "Le point en ville est approximatif avant l’acceptation.",
+  "acceptRide": "Accepter le trajet",
+  "acceptRideError": "Impossible d’accepter ce trajet. Vérifiez sa disponibilité.",
+  "ownRideListing": "Vous avez publié cette annonce.",
+  "rideUnavailable": "Ce trajet n’est plus disponible.",
+  "acceptedRideTitle": "Trajet accepté",
+  "rideChat": "Chat",
+  "driverLocation": "Position du conducteur",
+  "sendChatError": "Le message n’a pas pu être envoyé.",
+  "liveSharingError": "Le partage de position a rencontré un problème.",
+  "youDrive": "Vous conduisez",
+  "youRide": "Vous êtes passager",
+  "locationSharingHint": "Votre passager voit votre position pendant que cet écran reste ouvert et que le partage est actif.",
+  "startLiveSharing": "Partager ma position",
+  "stopLiveSharing": "Arrêter le partage",
+  "noLiveLocation": "Le conducteur ne partage pas sa position actuellement.",
+  "noChatMessages": "Aucun message pour le moment.",
+  "writeChatMessage": "Écrire un message",
+  "sendChatMessage": "Envoyer le message",
+  "noRideNotices": "Aucune notification de trajet.",
+  "openAcceptedRide": "Ouvrir le trajet et le chat",
+  "departureMustBeFuture": "Choisissez une date et une heure de départ à venir.",
+  "publishRideError": "Impossible de publier le trajet. Réessayez.",
+  "requestAcceptedNotice": "{name} a accepté votre demande",
+  "offerAcceptedNotice": "{name} a accepté votre offre",
+  "@requestAcceptedNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@offerAcceptedNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "campusTarga": "EMSI Marrakech Targa",
+  "campusCentre": "EMSI Marrakech Centre",
+  "campusCentreAddress": "Lot Bouizgaren, route de Safi",
+  "campusDirectionHint": "Choisissez le sens du trajet et un campus EMSI.",
+  "towardCampus": "Vers l’EMSI",
+  "fromCampus": "Depuis l’EMSI",
+  "chooseMapPoint": "Choisir un point sur la carte",
+  "changeMapPoint": "Modifier le point ou voir l’itinéraire",
+  "marrakechMapTitle": "Carte de Marrakech",
+  "mapUnavailable": "La carte de Marrakech est indisponible.",
+  "pickPointHint": "Touchez la carte pour placer le repère à Marrakech.",
+  "pointOutsideMarrakech": "Choisissez un point à l’intérieur de Marrakech.",
+  "locationDisabled": "Activez la localisation ou choisissez un point sur la carte.",
+  "locationDenied": "Autorisez la localisation dans les réglages ou choisissez un point sur la carte.",
+  "locationUnavailable": "Position introuvable. Choisissez un point sur la carte.",
+  "locatingPosition": "Recherche de la position…",
+  "useMyLocation": "Ma position",
+  "previewRoadRoute": "Voir l’itinéraire",
+  "calculatingRoute": "Calcul en cours…",
+  "roadRouteError": "Impossible de calculer l’itinéraire. Vous pouvez réessayer.",
+  "routingPrivacyHint": "Le calcul d’itinéraire envoie les deux points à OSRM.",
+  "roadRouteSource": "Itinéraire routier estimé · OSRM",
+  "confirmMapPoint": "Confirmer ce point",
+  "chosenCoordinates": "Point choisi : {latitude}, {longitude}",
+  "@chosenCoordinates": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "roadRouteSummary": "{distance} km · environ {minutes} min",
+  "@roadRouteSummary": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "seatsValue": "{count, plural, one{1 place} other{{count} places}}",
+  "@seatsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nearbyDriverSummary": "{major} · {distance} km · {time}",
+  "@nearbyDriverSummary": {
+    "placeholders": {
+      "major": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "driverAcademicSummary": "{major} · EMSI Marrakech",
+  "@driverAcademicSummary": {
+    "placeholders": {
+      "major": {
+        "type": "String"
+      }
+    }
+  },
+  "amountMad": "{amount} MAD",
+  "@amountMad": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "arrivalEstimate": "{name} arrive dans 4 min",
+  "@arrivalEstimate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingOutOfFive": "{value} sur 5",
+  "@ratingOutOfFive": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "detectedSlots": "{count, plural, one{1 cours détecté cette semaine} other{{count} cours détectés cette semaine}}",
+  "@detectedSlots": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonSlots": "{count, plural, one{1 créneau en commun} other{{count} créneaux en commun}}",
+  "@commonSlots": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suggestionDriverSummary": "{major} · {distance} km de chez vous",
+  "@suggestionDriverSummary": {
+    "placeholders": {
+      "major": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "matchMorningTime": "Aller {time}",
+  "@matchMorningTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

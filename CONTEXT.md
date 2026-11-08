@@ -47,8 +47,9 @@ La référence visuelle mobile est [EMSIDrive_maquettes_mobile.html](EMSIDrive_m
 ## 2. Structure des dossiers
 
 Monorepo : les trois composants vivent dans le même dépôt et évoluent ensemble.
-L'arborescence ci-dessous est la **cible** du projet ; les entrées marquées *(à venir)*
-seront créées au fil des sprints. Le seul composant déjà implémenté est `backend/`.
+L'arborescence ci-dessous est la **cible** du projet. Le serveur et l'application mobile
+sont en développement. Le [README](./README.md) décrit les fonctionnalités disponibles
+et les écrans qui utilisent encore des données de démonstration.
 
 ```
 EMSIDrive/

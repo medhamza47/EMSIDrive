@@ -6,7 +6,7 @@ import 'package:emsidrive_mobile/features/home/data/home_repository.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository_provider.dart';
 import 'package:emsidrive_mobile/features/home/domain/home_overview.dart';
 import 'package:emsidrive_mobile/features/home/domain/upcoming_trip.dart';
-import 'package:emsidrive_mobile/features/rides/presentation/rides_screen.dart';
+import 'package:emsidrive_mobile/features/rides/presentation/ride_request_screen.dart';
 import 'package:emsidrive_mobile/shared/widgets/avatar.dart';
 import 'package:emsidrive_mobile/shared/widgets/skeleton_loader.dart';
 import 'package:flutter/material.dart';
@@ -150,34 +150,34 @@ void main() {
   });
 
   group('HomeScreen interactions', () {
-    testWidgets('opens the rides tab from the search action', (tester) async {
+    testWidgets('opens the request form in the rides tab', (tester) async {
       await _pumpHome(tester, _StubHomeRepository());
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.homeSearchRideTitle));
       await tester.pumpAndSettle();
 
-      expect(find.byType(RidesScreen), findsOneWidget);
+      expect(find.text(l10n.requestTitle), findsOneWidget);
       expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
         AppTab.rides.index,
       );
     });
 
-    testWidgets('confirms the offer action with a snack bar', (tester) async {
+    testWidgets('opens the ride offer form', (tester) async {
       await _pumpHome(tester, _StubHomeRepository());
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.homeOfferRideTitle));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(
-        find.widgetWithText(SnackBar, l10n.placeholderMessage),
-        findsOneWidget,
+        tester
+            .widget<RideRequestScreen>(find.byType(RideRequestScreen))
+            .isOffer,
+        isTrue,
       );
-
-      // Let the snack bar time out so no timer outlives the test.
-      await tester.pumpAndSettle();
+      expect(find.text(l10n.offerTitle), findsOneWidget);
     });
 
     testWidgets('reloads the overview on pull to refresh', (tester) async {

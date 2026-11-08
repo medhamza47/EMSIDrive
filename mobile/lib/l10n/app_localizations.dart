@@ -477,6 +477,1158 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'En attente'**
   String get tripStatusPending;
+
+  /// No description provided for @requestTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle demande'**
+  String get requestTitle;
+
+  /// No description provided for @offerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer un trajet'**
+  String get offerTitle;
+
+  /// No description provided for @vehicleMotorcycle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moto'**
+  String get vehicleMotorcycle;
+
+  /// No description provided for @vehicleCar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voiture'**
+  String get vehicleCar;
+
+  /// No description provided for @vehicleAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'Peu importe'**
+  String get vehicleAny;
+
+  /// No description provided for @flowRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez ce champ.'**
+  String get flowRequired;
+
+  /// No description provided for @demoOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guéliz, Marrakech'**
+  String get demoOrigin;
+
+  /// No description provided for @demoDistrict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guéliz'**
+  String get demoDistrict;
+
+  /// No description provided for @demoCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'EMSI Marrakech'**
+  String get demoCampus;
+
+  /// No description provided for @tripOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Départ'**
+  String get tripOrigin;
+
+  /// No description provided for @tripDestination.
+  ///
+  /// In fr, this message translates to:
+  /// **'Destination'**
+  String get tripDestination;
+
+  /// No description provided for @vehiclePreference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule souhaité'**
+  String get vehiclePreference;
+
+  /// No description provided for @seatCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de places'**
+  String get seatCount;
+
+  /// No description provided for @removeSeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer une place'**
+  String get removeSeat;
+
+  /// No description provided for @addSeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une place'**
+  String get addSeat;
+
+  /// No description provided for @optionalMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message (facultatif)'**
+  String get optionalMessage;
+
+  /// No description provided for @demoRideMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je peux aussi partir à 08:30.'**
+  String get demoRideMessage;
+
+  /// No description provided for @publishOffer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier le trajet'**
+  String get publishOffer;
+
+  /// No description provided for @publishRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier la demande'**
+  String get publishRequest;
+
+  /// No description provided for @demoOfferSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet proposé dans la démonstration.'**
+  String get demoOfferSaved;
+
+  /// No description provided for @nearbyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conducteurs proches'**
+  String get nearbyTitle;
+
+  /// No description provided for @nearestSort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus proches'**
+  String get nearestSort;
+
+  /// No description provided for @ratingSort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mieux notés'**
+  String get ratingSort;
+
+  /// No description provided for @driverTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conducteur'**
+  String get driverTitle;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note moyenne'**
+  String get averageRating;
+
+  /// No description provided for @vehicleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule'**
+  String get vehicleLabel;
+
+  /// No description provided for @offeredTrip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet proposé'**
+  String get offeredTrip;
+
+  /// No description provided for @demoDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lundi 2 nov.'**
+  String get demoDay;
+
+  /// No description provided for @remainingSeats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Places restantes'**
+  String get remainingSeats;
+
+  /// No description provided for @fuelContribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part des frais d’essence'**
+  String get fuelContribution;
+
+  /// No description provided for @sendRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer une demande'**
+  String get sendRequest;
+
+  /// No description provided for @trackingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi du trajet'**
+  String get trackingTitle;
+
+  /// No description provided for @arrivalDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'À 1,2 km de votre point de départ.'**
+  String get arrivalDistance;
+
+  /// No description provided for @onTheWay.
+  ///
+  /// In fr, this message translates to:
+  /// **'En route'**
+  String get onTheWay;
+
+  /// No description provided for @messageDriver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get messageDriver;
+
+  /// No description provided for @callDriver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appeler'**
+  String get callDriver;
+
+  /// No description provided for @cancelRideRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la demande'**
+  String get cancelRideRequest;
+
+  /// No description provided for @demoOnlyAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action indisponible dans la démonstration.'**
+  String get demoOnlyAction;
+
+  /// No description provided for @fuelTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais d’essence'**
+  String get fuelTitle;
+
+  /// No description provided for @fuelSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total 40 MAD, partagé entre 4 personnes'**
+  String get fuelSummary;
+
+  /// No description provided for @yourShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre part'**
+  String get yourShare;
+
+  /// No description provided for @costBreakdown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répartition'**
+  String get costBreakdown;
+
+  /// No description provided for @totalAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant total'**
+  String get totalAmount;
+
+  /// No description provided for @passengers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passagers'**
+  String get passengers;
+
+  /// No description provided for @sharePerPerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part de chacun'**
+  String get sharePerPerson;
+
+  /// No description provided for @participants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get participants;
+
+  /// No description provided for @youLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous'**
+  String get youLabel;
+
+  /// No description provided for @confirmShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer ma part'**
+  String get confirmShare;
+
+  /// No description provided for @reviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer le trajet'**
+  String get reviewTitle;
+
+  /// No description provided for @reviewPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment était le trajet avec Salma ?'**
+  String get reviewPrompt;
+
+  /// No description provided for @demoRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guéliz vers EMSI Marrakech'**
+  String get demoRoute;
+
+  /// No description provided for @reviewHighlights.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui vous a plu'**
+  String get reviewHighlights;
+
+  /// No description provided for @reviewPunctual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ponctuelle'**
+  String get reviewPunctual;
+
+  /// No description provided for @reviewSafe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conduite sûre'**
+  String get reviewSafe;
+
+  /// No description provided for @reviewFriendly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sympathique'**
+  String get reviewFriendly;
+
+  /// No description provided for @reviewClean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule propre'**
+  String get reviewClean;
+
+  /// No description provided for @reviewComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commentaire (facultatif)'**
+  String get reviewComment;
+
+  /// No description provided for @demoReviewComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet agréable, arrivée à l’heure avant le cours.'**
+  String get demoReviewComment;
+
+  /// No description provided for @submitReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer l’évaluation'**
+  String get submitReview;
+
+  /// No description provided for @demoReviewSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluation envoyée dans la démonstration.'**
+  String get demoReviewSaved;
+
+  /// No description provided for @scheduleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon emploi du temps'**
+  String get scheduleTitle;
+
+  /// No description provided for @scheduleImportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importez votre emploi du temps'**
+  String get scheduleImportTitle;
+
+  /// No description provided for @scheduleFormats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo, capture d’écran ou PDF'**
+  String get scheduleFormats;
+
+  /// No description provided for @chooseFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un fichier'**
+  String get chooseFile;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get takePhoto;
+
+  /// No description provided for @removeFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get removeFile;
+
+  /// No description provided for @demoPhotoName.
+  ///
+  /// In fr, this message translates to:
+  /// **'emploi_du_temps_2DSI.jpg'**
+  String get demoPhotoName;
+
+  /// No description provided for @demoPdfName.
+  ///
+  /// In fr, this message translates to:
+  /// **'emploi_du_temps_2DSI.pdf'**
+  String get demoPdfName;
+
+  /// No description provided for @demoFileReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier de démonstration · prêt à analyser'**
+  String get demoFileReady;
+
+  /// No description provided for @scheduleAssistant.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’assistant repère vos heures d’arrivée et de départ et cherche les conducteurs aux mêmes horaires. Cet aperçu utilise un emploi du temps de démonstration.'**
+  String get scheduleAssistant;
+
+  /// No description provided for @analyzeSchedule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser mon emploi du temps'**
+  String get analyzeSchedule;
+
+  /// No description provided for @slotsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier mes créneaux'**
+  String get slotsTitle;
+
+  /// No description provided for @reviewSlotsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corrigez si besoin avant de lancer la recherche.'**
+  String get reviewSlotsHint;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lun'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mar'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mer'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeu'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ven'**
+  String get fridayShort;
+
+  /// No description provided for @monday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lundi'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mardi'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mercredi'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeudi'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendredi'**
+  String get friday;
+
+  /// No description provided for @demoMondayHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'08:30 – 12:30'**
+  String get demoMondayHours;
+
+  /// No description provided for @demoTuesdayHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'08:30 – 10:30'**
+  String get demoTuesdayHours;
+
+  /// No description provided for @demoWednesdayHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'16:00 – 18:30'**
+  String get demoWednesdayHours;
+
+  /// No description provided for @morningTrip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet du matin'**
+  String get morningTrip;
+
+  /// No description provided for @eveningTrip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet du soir'**
+  String get eveningTrip;
+
+  /// No description provided for @searchSharedTrips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher des trajets partagés'**
+  String get searchSharedTrips;
+
+  /// No description provided for @aiLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA'**
+  String get aiLabel;
+
+  /// No description provided for @suggestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestions'**
+  String get suggestionsTitle;
+
+  /// No description provided for @suggestionsIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'4 conducteurs ont des horaires proches des vôtres. Triés par compatibilité.'**
+  String get suggestionsIntro;
+
+  /// No description provided for @mondayMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lun matin'**
+  String get mondayMorning;
+
+  /// No description provided for @tuesdayMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mar matin'**
+  String get tuesdayMorning;
+
+  /// No description provided for @thursdayMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeu matin'**
+  String get thursdayMorning;
+
+  /// No description provided for @wednesdayEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mer soir'**
+  String get wednesdayEvening;
+
+  /// No description provided for @fridayEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ven soir'**
+  String get fridayEvening;
+
+  /// No description provided for @proposeAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer'**
+  String get proposeAction;
+
+  /// No description provided for @compatibilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compatibilité'**
+  String get compatibilityTitle;
+
+  /// No description provided for @yourClasses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos cours'**
+  String get yourClasses;
+
+  /// No description provided for @driverClasses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ses cours'**
+  String get driverClasses;
+
+  /// No description provided for @sharedClasses.
+  ///
+  /// In fr, this message translates to:
+  /// **'En commun'**
+  String get sharedClasses;
+
+  /// No description provided for @matchEveningTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour 18:30'**
+  String get matchEveningTime;
+
+  /// No description provided for @matchRoundTrip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aller 08:15 – retour 12:30'**
+  String get matchRoundTrip;
+
+  /// No description provided for @fuelPerTrip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part d’essence par trajet'**
+  String get fuelPerTrip;
+
+  /// No description provided for @proposeCarpool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer le covoiturage'**
+  String get proposeCarpool;
+
+  /// No description provided for @ignoreSuggestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ignorer'**
+  String get ignoreSuggestion;
+
+  /// No description provided for @demoProposalSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposition envoyée dans la démonstration.'**
+  String get demoProposalSaved;
+
+  /// No description provided for @proposalNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Omar K. vous propose de covoiturer'**
+  String get proposalNotification;
+
+  /// No description provided for @proposalNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'4 créneaux en commun : lundi, mardi et jeudi matin. Compatibilité 85 %.'**
+  String get proposalNotificationBody;
+
+  /// No description provided for @acceptedNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salma B. a accepté votre proposition'**
+  String get acceptedNotification;
+
+  /// No description provided for @acceptedNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier trajet lundi à 08:15, départ Guéliz.'**
+  String get acceptedNotificationBody;
+
+  /// No description provided for @matchNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau conducteur compatible'**
+  String get matchNotification;
+
+  /// No description provided for @matchNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imane R. a un trajet mercredi soir qui correspond à votre emploi du temps.'**
+  String get matchNotificationBody;
+
+  /// No description provided for @reminderNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel de trajet'**
+  String get reminderNotification;
+
+  /// No description provided for @reminderNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demain 08:15 avec Salma B. Pensez à confirmer votre part d’essence.'**
+  String get reminderNotificationBody;
+
+  /// No description provided for @acceptProposal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get acceptProposal;
+
+  /// No description provided for @declineProposal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get declineProposal;
+
+  /// No description provided for @proposalAccepted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposition acceptée'**
+  String get proposalAccepted;
+
+  /// No description provided for @proposalDeclined.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposition refusée'**
+  String get proposalDeclined;
+
+  /// No description provided for @signOutLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get signOutLabel;
+
+  /// No description provided for @signOutError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La déconnexion a échoué. Réessayez.'**
+  String get signOutError;
+
+  /// No description provided for @rideRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandes'**
+  String get rideRequests;
+
+  /// No description provided for @rideOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offres'**
+  String get rideOffers;
+
+  /// No description provided for @myAcceptedRides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes trajets'**
+  String get myAcceptedRides;
+
+  /// No description provided for @refreshListings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get refreshListings;
+
+  /// No description provided for @marketplaceLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au service indisponible. Réessayez.'**
+  String get marketplaceLoadError;
+
+  /// No description provided for @noRideRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune demande à venir.'**
+  String get noRideRequests;
+
+  /// No description provided for @noRideOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune offre à venir.'**
+  String get noRideOffers;
+
+  /// No description provided for @noAcceptedRides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun trajet accepté.'**
+  String get noAcceptedRides;
+
+  /// No description provided for @rideRequestDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de trajet'**
+  String get rideRequestDetail;
+
+  /// No description provided for @rideOfferDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre de trajet'**
+  String get rideOfferDetail;
+
+  /// No description provided for @approximatePickup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le point en ville est approximatif avant l’acceptation.'**
+  String get approximatePickup;
+
+  /// No description provided for @acceptRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter le trajet'**
+  String get acceptRide;
+
+  /// No description provided for @acceptRideError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’accepter ce trajet. Vérifiez sa disponibilité.'**
+  String get acceptRideError;
+
+  /// No description provided for @ownRideListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez publié cette annonce.'**
+  String get ownRideListing;
+
+  /// No description provided for @rideUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce trajet n’est plus disponible.'**
+  String get rideUnavailable;
+
+  /// No description provided for @acceptedRideTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet accepté'**
+  String get acceptedRideTitle;
+
+  /// No description provided for @rideChat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chat'**
+  String get rideChat;
+
+  /// No description provided for @driverLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position du conducteur'**
+  String get driverLocation;
+
+  /// No description provided for @sendChatError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le message n’a pas pu être envoyé.'**
+  String get sendChatError;
+
+  /// No description provided for @liveSharingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage de position a rencontré un problème.'**
+  String get liveSharingError;
+
+  /// No description provided for @youDrive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous conduisez'**
+  String get youDrive;
+
+  /// No description provided for @youRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes passager'**
+  String get youRide;
+
+  /// No description provided for @locationSharingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre passager voit votre position pendant que cet écran reste ouvert et que le partage est actif.'**
+  String get locationSharingHint;
+
+  /// No description provided for @startLiveSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager ma position'**
+  String get startLiveSharing;
+
+  /// No description provided for @stopLiveSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter le partage'**
+  String get stopLiveSharing;
+
+  /// No description provided for @noLiveLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur ne partage pas sa position actuellement.'**
+  String get noLiveLocation;
+
+  /// No description provided for @noChatMessages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun message pour le moment.'**
+  String get noChatMessages;
+
+  /// No description provided for @writeChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrire un message'**
+  String get writeChatMessage;
+
+  /// No description provided for @sendChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le message'**
+  String get sendChatMessage;
+
+  /// No description provided for @noRideNotices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune notification de trajet.'**
+  String get noRideNotices;
+
+  /// No description provided for @openAcceptedRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le trajet et le chat'**
+  String get openAcceptedRide;
+
+  /// No description provided for @departureMustBeFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une date et une heure de départ à venir.'**
+  String get departureMustBeFuture;
+
+  /// No description provided for @publishRideError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de publier le trajet. Réessayez.'**
+  String get publishRideError;
+
+  /// No description provided for @requestAcceptedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a accepté votre demande'**
+  String requestAcceptedNotice(String name);
+
+  /// No description provided for @offerAcceptedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a accepté votre offre'**
+  String offerAcceptedNotice(String name);
+
+  /// No description provided for @campusTarga.
+  ///
+  /// In fr, this message translates to:
+  /// **'EMSI Marrakech Targa'**
+  String get campusTarga;
+
+  /// No description provided for @campusCentre.
+  ///
+  /// In fr, this message translates to:
+  /// **'EMSI Marrakech Centre'**
+  String get campusCentre;
+
+  /// No description provided for @campusCentreAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lot Bouizgaren, route de Safi'**
+  String get campusCentreAddress;
+
+  /// No description provided for @campusDirectionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le sens du trajet et un campus EMSI.'**
+  String get campusDirectionHint;
+
+  /// No description provided for @towardCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vers l’EMSI'**
+  String get towardCampus;
+
+  /// No description provided for @fromCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis l’EMSI'**
+  String get fromCampus;
+
+  /// No description provided for @chooseMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un point sur la carte'**
+  String get chooseMapPoint;
+
+  /// No description provided for @changeMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le point ou voir l’itinéraire'**
+  String get changeMapPoint;
+
+  /// No description provided for @marrakechMapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte de Marrakech'**
+  String get marrakechMapTitle;
+
+  /// No description provided for @mapUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La carte de Marrakech est indisponible.'**
+  String get mapUnavailable;
+
+  /// No description provided for @pickPointHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez la carte pour placer le repère à Marrakech.'**
+  String get pickPointHint;
+
+  /// No description provided for @pointOutsideMarrakech.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un point à l’intérieur de Marrakech.'**
+  String get pointOutsideMarrakech;
+
+  /// No description provided for @locationDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activez la localisation ou choisissez un point sur la carte.'**
+  String get locationDisabled;
+
+  /// No description provided for @locationDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez la localisation dans les réglages ou choisissez un point sur la carte.'**
+  String get locationDenied;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position introuvable. Choisissez un point sur la carte.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locatingPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de la position…'**
+  String get locatingPosition;
+
+  /// No description provided for @useMyLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma position'**
+  String get useMyLocation;
+
+  /// No description provided for @previewRoadRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l’itinéraire'**
+  String get previewRoadRoute;
+
+  /// No description provided for @calculatingRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcul en cours…'**
+  String get calculatingRoute;
+
+  /// No description provided for @roadRouteError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de calculer l’itinéraire. Vous pouvez réessayer.'**
+  String get roadRouteError;
+
+  /// No description provided for @routingPrivacyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul d’itinéraire envoie les deux points à OSRM.'**
+  String get routingPrivacyHint;
+
+  /// No description provided for @roadRouteSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire routier estimé · OSRM'**
+  String get roadRouteSource;
+
+  /// No description provided for @confirmMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer ce point'**
+  String get confirmMapPoint;
+
+  /// No description provided for @chosenCoordinates.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point choisi : {latitude}, {longitude}'**
+  String chosenCoordinates(String latitude, String longitude);
+
+  /// No description provided for @roadRouteSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{distance} km · environ {minutes} min'**
+  String roadRouteSummary(String distance, int minutes);
+
+  /// No description provided for @seatsValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{1 place} other{{count} places}}'**
+  String seatsValue(int count);
+
+  /// No description provided for @nearbyDriverSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{major} · {distance} km · {time}'**
+  String nearbyDriverSummary(String major, String distance, String time);
+
+  /// No description provided for @driverAcademicSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{major} · EMSI Marrakech'**
+  String driverAcademicSummary(String major);
+
+  /// No description provided for @amountMad.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount} MAD'**
+  String amountMad(int amount);
+
+  /// No description provided for @arrivalEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} arrive dans 4 min'**
+  String arrivalEstimate(String name);
+
+  /// No description provided for @ratingOutOfFive.
+  ///
+  /// In fr, this message translates to:
+  /// **'{value} sur 5'**
+  String ratingOutOfFive(int value);
+
+  /// No description provided for @detectedSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{1 cours détecté cette semaine} other{{count} cours détectés cette semaine}}'**
+  String detectedSlots(int count);
+
+  /// No description provided for @commonSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{1 créneau en commun} other{{count} créneaux en commun}}'**
+  String commonSlots(int count);
+
+  /// No description provided for @suggestionDriverSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{major} · {distance} km de chez vous'**
+  String suggestionDriverSummary(String major, String distance);
+
+  /// No description provided for @matchMorningTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aller {time}'**
+  String matchMorningTime(String time);
 }
 
 class _AppLocalizationsDelegate
