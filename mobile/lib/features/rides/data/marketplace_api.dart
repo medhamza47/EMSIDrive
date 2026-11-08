@@ -2,83 +2,27 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../core/network/dio_client_provider.dart';
+import '../../../core/network/authenticated_api.dart';
 import '../../auth/data/token_storage.dart';
-import '../../auth/data/token_storage_provider.dart';
+
 import '../domain/marketplace_models.dart';
 import '../domain/marrakech_trip.dart';
 
-final marketplaceApiProvider = Provider<MarketplaceApi>((ref) {
-  return MarketplaceApi(
-    ref.watch(dioClientProvider),
-    ref.watch(tokenStorageProvider),
-  );
-});
+final marketplaceApiProvider = Provider<MarketplaceApi>(
+  (ref) => MarketplaceApi.authenticated(ref.watch(authenticatedApiProvider)),
+);
 
 class MarketplaceApi {
-  MarketplaceApi(this._dio, this._tokens);
-
-  final Dio _dio;
-  final TokenStorage _tokens;
-  Future<String?>? _refreshing;
-
-  Future<String?> _refresh(int session) async {
-    final refreshToken = await _tokens.readRefreshToken();
-    if (refreshToken == null || _tokens.session != session) return null;
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/auth/refresh',
-      data: {'refreshToken': refreshToken},
-    );
-    final access = response.data!['accessToken'] as String;
-    final refresh = response.data!['refreshToken'] as String;
-    final saved = await _tokens.rotate(
-      session,
-      accessToken: access,
-      refreshToken: refresh,
-    );
-    return saved ? access : null;
-  }
-
+  MarketplaceApi(Dio dio, TokenStorage tokens)
+    : _api = AuthenticatedApi(dio, tokens);
+  MarketplaceApi.authenticated(this._api);
+  final AuthenticatedApi _api;
   Future<T?> _request<T>(
     String method,
     String path, {
     Object? data,
     Map<String, dynamic>? query,
-  }) async {
-    final session = _tokens.session;
-    final token = await _tokens.readAccessToken();
-    if (token == null || _tokens.session != session) {
-      throw StateError('Sign-in required');
-    }
-    Future<T?> send(String token) async => (await _dio.request<T>(
-      '/marketplace$path',
-      data: data,
-      queryParameters: query,
-      options: Options(
-        method: method,
-        headers: {'Authorization': 'Bearer $token'},
-      ),
-    )).data;
-
-    try {
-      return await send(token);
-    } on DioException catch (error) {
-      if (error.response?.statusCode != 401 || _tokens.session != session) {
-        rethrow;
-      }
-      var replacement = await _tokens.readAccessToken();
-      if (replacement == token) {
-        final operation = _refreshing ??= _refresh(session);
-        try {
-          replacement = await operation;
-        } finally {
-          if (identical(_refreshing, operation)) _refreshing = null;
-        }
-      }
-      if (replacement == null || _tokens.session != session) rethrow;
-      return send(replacement);
-    }
-  }
+  }) => _api.request<T>(method, '/marketplace$path', data: data, query: query);
 
   Future<List<Map<String, dynamic>>> _list(
     String path, {

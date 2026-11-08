@@ -11,5 +11,7 @@ part 'token_storage_provider.g.dart';
 /// [FlutterSecureStorage] so no keystore access happens.
 @Riverpod(keepAlive: true)
 TokenStorage tokenStorage(Ref ref) {
-  return TokenStorage(ref.watch(secureStorageProvider));
+  final storage = TokenStorage(ref.watch(secureStorageProvider));
+  ref.onDispose(storage.dispose);
+  return storage;
 }
