@@ -1222,12 +1222,6 @@ abstract class AppLocalizations {
   /// **'EMSI Marrakech Centre'**
   String get campusCentre;
 
-  /// No description provided for @campusTargaProvisionalAddress.
-  ///
-  /// In fr, this message translates to:
-  /// **'Repère provisoire à Guéliz · adresse Targa à confirmer'**
-  String get campusTargaProvisionalAddress;
-
   /// No description provided for @campusCentreAddress.
   ///
   /// In fr, this message translates to:

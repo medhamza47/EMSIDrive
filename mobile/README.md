@@ -81,8 +81,8 @@ The mobile form requires one EMSI campus and one point inside Marrakech or
 Méchouar-Kasba. The boundaries in `assets/maps/marrakech.geojson` come from
 [Communes du Maroc](https://communes.pages.dev/fr/docs/api/) and use
 [OpenStreetMap data under ODbL](https://www.openstreetmap.org/copyright).
-Campus pins are based on the [EMSI contact page](https://emsi.ma/contact/).
-The Targa label uses the published Guéliz pin provisionally.
+Campus pins use [EMSI Targa on Google Maps](https://maps.app.goo.gl/jgAi8kQLwTMc9v827)
+and the [EMSI Centre address on the contact page](https://emsi.ma/contact/).
 
 The development build uses OpenStreetMap tiles and the public OSRM demo.
 `MAP_TILE_URL` and `ROUTING_BASE_URL` can be set with `--dart-define` to

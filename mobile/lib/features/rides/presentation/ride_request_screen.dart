@@ -76,9 +76,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
       decoration: InputDecoration(
         labelText: toCampus ? l.tripDestination : l.tripOrigin,
         prefixIcon: const Icon(Icons.school_outlined),
-        helperText: _campus == EmsiCampus.targa
-            ? l.campusTargaProvisionalAddress
-            : l.campusCentreAddress,
+        helperText: _campus == EmsiCampus.centre ? l.campusCentreAddress : null,
       ),
       items: [
         for (final campus in EmsiCampus.values)

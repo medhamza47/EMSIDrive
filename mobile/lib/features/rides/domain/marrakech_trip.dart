@@ -1,8 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
 enum EmsiCampus {
-  // Temporary mapping: EMSI lists this address as Guéliz on its contact page.
-  targa(LatLng(31.6313697, -8.012484)),
+  targa(LatLng(31.6529961, -8.0603932)),
   centre(LatLng(31.6535903, -8.0214513));
 
   const EmsiCampus(this.point);

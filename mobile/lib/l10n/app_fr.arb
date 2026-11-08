@@ -427,7 +427,6 @@
   "signOutError": "La déconnexion a échoué. Réessayez.",
   "campusTarga": "EMSI Marrakech Targa",
   "campusCentre": "EMSI Marrakech Centre",
-  "campusTargaProvisionalAddress": "Repère provisoire à Guéliz · adresse Targa à confirmer",
   "campusCentreAddress": "Lot Bouizgaren, route de Safi",
   "campusDirectionHint": "Choisissez le sens du trajet et un campus EMSI.",
   "towardCampus": "Vers l’EMSI",

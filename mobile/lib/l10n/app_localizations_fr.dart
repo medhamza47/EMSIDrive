@@ -611,10 +611,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get campusCentre => 'EMSI Marrakech Centre';
 
   @override
-  String get campusTargaProvisionalAddress =>
-      'Repère provisoire à Guéliz · adresse Targa à confirmer';
-
-  @override
   String get campusCentreAddress => 'Lot Bouizgaren, route de Safi';
 
   @override
