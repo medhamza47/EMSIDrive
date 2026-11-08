@@ -1,10 +1,13 @@
 import 'package:emsidrive_mobile/core/router/routes.dart';
+import 'package:emsidrive_mobile/core/constants/storage_keys.dart';
+import 'package:emsidrive_mobile/features/auth/presentation/login_screen.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository_provider.dart';
 import 'package:emsidrive_mobile/features/home/domain/home_overview.dart';
 import 'package:emsidrive_mobile/features/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/pump_app.dart';
@@ -46,7 +49,9 @@ void main() {
   });
 
   group('Navigation shell', () {
-    testWidgets('starts on the home tab with four destinations', (tester) async {
+    testWidgets('starts on the home tab with four destinations', (
+      tester,
+    ) async {
       await pumpEmsiDriveApp(
         tester,
         initialLocation: AppRoutes.home,
@@ -76,7 +81,7 @@ void main() {
 
       final navBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(navBar.selectedIndex, AppTab.rides.index);
-      expect(find.text(l10n.placeholderMessage), findsOneWidget);
+      expect(find.text(l10n.requestTitle), findsOneWidget);
     });
 
     testWidgets('switches to the notifications tab', (tester) async {
@@ -116,6 +121,68 @@ void main() {
         AppTab.home.index,
       );
       expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
+    testWidgets('signing out removes both tokens and returns to login', (
+      tester,
+    ) async {
+      FlutterSecureStorage.setMockInitialValues({
+        StorageKeys.accessToken: 'access-token',
+        StorageKeys.refreshToken: 'refresh-token',
+      });
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.profile);
+
+      await tester.tap(find.text(l10nOf().signOutLabel));
+      await tester.pumpAndSettle();
+
+      const storage = FlutterSecureStorage();
+      expect(await storage.read(key: StorageKeys.accessToken), isNull);
+      expect(await storage.read(key: StorageKeys.refreshToken), isNull);
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+    });
+
+    testWidgets('opens a driver from the ride request form', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.rideRequest);
+      final l10n = l10nOf();
+
+      await tester.ensureVisible(find.text(l10n.publishRequest));
+      await tester.tap(find.text(l10n.publishRequest));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.nearbyTitle), findsOneWidget);
+
+      await tester.tap(find.text('Omar K.'));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.driverTitle), findsOneWidget);
+
+      await tester.ensureVisible(find.text(l10n.sendRequest));
+      await tester.tap(find.text(l10n.sendRequest));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.arrivalEstimate('Omar')), findsOneWidget);
+    });
+
+    testWidgets('follows the schedule demo through to a suggestion', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.scheduleImport);
+      final l10n = l10nOf();
+
+      for (final action in [
+        l10n.analyzeSchedule,
+        l10n.searchSharedTrips,
+        l10n.proposeAction,
+      ]) {
+        final control = find.text(action).first;
+        await tester.ensureVisible(control);
+        await tester.tap(control);
+        await tester.pumpAndSettle();
+      }
+      expect(find.text(l10n.compatibilityTitle), findsOneWidget);
+      expect(find.text(l10n.fuelPerTrip), findsOneWidget);
     });
   });
 }

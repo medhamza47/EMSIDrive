@@ -64,14 +64,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   void _openSearch() {
-    context.go(AppRoutes.rides);
+    context.go(AppRoutes.rideRequest);
   }
 
   void _openOffer() {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l10n.placeholderMessage)));
+    context.go(AppRoutes.rideOffer);
   }
 
   @override
@@ -223,7 +220,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         children.add(const SizedBox(height: _blockGap));
       }
       children.add(
-        _EntryTransition(animation: _entryAnimation(index), child: blocks[index]),
+        _EntryTransition(
+          animation: _entryAnimation(index),
+          child: blocks[index],
+        ),
       );
     }
     return children;
@@ -293,10 +293,7 @@ class _HomeActionCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 22,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

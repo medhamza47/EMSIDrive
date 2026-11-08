@@ -7,7 +7,14 @@ import '../../features/auth/presentation/register_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/matching/presentation/suggestion_screens.dart';
+import '../../features/rides/data/demo_drivers.dart';
+import '../../features/rides/presentation/driver_screens.dart';
+import '../../features/rides/presentation/ride_completion_screens.dart';
+import '../../features/rides/presentation/ride_request_screen.dart';
+import '../../features/rides/presentation/ride_tracking_screen.dart';
 import '../../features/rides/presentation/rides_screen.dart';
+import '../../features/schedule/presentation/schedule_screens.dart';
 import '../../shared/widgets/app_bottom_nav_bar.dart';
 import 'routes.dart';
 
@@ -53,6 +60,67 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
               GoRoute(
                 path: AppRoutes.rides,
                 builder: (context, state) => const RidesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'request',
+                    builder: (_, _) => const RideRequestScreen(),
+                  ),
+                  GoRoute(
+                    path: 'offer',
+                    builder: (_, _) => const RideRequestScreen(isOffer: true),
+                  ),
+                  GoRoute(
+                    path: 'nearby',
+                    builder: (_, _) => const NearbyDriversScreen(),
+                  ),
+                  GoRoute(
+                    path: 'driver/:id',
+                    builder: (_, state) => DriverDetailScreen(
+                      driver: DemoDriver.find(state.pathParameters['id']),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'tracking',
+                    builder: (_, _) =>
+                        RideTrackingScreen(driver: DemoDriver.all.first),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => RideTrackingScreen(
+                          driver: DemoDriver.find(state.pathParameters['id']),
+                        ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'fuel',
+                    builder: (_, _) => const FuelSplitScreen(),
+                  ),
+                  GoRoute(
+                    path: 'review',
+                    builder: (_, _) => const RideReviewScreen(),
+                  ),
+                  GoRoute(
+                    path: 'schedule',
+                    builder: (_, _) => const ScheduleImportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'slots',
+                    builder: (_, _) => const ScheduleSlotsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'suggestions',
+                    builder: (_, _) => const SuggestionsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) => SuggestionDetailScreen(
+                          driver: DemoDriver.find(state.pathParameters['id']),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
