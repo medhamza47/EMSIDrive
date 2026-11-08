@@ -32,13 +32,13 @@ back-office restent à réaliser.
 Prévoir un JDK 17 ou supérieur, Maven 3.9+, Docker, Flutter avec une version de Dart
 compatible avec [pubspec.yaml](./mobile/pubspec.yaml), et un émulateur Android.
 
-Le parcours décrit ici se trouve sur [`codex/mobile-mockups`](https://github.com/medhamza47/EMSIDrive/tree/codex/mobile-mockups).
-Tant que cette branche est en cours d’intégration, partir de celle-ci pour tester les
-fonctionnalités décrites ci-dessus.
+Le parcours décrit ici est disponible sur la branche par défaut
+[`develop`](https://github.com/medhamza47/EMSIDrive/tree/develop).
 
 ```bash
 git fetch origin
-git switch codex/mobile-mockups
+git switch develop
+git pull --ff-only origin develop
 ```
 
 Depuis `backend/`, démarrer PostgreSQL 16 et l’API. Flyway applique les migrations au
@@ -89,8 +89,8 @@ développement. Leur configuration est décrite dans le [guide mobile](./mobile/
 | [`mobile/lib/features/notifications/`](./mobile/lib/features/notifications) | Notifications d’acceptation et indicateur de non-lu. |
 | [`mobile/assets/maps/marrakech.geojson`](./mobile/assets/maps/marrakech.geojson) | Périmètre utilisé pour valider les points dans l’app et dans l’API. |
 
-Créer une branche de travail, faire des commits ciblés et ouvrir une pull request vers la
-branche d’intégration convenue avec l’équipe. Suivre les conventions de
+Créer une branche de travail depuis `develop`, faire des commits ciblés et ouvrir une
+pull request vers `develop`. Suivre les conventions de
 [`CONTEXT.md`](./CONTEXT.md). Le code, les commentaires et les commits sont en anglais.
 Les textes d’interface sont en français et passent par les fichiers de localisation Flutter.
 
