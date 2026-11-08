@@ -53,7 +53,9 @@ class AuthRepository {
   /// Reads the stored access token, used to restore a session at startup.
   Future<String?> readAccessToken() => _tokenStorage.readAccessToken();
 
-  Future<AuthSession> _authenticate(Future<AuthResponseDto> Function() request) async {
+  Future<AuthSession> _authenticate(
+    Future<AuthResponseDto> Function() request,
+  ) async {
     try {
       final domain = (await request()).toDomain();
       await _tokenStorage.saveTokens(

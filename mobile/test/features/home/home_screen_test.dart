@@ -12,6 +12,7 @@ import 'package:emsidrive_mobile/shared/widgets/skeleton_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -36,6 +37,7 @@ const HomeOverview _overview = HomeOverview(
 );
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   group('HomeScreen content', () {
     testWidgets('greets the student and shows both actions', (tester) async {
       await _pumpHome(tester, _StubHomeRepository());
@@ -150,14 +152,14 @@ void main() {
   });
 
   group('HomeScreen interactions', () {
-    testWidgets('opens the request form in the rides tab', (tester) async {
+    testWidgets('opens available offers in the rides tab', (tester) async {
       await _pumpHome(tester, _StubHomeRepository());
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.homeSearchRideTitle));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.requestTitle), findsOneWidget);
+      expect(find.text(l10n.rideOffers), findsOneWidget);
       expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
         AppTab.rides.index,

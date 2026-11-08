@@ -21,16 +21,16 @@ abstract final class AppColors {
   static const Color tertiaryLight = Color(0xFF4A6352);
   static const Color tertiaryContainerLight = Color(0xFFCCE9D6);
   static const Color onTertiaryContainerLight = Color(0xFF06210F);
-  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color surfaceLight = Color(0xFFF5F7F8);
   static const Color onSurfaceLight = Color(0xFF1A1C1A);
   static const Color surfaceContainerLowestLight = Color(0xFFFFFFFF);
-  static const Color surfaceContainerLowLight = Color(0xFFF6F8F5);
+  static const Color surfaceContainerLowLight = Color(0xFFFFFFFF);
   static const Color surfaceContainerLight = Color(0xFFF0F3EF);
   static const Color surfaceContainerHighLight = Color(0xFFEAEDE9);
   static const Color surfaceContainerHighestLight = Color(0xFFE4E7E3);
   static const Color onSurfaceVariantLight = Color(0xFF414942);
   static const Color outlineLight = Color(0xFF717971);
-  static const Color outlineVariantLight = Color(0xFFC1C9C0);
+  static const Color outlineVariantLight = Color(0xFFDEE5E1);
 
   // Dark theme.
   static const Color primaryDark = Color(0xFF7FD8A4);

@@ -35,6 +35,7 @@ class NotificationsScreen extends ConsumerWidget {
     final notices = ref.watch(rideNoticesProvider);
     return FlowPage(
       title: l.navNotifications,
+      showNotifications: false,
       children: [
         if (notices.isLoading && !notices.hasValue)
           const LinearProgressIndicator()

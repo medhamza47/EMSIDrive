@@ -12,6 +12,8 @@ abstract final class AppRoutes {
   static const String rides = '/rides';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
+  static const String profileEdit = '$profile/edit';
+  static const String planning = '/planning';
 
   static const String rideRequest = '$rides/request';
   static const String rideOffer = '$rides/offer';
@@ -19,9 +21,9 @@ abstract final class AppRoutes {
   static const String rideTracking = '$rides/tracking';
   static const String fuelSplit = '$rides/fuel';
   static const String rideReview = '$rides/review';
-  static const String scheduleImport = '$rides/schedule';
-  static const String scheduleSlots = '$rides/slots';
-  static const String suggestions = '$rides/suggestions';
+  static const String scheduleImport = '$planning/import';
+  static const String scheduleSlots = '$planning/review';
+  static const String suggestions = '$planning/suggestions';
 
   static String driverDetail(String driverId) => '$rides/driver/$driverId';
   static String trackingFor(String driverId) => '$rideTracking/$driverId';
@@ -39,7 +41,7 @@ abstract final class AppRoutes {
 enum AppTab {
   home(path: AppRoutes.home),
   rides(path: AppRoutes.rides),
-  notifications(path: AppRoutes.notifications),
+  planning(path: AppRoutes.planning),
   profile(path: AppRoutes.profile);
 
   const AppTab({required this.path});

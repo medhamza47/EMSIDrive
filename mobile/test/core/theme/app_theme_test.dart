@@ -29,14 +29,17 @@ void main() {
       expect(AppTheme.dark().semanticColors.success, AppColors.successDark);
       expect(AppTheme.light().semanticColors.rating, AppColors.ratingLight);
       expect(AppTheme.dark().semanticColors.rating, AppColors.ratingDark);
-      expect(AppTheme.light().extension<AppSemanticColors>(), isA<AppSemanticColors>());
+      expect(
+        AppTheme.light().extension<AppSemanticColors>(),
+        isA<AppSemanticColors>(),
+      );
     });
 
-    test('app bar is filled with the primary color', () {
+    test('app bar uses a quiet surface with readable text', () {
       final theme = AppTheme.light();
 
-      expect(theme.appBarTheme.backgroundColor, AppColors.primary);
-      expect(theme.appBarTheme.foregroundColor, Colors.white);
+      expect(theme.appBarTheme.backgroundColor, theme.colorScheme.surface);
+      expect(theme.appBarTheme.foregroundColor, theme.colorScheme.onSurface);
       expect(theme.appBarTheme.elevation, 0);
     });
 
@@ -44,7 +47,10 @@ void main() {
       final lerped = AppSemanticColors.light.lerp(AppSemanticColors.dark, 0.5);
 
       expect(lerped.success, isNot(AppSemanticColors.light.success));
-      expect(AppSemanticColors.light.copyWith(warning: Colors.pink).warning, Colors.pink);
+      expect(
+        AppSemanticColors.light.copyWith(warning: Colors.pink).warning,
+        Colors.pink,
+      );
     });
   });
 }

@@ -5,6 +5,7 @@ import 'package:emsidrive_mobile/features/home/data/home_repository.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository_provider.dart';
 import 'package:emsidrive_mobile/features/home/domain/home_overview.dart';
 import 'package:emsidrive_mobile/features/home/presentation/home_screen.dart';
+import 'package:emsidrive_mobile/features/notifications/presentation/notifications_screen.dart';
 import 'package:emsidrive_mobile/core/network/dio_client_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ void main() {
       expect(AppTab.values, <AppTab>[
         AppTab.home,
         AppTab.rides,
-        AppTab.notifications,
+        AppTab.planning,
         AppTab.profile,
       ]);
     });
@@ -71,7 +72,7 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.text(l10n.homeGreeting), findsOneWidget);
       expect(find.text(l10n.navRides), findsOneWidget);
-      expect(find.text(l10n.navNotifications), findsOneWidget);
+      expect(find.text(l10n.navPlanning), findsOneWidget);
       expect(find.text(l10n.navProfile), findsOneWidget);
     });
 
@@ -88,10 +89,10 @@ void main() {
 
       final navBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(navBar.selectedIndex, AppTab.rides.index);
-      expect(find.text(l10n.requestTitle), findsOneWidget);
+      expect(find.text(l10n.offerTitle), findsOneWidget);
     });
 
-    testWidgets('switches to the notifications tab', (tester) async {
+    testWidgets('switches to the planning tab', (tester) async {
       await pumpEmsiDriveApp(
         tester,
         initialLocation: AppRoutes.home,
@@ -99,12 +100,35 @@ void main() {
       );
       final l10n = l10nOf();
 
-      await tester.tap(find.text(l10n.navNotifications));
+      await tester.tap(find.text(l10n.navPlanning));
       await tester.pumpAndSettle();
 
       final navBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-      expect(navBar.selectedIndex, AppTab.notifications.index);
+      expect(navBar.selectedIndex, AppTab.planning.index);
     });
+
+    testWidgets(
+      'opens notifications from the bell and returns to the current tab',
+      (tester) async {
+        await pumpEmsiDriveApp(
+          tester,
+          initialLocation: AppRoutes.home,
+          overrides: _homeOverrides,
+        );
+        await tester.tap(find.byTooltip(l10nOf().navNotifications));
+        await tester.pumpAndSettle();
+        expect(find.byType(NotificationsScreen), findsOneWidget);
+      await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(HomeScreen), findsOneWidget);
+        expect(
+          tester
+              .widget<NavigationBar>(find.byType(NavigationBar))
+              .selectedIndex,
+          AppTab.home.index,
+        );
+      },
+    );
 
     testWidgets('switches to the profile tab and back to home', (tester) async {
       await pumpEmsiDriveApp(
@@ -217,7 +241,7 @@ void main() {
       expect(request.data['point'], {'latitude': 31.632, 'longitude': -8.0111});
     });
 
-    testWidgets('follows the schedule demo through to a suggestion', (
+    testWidgets('does not offer a fake timetable or analyze without a file', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(400, 900));
@@ -225,18 +249,19 @@ void main() {
       await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.scheduleImport);
       final l10n = l10nOf();
 
-      for (final action in [
-        l10n.analyzeSchedule,
-        l10n.searchSharedTrips,
-        l10n.proposeAction,
-      ]) {
-        final control = find.text(action).first;
-        await tester.ensureVisible(control);
-        await tester.tap(control);
-        await tester.pumpAndSettle();
-      }
-      expect(find.text(l10n.compatibilityTitle), findsOneWidget);
-      expect(find.text(l10n.fuelPerTrip), findsOneWidget);
+      expect(find.text(l10n.searchSharedTrips), findsNothing);
+      expect(find.text(l10n.timetableSignIn), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.ancestor(
+                of: find.text(l10n.analyzeSchedule),
+                matching: find.byType(FilledButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
     });
   });
 }

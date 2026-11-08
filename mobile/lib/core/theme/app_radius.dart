@@ -18,6 +18,8 @@ abstract final class AppRadius {
   static const double pill = 999;
 
   static const BorderRadius badge = BorderRadius.all(Radius.circular(pill));
-  static const BorderRadius controlShape = BorderRadius.all(Radius.circular(control));
+  static const BorderRadius controlShape = BorderRadius.all(
+    Radius.circular(control),
+  );
   static const BorderRadius cardShape = BorderRadius.all(Radius.circular(card));
 }

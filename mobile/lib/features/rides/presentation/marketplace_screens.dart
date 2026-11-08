@@ -10,6 +10,7 @@ import '../../../shared/widgets/widgets.dart';
 import '../data/marketplace_api.dart';
 import '../domain/marketplace_models.dart';
 import 'marketplace_map.dart';
+import 'ride_summary_card.dart';
 
 String rideDeparture(DateTime date) =>
     DateFormat.MMMEd('fr').add_Hm().format(date);
@@ -95,24 +96,17 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
               children: [
                 for (final item in items)
                   switch (item) {
-                    RideListing() => AppCard(
-                      leading: Avatar(name: item.author),
-                      trailing: const Icon(Icons.chevron_right),
+                    RideListing() => RideSummaryCard(
+                      path: item.path,
+                      author: item.author,
+                      seats: item.seats,
                       onTap: () =>
                           _open(AppRoutes.listing(item.kind.name, item.id)),
-                      child: FlowCopy(
-                        item.path.title,
-                        '${item.author} · ${rideDeparture(item.path.departure)} · ${l.seatsValue(item.seats)}',
-                      ),
                     ),
-                    AcceptedRide() => AppCard(
-                      leading: Avatar(name: item.partner),
-                      trailing: const Icon(Icons.chevron_right),
+                    AcceptedRide() => RideSummaryCard(
+                      path: item.path,
+                      author: item.partner,
                       onTap: () => _open(AppRoutes.acceptedRide(item.id)),
-                      child: FlowCopy(
-                        item.path.title,
-                        '${item.partner} · ${rideDeparture(item.path.departure)}',
-                      ),
                     ),
                     _ => const SizedBox.shrink(),
                   },

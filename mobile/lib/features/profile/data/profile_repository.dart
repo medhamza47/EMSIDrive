@@ -7,4 +7,5 @@ import '../domain/student_profile.dart';
 abstract interface class ProfileRepository {
   /// Loads the profile of the signed-in student.
   Future<StudentProfile> loadProfile();
+  Future<StudentProfile> saveProfile(StudentProfile profile);
 }

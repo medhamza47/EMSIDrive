@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'fake_home_repository.dart';
+import 'http_home_repository.dart';
+import '../../profile/data/profile_repository_provider.dart';
+import '../../rides/data/marketplace_api.dart';
 import 'home_repository.dart';
 
 part 'home_repository_provider.g.dart';
@@ -11,5 +13,8 @@ part 'home_repository_provider.g.dart';
 /// mobile app; tests override it to inject other fixtures or failures.
 @Riverpod(keepAlive: true)
 HomeRepository homeRepository(Ref ref) {
-  return const FakeHomeRepository();
+  return HttpHomeRepository(
+    ref.watch(profileRepositoryProvider),
+    ref.watch(marketplaceApiProvider),
+  );
 }

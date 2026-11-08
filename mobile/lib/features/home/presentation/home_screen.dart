@@ -15,6 +15,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_state.dart';
 import '../../../shared/widgets/section_title.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
+import '../../../shared/widgets/notification_bell.dart';
 import '../application/home_controller.dart';
 import '../application/home_state.dart';
 import '../domain/home_overview.dart';
@@ -64,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   void _openSearch() {
-    context.go(AppRoutes.rideRequest);
+    context.go('${AppRoutes.rides}?tab=offers');
   }
 
   void _openOffer() {
@@ -143,6 +144,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   List<Widget> _buildContent(AppLocalizations l10n, HomeOverview overview) {
     final blocks = <Widget>[
       _buildGreeting(l10n, overview.displayName),
+      SectionTitle(title: l10n.homeActionsTitle),
       _HomeActionCard(
         title: l10n.homeSearchRideTitle,
         subtitle: l10n.homeSearchRideSubtitle,
@@ -153,8 +155,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       _HomeActionCard(
         title: l10n.homeOfferRideTitle,
         subtitle: l10n.homeOfferRideSubtitle,
-        background: Theme.of(context).colorScheme.secondary,
-        foreground: Theme.of(context).colorScheme.onSecondary,
+        background: Theme.of(context).colorScheme.primaryContainer
+            .withValues(alpha: .5),
+        foreground: Theme.of(context).colorScheme.primary,
         onTap: _openOffer,
       ),
       SectionTitle(title: l10n.homeUpcomingTripsTitle),
@@ -207,6 +210,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
         Avatar(name: displayName, size: 46),
+        const NotificationBell(),
       ],
     );
   }
@@ -340,6 +344,7 @@ class _UpcomingTripCard extends StatelessWidget {
     final isConfirmed = trip.status == TripStatus.confirmed;
 
     return AppCard(
+      onTap: () => context.push(AppRoutes.acceptedRide(trip.id)),
       radius: _tripCardRadius,
       padding: const EdgeInsets.all(14),
       crossAxisAlignment: CrossAxisAlignment.center,

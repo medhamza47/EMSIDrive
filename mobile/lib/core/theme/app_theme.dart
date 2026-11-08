@@ -13,10 +13,12 @@ import 'app_typography.dart';
 /// values (`#015629` / `#7ECC18`).
 abstract final class AppTheme {
   /// Theme used when the platform is in light mode.
-  static ThemeData light() => _build(_lightScheme, Brightness.light, AppSemanticColors.light);
+  static ThemeData light() =>
+      _build(_lightScheme, Brightness.light, AppSemanticColors.light);
 
   /// Theme used when the platform is in dark mode.
-  static ThemeData dark() => _build(_darkScheme, Brightness.dark, AppSemanticColors.dark);
+  static ThemeData dark() =>
+      _build(_darkScheme, Brightness.dark, AppSemanticColors.dark);
 
   static final ColorScheme _lightScheme = const ColorScheme(
     brightness: Brightness.light,
@@ -107,14 +109,14 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: scheme.surface,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        scrolledUnderElevation: 2,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
-          color: scheme.onPrimary,
+          color: scheme.onSurface,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -130,7 +132,18 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.cardShape),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.cardShape,
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: .65)),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surfaceContainerLow,
+        indicatorColor: scheme.primaryContainer,
+        elevation: 0,
+        labelTextStyle: WidgetStatePropertyAll(
+          textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
       dividerTheme: DividerThemeData(
         color: scheme.outlineVariant,
@@ -142,7 +155,9 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(52),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           textStyle: textTheme.labelLarge,
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlShape),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.controlShape,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -151,13 +166,17 @@ abstract final class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           textStyle: textTheme.labelLarge,
           side: BorderSide(color: scheme.outlineVariant),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlShape),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.controlShape,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           textStyle: textTheme.labelLarge,
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlShape),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.controlShape,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -167,8 +186,12 @@ abstract final class AppTheme {
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.lg,
         ),
-        hintStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-        labelStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+        hintStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+        labelStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
         border: OutlineInputBorder(
           borderRadius: AppRadius.controlShape,
           borderSide: BorderSide(color: scheme.outlineVariant),
@@ -193,8 +216,12 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(color: scheme.onInverseSurface),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlShape),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadius.controlShape,
+        ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHigh,

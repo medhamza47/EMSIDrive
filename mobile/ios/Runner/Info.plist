@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Photographier votre emploi du temps pour en extraire les cours.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choisir une photo de votre emploi du temps.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Utiliser votre position pour choisir un point de trajet à Marrakech.</string>
 	<key>UIApplicationSceneManifest</key>

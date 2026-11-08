@@ -17,7 +17,9 @@ class AuthResponseDto {
       refreshToken: json['refreshToken'] as String? ?? '',
       tokenType: json['tokenType'] as String? ?? 'Bearer',
       expiresIn: (json['expiresIn'] as num?)?.toInt() ?? 0,
-      user: UserDto.fromJson(json['user'] as Map<String, dynamic>? ?? const <String, dynamic>{}),
+      user: UserDto.fromJson(
+        json['user'] as Map<String, dynamic>? ?? const <String, dynamic>{},
+      ),
     );
   }
 
