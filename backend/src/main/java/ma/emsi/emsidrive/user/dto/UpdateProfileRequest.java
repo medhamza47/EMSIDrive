@@ -18,6 +18,7 @@ public record UpdateProfileRequest(
         String fullName,
 
         @Schema(description = "Moroccan phone number", example = "+212612345678")
+        @Size(max = 20)
         @Pattern(regexp = "^$|^\\+?[0-9]{9,20}$", message = "Phone number must contain between 9 and 20 digits")
         String phoneNumber,
 
@@ -32,5 +33,12 @@ public record UpdateProfileRequest(
         @Schema(description = "Absolute URL of the profile picture", example = "https://cdn.emsidrive.ma/me.jpg")
         @Size(max = 500, message = "Photo URL must not exceed 500 characters")
         @Pattern(regexp = "^$|^https?://.+$", message = "Photo URL must be a valid http(s) URL")
-        String photoUrl) {
+        String photoUrl,
+
+        @Pattern(regexp = "^$|^(CENTRE|TARGA)$") String preferredCampus,
+        @Pattern(regexp = "^$|^(MOTO|CAR|ANY)$") String preferredVehicle) {
+
+    public UpdateProfileRequest(String fullName, String phoneNumber, String filiere, String academicYear, String photoUrl) {
+        this(fullName, phoneNumber, filiere, academicYear, photoUrl, null, null);
+    }
 }

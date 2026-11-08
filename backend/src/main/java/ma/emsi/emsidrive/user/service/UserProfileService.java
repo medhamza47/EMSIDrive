@@ -37,6 +37,8 @@ public class UserProfileService {
         user.setFiliere(normalize(request.filiere()));
         user.setAcademicYear(normalize(request.academicYear()));
         user.setPhotoUrl(normalize(request.photoUrl()));
+        user.setPreferredCampus(normalize(request.preferredCampus()));
+        user.setPreferredVehicle(normalize(request.preferredVehicle()));
 
         return UserProfileResponse.from(userRepository.saveAndFlush(user));
     }

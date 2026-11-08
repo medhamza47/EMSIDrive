@@ -140,6 +140,37 @@ class ProfileVehicleIntegrationTest {
     }
 
     @Test
+    void travelPreferencesPersistAndCannotModifyAnotherAccountsProfile() throws Exception {
+        String first=registerAndGetAccessToken(SARA_EMAIL,"Sara");
+        String second=registerAndGetAccessToken("other@emsi-edu.ma","Other Student");
+        var other=readBody(exchange(HttpMethod.GET,"/api/v1/me",second,null));
+        var payload=new java.util.HashMap<String,Object>();
+        payload.put("fullName","Sara Updated");payload.put("phoneNumber","+212612345678");
+        payload.put("filiere","2DSI");payload.put("academicYear","2026-2027");
+        payload.put("preferredCampus","TARGA");payload.put("preferredVehicle","CAR");
+        // Extra identity fields must never change which account is updated.
+        payload.put("id",other.path("id").asText());payload.put("email","other@emsi-edu.ma");
+        assertThat(exchange(HttpMethod.PUT,"/api/v1/me",first,payload).getStatusCode()).isEqualTo(HttpStatus.OK);
+        var reloaded=readBody(exchange(HttpMethod.GET,"/api/v1/me",first,null));
+        assertThat(reloaded.path("email").asText()).isEqualTo(SARA_EMAIL);
+        assertThat(reloaded.path("preferredCampus").asText()).isEqualTo("TARGA");
+        assertThat(reloaded.path("preferredVehicle").asText()).isEqualTo("CAR");
+        assertThat(userRepository.findByEmailIgnoreCase(SARA_EMAIL).orElseThrow().getPreferredCampus()).isEqualTo("TARGA");
+        var untouched=readBody(exchange(HttpMethod.GET,"/api/v1/me",second,null));
+        assertThat(untouched.path("fullName").asText()).isEqualTo("Other Student");
+        assertThat(untouched.path("preferredCampus").isNull()).isTrue();
+        assertThat(untouched.path("preferredVehicle").isNull()).isTrue();
+    }
+
+    @Test
+    void rejectsUnknownPreferencesAndPhoneTooLongForStorage() throws Exception {
+        String token=registerAndGetAccessToken(SARA_EMAIL,"Sara");
+        var response=exchange(HttpMethod.PUT,"/api/v1/me",token,new UpdateProfileRequest("Sara","+12345678901234567890",null,null,null,"OTHER","BUS"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(fieldNames(readBody(response))).contains("phoneNumber","preferredCampus","preferredVehicle");
+    }
+
+    @Test
     void profileEndpointsRequireAuthentication() {
         assertThat(restTemplate.getForEntity("/api/v1/me", String.class).getStatusCode())
                 .isEqualTo(HttpStatus.UNAUTHORIZED);
