@@ -32,9 +32,9 @@ class AppBottomNavBar extends StatelessWidget {
           icon: Icons.route_outlined,
           selectedIcon: Icons.route_rounded,
         ),
-        AppTab.notifications: (
-          icon: Icons.notifications_outlined,
-          selectedIcon: Icons.notifications_rounded,
+        AppTab.planning: (
+          icon: Icons.calendar_month_outlined,
+          selectedIcon: Icons.calendar_month_rounded,
         ),
         AppTab.profile: (
           icon: Icons.person_outline_rounded,
@@ -45,10 +45,7 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    Widget icon(AppTab tab, IconData data) =>
-        tab == AppTab.notifications && hasUnreadNotifications
-        ? Badge(child: Icon(data))
-        : Icon(data);
+    Widget icon(AppTab tab, IconData data) => Icon(data);
 
     return NavigationBar(
       selectedIndex: currentTab.index,
@@ -70,7 +67,7 @@ class AppBottomNavBar extends StatelessWidget {
     return switch (tab) {
       AppTab.home => l10n.navHome,
       AppTab.rides => l10n.navRides,
-      AppTab.notifications => l10n.navNotifications,
+      AppTab.planning => l10n.navPlanning,
       AppTab.profile => l10n.navProfile,
     };
   }

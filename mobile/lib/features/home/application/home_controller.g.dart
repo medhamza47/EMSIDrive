@@ -53,7 +53,7 @@ final class HomeControllerProvider
   }
 }
 
-String _$homeControllerHash() => r'b68b0fc0e07e5f380ebb47b55fa5311b8e2630b3';
+String _$homeControllerHash() => r'104972b8f1628afa278c974937e731b9169d3365';
 
 /// Drives the Accueil tab content.
 ///

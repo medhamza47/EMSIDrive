@@ -52,12 +52,6 @@ class UpcomingTrip {
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    origin,
-    destination,
-    timeLabel,
-    driverName,
-    status,
-  );
+  int get hashCode =>
+      Object.hash(id, origin, destination, timeLabel, driverName, status);
 }

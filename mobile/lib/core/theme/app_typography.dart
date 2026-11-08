@@ -17,7 +17,9 @@ abstract final class AppTypography {
       displayMedium: base.displayMedium?.copyWith(fontWeight: FontWeight.w700),
       displaySmall: base.displaySmall?.copyWith(fontWeight: FontWeight.w600),
       headlineLarge: base.headlineLarge?.copyWith(fontWeight: FontWeight.w700),
-      headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
       headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
       titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w700),
       titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),

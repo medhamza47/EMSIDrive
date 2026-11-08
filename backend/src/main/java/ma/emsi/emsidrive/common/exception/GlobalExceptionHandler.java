@@ -19,6 +19,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleUploadSize(Exception ex) {
+        return ResponseEntity.status(413).body(ApiError.of(413, "SCHEDULE_FILE_SIZE", "Maximum upload size is 8 MB"));
+    }
+
+    @ExceptionHandler({org.springframework.web.multipart.MultipartException.class,
+            org.springframework.web.multipart.support.MissingServletRequestPartException.class})
+    public ResponseEntity<ApiError> handleMultipart(Exception ex) {
+        return ResponseEntity.badRequest().body(ApiError.of(400, "SCHEDULE_FILE_INVALID", "A valid file is required"));
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiError> handleApiException(ApiException ex) {
         return ResponseEntity

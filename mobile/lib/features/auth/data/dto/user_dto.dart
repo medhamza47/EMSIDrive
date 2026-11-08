@@ -21,7 +21,9 @@ class UserDto {
       email: json['email'] as String? ?? '',
       fullName: json['fullName'] as String? ?? '',
       phoneNumber: json['phoneNumber'] as String?,
-      role: UserRole.fromWireName(json['role'] as String? ?? UserRole.student.wireName),
+      role: UserRole.fromWireName(
+        json['role'] as String? ?? UserRole.student.wireName,
+      ),
       enabled: json['enabled'] as bool? ?? true,
     );
   }

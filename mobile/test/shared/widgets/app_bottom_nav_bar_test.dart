@@ -22,7 +22,7 @@ void main() {
       expect(find.byType(NavigationDestination), findsNWidgets(4));
       expect(find.text(l10n.navHome), findsOneWidget);
       expect(find.text(l10n.navRides), findsOneWidget);
-      expect(find.text(l10n.navNotifications), findsOneWidget);
+      expect(find.text(l10n.navPlanning), findsOneWidget);
       expect(find.text(l10n.navProfile), findsOneWidget);
     });
 
@@ -31,7 +31,7 @@ void main() {
         tester,
         Scaffold(
           bottomNavigationBar: AppBottomNavBar(
-            currentTab: AppTab.notifications,
+            currentTab: AppTab.planning,
             onTabSelected: (_) {},
           ),
         ),
@@ -39,7 +39,7 @@ void main() {
 
       expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        AppTab.notifications.index,
+        AppTab.planning.index,
       );
     });
 

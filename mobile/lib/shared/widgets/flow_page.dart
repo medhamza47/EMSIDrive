@@ -1,23 +1,44 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
+import 'notification_bell.dart';
 
 class FlowPage extends StatelessWidget {
-  const FlowPage({required this.title, required this.children, super.key});
+  const FlowPage({
+    required this.title,
+    required this.children,
+    this.showNotifications = true,
+    super.key,
+  });
 
   final String title;
   final List<Widget> children;
+  final bool showNotifications;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpacing.md,
-          children: children,
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          if (showNotifications) const NotificationBell(),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpacing.lg,
+                children: children,
+              ),
+            ),
+          ),
         ),
       ),
     );

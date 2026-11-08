@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/errors/app_failure.dart';
+import '../../auth/data/session_id_provider.dart';
 import '../data/home_repository_provider.dart';
 import 'home_state.dart';
 
@@ -15,12 +16,17 @@ part 'home_controller.g.dart';
 @Riverpod(keepAlive: true)
 class HomeController extends _$HomeController {
   bool _isLoading = false;
-  bool _isDisposed = false;
+  int _generation = 0;
 
   @override
   HomeState build() {
-    ref.onDispose(() => _isDisposed = true);
-    scheduleMicrotask(reload);
+    ref.watch(sessionIdProvider);
+    _isLoading = false;
+    final generation = ++_generation;
+    ref.onDispose(() => _generation++);
+    scheduleMicrotask(() {
+      if (generation == _generation) reload();
+    });
     return const HomeLoading();
   }
 
@@ -32,9 +38,7 @@ class HomeController extends _$HomeController {
       return;
     }
     _isLoading = true;
-    if (!_isDisposed) {
-      state = const HomeLoading();
-    }
+    state = const HomeLoading();
     await _fetch();
   }
 
@@ -50,17 +54,18 @@ class HomeController extends _$HomeController {
   }
 
   Future<void> _fetch() async {
+    final generation = _generation;
     try {
       final overview = await ref.read(homeRepositoryProvider).loadOverview();
-      if (!_isDisposed) {
+      if (generation == _generation) {
         state = HomeLoaded(overview);
       }
     } on AppFailure catch (failure) {
-      if (!_isDisposed) {
+      if (generation == _generation) {
         state = HomeError(failure);
       }
     } finally {
-      _isLoading = false;
+      if (generation == _generation) _isLoading = false;
     }
   }
 }

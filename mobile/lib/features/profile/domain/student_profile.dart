@@ -10,6 +10,9 @@ class StudentProfile {
     this.major,
     this.academicYear,
     this.photoUrl,
+    this.phoneNumber,
+    this.preferredCampus,
+    this.preferredVehicle,
     this.rating,
     this.ratingCount = 0,
   });
@@ -31,6 +34,31 @@ class StudentProfile {
 
   /// Optional profile picture URL.
   final String? photoUrl;
+  final String? phoneNumber;
+  final String? preferredCampus;
+  final String? preferredVehicle;
+
+  factory StudentProfile.fromJson(Map<String, dynamic> json) => StudentProfile(
+    id: json['id'] as String,
+    fullName: json['fullName'] as String,
+    email: json['email'] as String,
+    phoneNumber: json['phoneNumber'] as String?,
+    major: json['filiere'] as String?,
+    academicYear: json['academicYear'] as String?,
+    photoUrl: json['photoUrl'] as String?,
+    preferredCampus: json['preferredCampus'] as String?,
+    preferredVehicle: json['preferredVehicle'] as String?,
+  );
+
+  Map<String, dynamic> toUpdateJson() => {
+    'fullName': fullName.trim(),
+    'phoneNumber': phoneNumber,
+    'filiere': major,
+    'academicYear': academicYear,
+    'photoUrl': photoUrl,
+    'preferredCampus': preferredCampus,
+    'preferredVehicle': preferredVehicle,
+  };
 
   /// Average rating out of five, absent until the student receives reviews.
   final double? rating;
@@ -47,6 +75,9 @@ class StudentProfile {
         other.major == major &&
         other.academicYear == academicYear &&
         other.photoUrl == photoUrl &&
+        other.phoneNumber == phoneNumber &&
+        other.preferredCampus == preferredCampus &&
+        other.preferredVehicle == preferredVehicle &&
         other.rating == rating &&
         other.ratingCount == ratingCount;
   }
@@ -59,6 +90,9 @@ class StudentProfile {
     major,
     academicYear,
     photoUrl,
+    phoneNumber,
+    preferredCampus,
+    preferredVehicle,
     rating,
     ratingCount,
   );

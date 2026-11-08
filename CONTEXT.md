@@ -318,7 +318,7 @@ elles passent par des tokens partagés entre mobile et admin web.
 
 | Token | Valeur | Usage |
 |-------|--------|-------|
-| `primary` | `#015629` | Vert foncé : app bar, titres, boutons principaux |
+| `primary` | `#015629` | Vert foncé : actions principales, icônes et états sélectionnés |
 | `primaryContainer` | `#015629` (teintes dérivées) | Surfaces d'accentuation |
 | `secondary` / `accent` | `#7ECC18` | Vert clair : CTA secondaires, badges, états actifs |
 | `success` | `#7ECC18` | Confirmations |
@@ -331,6 +331,25 @@ elles passent par des tokens partagés entre mobile et admin web.
   - admin web : `src/styles/`
   - documentation : `docs/design/`
 - Typographie, rayons et espacements suivent la même source unique.
+
+### Organisation mobile et profils persistants
+
+La navigation comporte Accueil, Trajets, Planning et Profil ; les notifications
+s’ouvrent depuis une cloche. Les anciens liens d’import sous `/rides/` redirigent
+vers `/planning/`. Les en-têtes utilisent une surface neutre, les cartes une surface
+blanche en thème clair et le vert EMSI souligne les actions. `FormSection` regroupe
+les champs des formulaires ; la confirmation sur la carte reste fixe en bas.
+
+Le profil mobile utilise les routes authentifiées `GET/PUT /api/v1/me`. V22 ajoute
+les préférences de campus et de véhicule aux champs de profil existants. L’identité
+vient exclusivement du JWT ; l’email et le rôle ne sont pas modifiables via ce formulaire.
+Le profil et l’accueil n’utilisent plus de fiches de démonstration.
+
+`TokenStorage` notifie les changements de compte. `sessionIdProvider` réinitialise les
+données du profil, du planning et de l’accueil ; un renouvellement d’access token ne
+change pas cette identité de session. Les réponses tardives d’un ancien compte ne
+doivent jamais remplacer les données du compte courant. Les préférences de trajet
+sont appliquées à l’ouverture du formulaire sans écraser des choix déjà modifiés.
 
 ---
 
@@ -429,6 +448,27 @@ cd admin-web && npm test && npm run lint
 ---
 
 ## 7. Sécurité et configuration
+
+### Emplois du temps — implémentation Groq
+
+Le parcours d’emploi du temps utilise désormais `/api/v1/schedules` et PostgreSQL,
+sans créneaux ni suggestions de démonstration. Import JPEG/PNG/PDF via Groq côté serveur,
+brouillon éditable, confirmation obligatoire, période de validité et campus par cours.
+La clé se configure exclusivement dans `backend/.env.local` (ignoré) ou l’environnement.
+Pour les séances doubles, Groq doit fournir les en-têtes horaires et l’étendue de chaque
+cellule en lecture globale. Pour les photos avec une grille détectable, le serveur mesure
+directement les bordures, crée des cartes de cellules à identifiants opaques, puis utilise
+Groq uniquement pour transcrire leur contenu. Il valide tous les identifiants et dérive
+la fin de la dernière colonne couverte. Les photos sont normalisées en PNG pour éviter
+qu’une seconde compression JPEG efface les traits fins. Il conserve les
+horaires explicites et les pauses, sans durée fixe de 90 minutes. Une étendue incertaine
+laisse l’heure de fin vide et exige une correction avant enregistrement.
+Les suggestions filtrent les annonces marketplace existantes selon les horaires, le
+campus et la durée estimée du trajet. Détails et limites dans [backend/SCHEDULE.md](backend/SCHEDULE.md).
+
+`AuthenticatedApi` est partagé par les emplois du temps et la marketplace pour
+coordonner le renouvellement des JWT. Il clone les formulaires multipart lors d’un
+nouvel essai après 401 et rejette les réponses d’une session déjà déconnectée.
 
 - Authentification par **JWT** (access token court + refresh token).
 - Deux rôles seulement : `STUDENT` (inscription publique) et `ADMIN` (créé côté serveur). Toute autre valeur est refusée par la contrainte `chk_users_role`.

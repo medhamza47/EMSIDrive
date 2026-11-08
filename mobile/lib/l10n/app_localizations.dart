@@ -403,25 +403,25 @@ abstract class AppLocalizations {
   /// Title of the home action leading to the ride search
   ///
   /// In fr, this message translates to:
-  /// **'Je cherche un trajet'**
+  /// **'Trouver un trajet'**
   String get homeSearchRideTitle;
 
   /// Subtitle of the home action leading to the ride search
   ///
   /// In fr, this message translates to:
-  /// **'Trouvez un étudiant qui part dans votre direction.'**
+  /// **'Consultez les offres pour rejoindre votre campus.'**
   String get homeSearchRideSubtitle;
 
   /// Title of the home action leading to publishing a ride
   ///
   /// In fr, this message translates to:
-  /// **'Je propose un trajet'**
+  /// **'Proposer un trajet'**
   String get homeOfferRideTitle;
 
   /// Subtitle of the home action leading to publishing a ride
   ///
   /// In fr, this message translates to:
-  /// **'Partagez votre moto ou votre voiture et les frais d\'essence.'**
+  /// **'Partagez votre trajet et vos places disponibles.'**
   String get homeOfferRideSubtitle;
 
   /// Title of the upcoming trips section on the home screen
@@ -874,24 +874,6 @@ abstract class AppLocalizations {
   /// **'Retirer'**
   String get removeFile;
 
-  /// No description provided for @demoPhotoName.
-  ///
-  /// In fr, this message translates to:
-  /// **'emploi_du_temps_2DSI.jpg'**
-  String get demoPhotoName;
-
-  /// No description provided for @demoPdfName.
-  ///
-  /// In fr, this message translates to:
-  /// **'emploi_du_temps_2DSI.pdf'**
-  String get demoPdfName;
-
-  /// No description provided for @demoFileReady.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fichier de démonstration · prêt à analyser'**
-  String get demoFileReady;
-
   /// No description provided for @scheduleAssistant.
   ///
   /// In fr, this message translates to:
@@ -975,24 +957,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vendredi'**
   String get friday;
-
-  /// No description provided for @demoMondayHours.
-  ///
-  /// In fr, this message translates to:
-  /// **'08:30 – 12:30'**
-  String get demoMondayHours;
-
-  /// No description provided for @demoTuesdayHours.
-  ///
-  /// In fr, this message translates to:
-  /// **'08:30 – 10:30'**
-  String get demoTuesdayHours;
-
-  /// No description provided for @demoWednesdayHours.
-  ///
-  /// In fr, this message translates to:
-  /// **'16:00 – 18:30'**
-  String get demoWednesdayHours;
 
   /// No description provided for @morningTrip.
   ///
@@ -1629,6 +1593,582 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aller {time}'**
   String matchMorningTime(String time);
+
+  /// No description provided for @timetableImportHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importez un seul emploi du temps lisible, recadré sur votre groupe. JPEG, PNG ou PDF (3 pages maximum), jusqu’à 8 Mo.'**
+  String get timetableImportHint;
+
+  /// No description provided for @timetableGroup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe / groupe'**
+  String get timetableGroup;
+
+  /// No description provided for @timetableGroupHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le groupe exact si le document en contient plusieurs.'**
+  String get timetableGroupHint;
+
+  /// No description provided for @timetableAiNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’analyse transmet votre document à Groq. Vérifiez les cours extraits avant de les enregistrer. Le serveur ne conserve pas votre photo.'**
+  String get timetableAiNotice;
+
+  /// No description provided for @timetableManual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir mes cours manuellement'**
+  String get timetableManual;
+
+  /// No description provided for @timetableEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier mon emploi du temps'**
+  String get timetableEdit;
+
+  /// No description provided for @timetableDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon emploi du temps'**
+  String get timetableDelete;
+
+  /// No description provided for @timetableDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer les cours enregistrés et désactiver leurs suggestions ?'**
+  String get timetableDeleteConfirm;
+
+  /// No description provided for @timetableCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get timetableCancel;
+
+  /// No description provided for @timetableReload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get timetableReload;
+
+  /// No description provided for @timetableReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparez chaque cours au document original. Corrigez les champs incertains et indiquez la période pendant laquelle ce planning hebdomadaire s’applique.'**
+  String get timetableReview;
+
+  /// No description provided for @timetableOriginal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la photo originale'**
+  String get timetableOriginal;
+
+  /// No description provided for @timetableName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l’emploi du temps'**
+  String get timetableName;
+
+  /// No description provided for @timetableFrom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valable à partir du'**
+  String get timetableFrom;
+
+  /// No description provided for @timetableUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valable jusqu’au'**
+  String get timetableUntil;
+
+  /// No description provided for @timetableUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renseigner'**
+  String get timetableUnknown;
+
+  /// No description provided for @timetableNeedsReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier : touchez ce cours pour le corriger et le valider.'**
+  String get timetableNeedsReview;
+
+  /// No description provided for @timetableRemoveCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ce cours'**
+  String get timetableRemoveCourse;
+
+  /// No description provided for @timetableAddCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un cours'**
+  String get timetableAddCourse;
+
+  /// No description provided for @timetableOverlap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des cours se chevauchent le même jour. Corrigez les horaires.'**
+  String get timetableOverlap;
+
+  /// No description provided for @timetableIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez le nom, des dates ordonnées (un an maximum) et tous les cours : jour, campus, heures de début et de fin. Validez chaque cours incertain.'**
+  String get timetableIncomplete;
+
+  /// No description provided for @timetableConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai vérifié les cours, les horaires, les campus et les dates.'**
+  String get timetableConfirm;
+
+  /// No description provided for @timetableSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer mon emploi du temps'**
+  String get timetableSave;
+
+  /// No description provided for @timetableThursday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeudi'**
+  String get timetableThursday;
+
+  /// No description provided for @timetableFriday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendredi'**
+  String get timetableFriday;
+
+  /// No description provided for @timetableSaturday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Samedi'**
+  String get timetableSaturday;
+
+  /// No description provided for @timetableSunday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dimanche'**
+  String get timetableSunday;
+
+  /// No description provided for @timetableCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger un cours'**
+  String get timetableCourse;
+
+  /// No description provided for @timetableSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matière'**
+  String get timetableSubject;
+
+  /// No description provided for @timetableDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour'**
+  String get timetableDay;
+
+  /// No description provided for @timetableStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Début (HH:mm)'**
+  String get timetableStart;
+
+  /// No description provided for @timetableEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin (HH:mm)'**
+  String get timetableEnd;
+
+  /// No description provided for @timetableCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Campus'**
+  String get timetableCampus;
+
+  /// No description provided for @timetableRoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle / lieu (facultatif)'**
+  String get timetableRoom;
+
+  /// No description provided for @timetableRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champ obligatoire'**
+  String get timetableRequired;
+
+  /// No description provided for @timetableTimeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez HH:mm et une fin après le début.'**
+  String get timetableTimeInvalid;
+
+  /// No description provided for @timetableValidateCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider ce cours'**
+  String get timetableValidateCourse;
+
+  /// No description provided for @timetableMatchingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offres publiées pour les 7 prochains jours, selon votre premier et dernier cours et leur campus. Pour l’aller : durée estimée + 10 min de marge, avec jusqu’à 60 min d’avance. Pour le retour : départ dans l’heure après le dernier cours. Vérifiez le point de rendez-vous et le trajet avant de réserver.'**
+  String get timetableMatchingHint;
+
+  /// No description provided for @timetableCommute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée estimée de votre trajet : {minutes} min'**
+  String timetableCommute(int minutes);
+
+  /// No description provided for @timetableNoMatches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune offre disponible ne correspond actuellement à vos horaires et à votre campus. Réessayez quand de nouveaux trajets seront publiés.'**
+  String get timetableNoMatches;
+
+  /// No description provided for @timetableBeforeCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Début du premier cours :'**
+  String get timetableBeforeCourse;
+
+  /// No description provided for @timetableAfterCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin du dernier cours :'**
+  String get timetableAfterCourse;
+
+  /// No description provided for @timetableFileSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier doit contenir entre 1 octet et 8 Mo.'**
+  String get timetableFileSize;
+
+  /// No description provided for @timetablePdfPages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un PDF de 1 à 3 pages.'**
+  String get timetablePdfPages;
+
+  /// No description provided for @timetableFileError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document illisible ou format non pris en charge. Choisissez une image JPEG/PNG ou un PDF non protégé.'**
+  String get timetableFileError;
+
+  /// No description provided for @timetableSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconnectez-vous pour accéder à votre emploi du temps.'**
+  String get timetableSignIn;
+
+  /// No description provided for @timetableNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible ou délai dépassé. Vérifiez votre connexion puis réessayez.'**
+  String get timetableNetworkError;
+
+  /// No description provided for @timetableAmbiguous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs groupes ou tableaux sont visibles. Recadrez votre emploi du temps ou précisez le groupe exact.'**
+  String get timetableAmbiguous;
+
+  /// No description provided for @timetableNotDetected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun emploi du temps exploitable détecté. Choisissez une image plus nette et bien cadrée.'**
+  String get timetableNotDetected;
+
+  /// No description provided for @timetableRateLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop d’analyses ou service occupé. Patientez avant de réessayer ; vous pouvez aussi saisir vos cours manuellement.'**
+  String get timetableRateLimit;
+
+  /// No description provided for @timetableAiError.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’analyse IA est momentanément indisponible. Réessayez ou saisissez vos cours manuellement.'**
+  String get timetableAiError;
+
+  /// No description provided for @timetableChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre emploi du temps a changé depuis son ouverture. Revenez à l’import, actualisez puis ouvrez la dernière version.'**
+  String get timetableChanged;
+
+  /// No description provided for @timetableNotSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrez et confirmez d’abord votre emploi du temps.'**
+  String get timetableNotSaved;
+
+  /// No description provided for @timetableGenericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’opération a échoué. Réessayez ; votre emploi du temps enregistré reste disponible.'**
+  String get timetableGenericError;
+
+  /// No description provided for @navPlanning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planning'**
+  String get navPlanning;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier mes informations'**
+  String get profileEdit;
+
+  /// No description provided for @profileEditHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouvez vos informations à chaque connexion. Les champs facultatifs peuvent être complétés plus tard.'**
+  String get profileEditHint;
+
+  /// No description provided for @profilePersonal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles'**
+  String get profilePersonal;
+
+  /// No description provided for @profileStudies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes études'**
+  String get profileStudies;
+
+  /// No description provided for @profilePreferences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences de trajet'**
+  String get profilePreferences;
+
+  /// No description provided for @profilePreferencesHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces choix seront proposés dans vos prochains formulaires.'**
+  String get profilePreferencesHint;
+
+  /// No description provided for @profileCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Campus habituel'**
+  String get profileCampus;
+
+  /// No description provided for @profileNoPreference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune préférence'**
+  String get profileNoPreference;
+
+  /// No description provided for @profileMajor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filière / groupe'**
+  String get profileMajor;
+
+  /// No description provided for @profileMajorHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. : 5IIR · 2DSI'**
+  String get profileMajorHint;
+
+  /// No description provided for @profileYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année universitaire'**
+  String get profileYear;
+
+  /// No description provided for @profileYearHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. : 2026-2027'**
+  String get profileYearHint;
+
+  /// No description provided for @profileNotSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get profileNotSet;
+
+  /// No description provided for @profileEmailFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet email identifie votre compte.'**
+  String get profileEmailFixed;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez votre nom complet.'**
+  String get profileNameRequired;
+
+  /// No description provided for @profilePhoneInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro invalide : 9 à 20 chiffres, avec éventuellement un + au début (20 caractères maximum).'**
+  String get profilePhoneInvalid;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get profileSave;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos informations sont enregistrées.'**
+  String get profileSaved;
+
+  /// No description provided for @profileSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour retrouver votre profil.'**
+  String get profileSignIn;
+
+  /// No description provided for @profileOperationError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger ou d’enregistrer vos informations. Réessayez.'**
+  String get profileOperationError;
+
+  /// No description provided for @planningIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos cours et vos trajets, organisés par journée.'**
+  String get planningIntro;
+
+  /// No description provided for @planningEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre semaine commence ici'**
+  String get planningEmptyTitle;
+
+  /// No description provided for @planningEmptyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importez votre emploi du temps ou saisissez vos cours pour trouver des trajets adaptés à vos horaires.'**
+  String get planningEmptyHint;
+
+  /// No description provided for @planningImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon emploi du temps'**
+  String get planningImport;
+
+  /// No description provided for @planningManage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mon emploi du temps'**
+  String get planningManage;
+
+  /// No description provided for @planningFreeDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun cours enregistré pour cette journée.'**
+  String get planningFreeDay;
+
+  /// No description provided for @homeActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment voyagez-vous ?'**
+  String get homeActionsTitle;
+
+  /// No description provided for @ridesIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouvez une place, proposez la vôtre et retrouvez vos réservations.'**
+  String get ridesIntro;
+
+  /// No description provided for @ridesTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres outils'**
+  String get ridesTools;
+
+  /// No description provided for @rideFormRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre itinéraire'**
+  String get rideFormRoute;
+
+  /// No description provided for @rideFormRouteHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le campus et votre point de rendez-vous.'**
+  String get rideFormRouteHint;
+
+  /// No description provided for @rideFormDeparture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date et heure'**
+  String get rideFormDeparture;
+
+  /// No description provided for @rideFormDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Places et préférences'**
+  String get rideFormDetails;
+
+  /// No description provided for @rideFormSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre trajet en un coup d’œil'**
+  String get rideFormSummary;
+
+  /// No description provided for @ridePointReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point de rendez-vous sélectionné'**
+  String get ridePointReady;
+
+  /// No description provided for @mapSelectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre point de rendez-vous'**
+  String get mapSelectionTitle;
+
+  /// No description provided for @mapSelectionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez un lieu sur la carte ou utilisez votre position.'**
+  String get mapSelectionHint;
+
+  /// No description provided for @mapSelectedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez déplacer le repère en touchant un autre lieu.'**
+  String get mapSelectedHint;
+
+  /// No description provided for @mapCampusSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Campus du trajet'**
+  String get mapCampusSummary;
+
+  /// No description provided for @mapCoordinatesDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les coordonnées'**
+  String get mapCoordinatesDetails;
+
+  /// No description provided for @mapRouteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu de l’itinéraire'**
+  String get mapRouteLabel;
 }
 
 class _AppLocalizationsDelegate

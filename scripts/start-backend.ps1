@@ -47,7 +47,7 @@ try {
     Write-Host 'Starting Spring Boot API (profile dev)...' -ForegroundColor Cyan
     $logPath = Join-Path $env:TEMP 'emsidrive-api.log'
     $process = Start-Process -FilePath 'mvn.cmd' `
-        -ArgumentList '-o', 'spring-boot:run', '-Dspring-boot.run.profiles=dev' `
+        -ArgumentList 'spring-boot:run', '-Dspring-boot.run.profiles=dev', '-Dspring-boot.run.arguments=--debug=false' `
         -WorkingDirectory $backendDir `
         -RedirectStandardOutput $logPath `
         -RedirectStandardError "$logPath.err" `

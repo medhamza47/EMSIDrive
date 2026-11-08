@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/constants/storage_keys.dart';
 
@@ -6,7 +7,7 @@ import '../../../core/constants/storage_keys.dart';
 ///
 /// Kept behind a class so tests can swap in an in-memory implementation without
 /// touching the keystore plugin.
-class TokenStorage {
+class TokenStorage extends ChangeNotifier {
   TokenStorage(this._storage);
 
   final FlutterSecureStorage _storage;
@@ -29,6 +30,7 @@ class TokenStorage {
   }) async {
     _session++;
     await _serialize(() => _writeTokens(accessToken, refreshToken));
+    notifyListeners();
   }
 
   Future<bool> rotate(
@@ -59,6 +61,7 @@ class TokenStorage {
   /// Removes both tokens, used when signing out or when a token is rejected.
   Future<void> clear() {
     _session++;
+    notifyListeners();
     return _serialize(() async {
       await _storage.delete(key: StorageKeys.accessToken);
       await _storage.delete(key: StorageKeys.refreshToken);

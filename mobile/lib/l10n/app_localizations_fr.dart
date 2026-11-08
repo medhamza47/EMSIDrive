@@ -183,18 +183,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeGreeting => 'Bonjour';
 
   @override
-  String get homeSearchRideTitle => 'Je cherche un trajet';
+  String get homeSearchRideTitle => 'Trouver un trajet';
 
   @override
   String get homeSearchRideSubtitle =>
-      'Trouvez un étudiant qui part dans votre direction.';
+      'Consultez les offres pour rejoindre votre campus.';
 
   @override
-  String get homeOfferRideTitle => 'Je propose un trajet';
+  String get homeOfferRideTitle => 'Proposer un trajet';
 
   @override
   String get homeOfferRideSubtitle =>
-      'Partagez votre moto ou votre voiture et les frais d\'essence.';
+      'Partagez votre trajet et vos places disponibles.';
 
   @override
   String get homeUpcomingTripsTitle => 'Prochains trajets';
@@ -430,15 +430,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get removeFile => 'Retirer';
 
   @override
-  String get demoPhotoName => 'emploi_du_temps_2DSI.jpg';
-
-  @override
-  String get demoPdfName => 'emploi_du_temps_2DSI.pdf';
-
-  @override
-  String get demoFileReady => 'Fichier de démonstration · prêt à analyser';
-
-  @override
   String get scheduleAssistant =>
       'L’assistant repère vos heures d’arrivée et de départ et cherche les conducteurs aux mêmes horaires. Cet aperçu utilise un emploi du temps de démonstration.';
 
@@ -481,15 +472,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get friday => 'Vendredi';
-
-  @override
-  String get demoMondayHours => '08:30 – 12:30';
-
-  @override
-  String get demoTuesdayHours => '08:30 – 10:30';
-
-  @override
-  String get demoWednesdayHours => '16:00 – 18:30';
 
   @override
   String get morningTrip => 'Trajet du matin';
@@ -874,4 +856,327 @@ class AppLocalizationsFr extends AppLocalizations {
   String matchMorningTime(String time) {
     return 'Aller $time';
   }
+
+  @override
+  String get timetableImportHint =>
+      'Importez un seul emploi du temps lisible, recadré sur votre groupe. JPEG, PNG ou PDF (3 pages maximum), jusqu’à 8 Mo.';
+
+  @override
+  String get timetableGroup => 'Classe / groupe';
+
+  @override
+  String get timetableGroupHint =>
+      'Indiquez le groupe exact si le document en contient plusieurs.';
+
+  @override
+  String get timetableAiNotice =>
+      'L’analyse transmet votre document à Groq. Vérifiez les cours extraits avant de les enregistrer. Le serveur ne conserve pas votre photo.';
+
+  @override
+  String get timetableManual => 'Saisir mes cours manuellement';
+
+  @override
+  String get timetableEdit => 'Modifier mon emploi du temps';
+
+  @override
+  String get timetableDelete => 'Supprimer mon emploi du temps';
+
+  @override
+  String get timetableDeleteConfirm =>
+      'Supprimer les cours enregistrés et désactiver leurs suggestions ?';
+
+  @override
+  String get timetableCancel => 'Annuler';
+
+  @override
+  String get timetableReload => 'Actualiser';
+
+  @override
+  String get timetableReview =>
+      'Comparez chaque cours au document original. Corrigez les champs incertains et indiquez la période pendant laquelle ce planning hebdomadaire s’applique.';
+
+  @override
+  String get timetableOriginal => 'Voir la photo originale';
+
+  @override
+  String get timetableName => 'Nom de l’emploi du temps';
+
+  @override
+  String get timetableFrom => 'Valable à partir du';
+
+  @override
+  String get timetableUntil => 'Valable jusqu’au';
+
+  @override
+  String get timetableUnknown => 'À renseigner';
+
+  @override
+  String get timetableNeedsReview =>
+      'À vérifier : touchez ce cours pour le corriger et le valider.';
+
+  @override
+  String get timetableRemoveCourse => 'Supprimer ce cours';
+
+  @override
+  String get timetableAddCourse => 'Ajouter un cours';
+
+  @override
+  String get timetableOverlap =>
+      'Des cours se chevauchent le même jour. Corrigez les horaires.';
+
+  @override
+  String get timetableIncomplete =>
+      'Renseignez le nom, des dates ordonnées (un an maximum) et tous les cours : jour, campus, heures de début et de fin. Validez chaque cours incertain.';
+
+  @override
+  String get timetableConfirm =>
+      'J’ai vérifié les cours, les horaires, les campus et les dates.';
+
+  @override
+  String get timetableSave => 'Enregistrer mon emploi du temps';
+
+  @override
+  String get timetableThursday => 'Jeudi';
+
+  @override
+  String get timetableFriday => 'Vendredi';
+
+  @override
+  String get timetableSaturday => 'Samedi';
+
+  @override
+  String get timetableSunday => 'Dimanche';
+
+  @override
+  String get timetableCourse => 'Corriger un cours';
+
+  @override
+  String get timetableSubject => 'Matière';
+
+  @override
+  String get timetableDay => 'Jour';
+
+  @override
+  String get timetableStart => 'Début (HH:mm)';
+
+  @override
+  String get timetableEnd => 'Fin (HH:mm)';
+
+  @override
+  String get timetableCampus => 'Campus';
+
+  @override
+  String get timetableRoom => 'Salle / lieu (facultatif)';
+
+  @override
+  String get timetableRequired => 'Champ obligatoire';
+
+  @override
+  String get timetableTimeInvalid =>
+      'Utilisez HH:mm et une fin après le début.';
+
+  @override
+  String get timetableValidateCourse => 'Valider ce cours';
+
+  @override
+  String get timetableMatchingHint =>
+      'Offres publiées pour les 7 prochains jours, selon votre premier et dernier cours et leur campus. Pour l’aller : durée estimée + 10 min de marge, avec jusqu’à 60 min d’avance. Pour le retour : départ dans l’heure après le dernier cours. Vérifiez le point de rendez-vous et le trajet avant de réserver.';
+
+  @override
+  String timetableCommute(int minutes) {
+    return 'Durée estimée de votre trajet : $minutes min';
+  }
+
+  @override
+  String get timetableNoMatches =>
+      'Aucune offre disponible ne correspond actuellement à vos horaires et à votre campus. Réessayez quand de nouveaux trajets seront publiés.';
+
+  @override
+  String get timetableBeforeCourse => 'Début du premier cours :';
+
+  @override
+  String get timetableAfterCourse => 'Fin du dernier cours :';
+
+  @override
+  String get timetableFileSize =>
+      'Le fichier doit contenir entre 1 octet et 8 Mo.';
+
+  @override
+  String get timetablePdfPages => 'Choisissez un PDF de 1 à 3 pages.';
+
+  @override
+  String get timetableFileError =>
+      'Document illisible ou format non pris en charge. Choisissez une image JPEG/PNG ou un PDF non protégé.';
+
+  @override
+  String get timetableSignIn =>
+      'Reconnectez-vous pour accéder à votre emploi du temps.';
+
+  @override
+  String get timetableNetworkError =>
+      'Connexion impossible ou délai dépassé. Vérifiez votre connexion puis réessayez.';
+
+  @override
+  String get timetableAmbiguous =>
+      'Plusieurs groupes ou tableaux sont visibles. Recadrez votre emploi du temps ou précisez le groupe exact.';
+
+  @override
+  String get timetableNotDetected =>
+      'Aucun emploi du temps exploitable détecté. Choisissez une image plus nette et bien cadrée.';
+
+  @override
+  String get timetableRateLimit =>
+      'Trop d’analyses ou service occupé. Patientez avant de réessayer ; vous pouvez aussi saisir vos cours manuellement.';
+
+  @override
+  String get timetableAiError =>
+      'L’analyse IA est momentanément indisponible. Réessayez ou saisissez vos cours manuellement.';
+
+  @override
+  String get timetableChanged =>
+      'Votre emploi du temps a changé depuis son ouverture. Revenez à l’import, actualisez puis ouvrez la dernière version.';
+
+  @override
+  String get timetableNotSaved =>
+      'Enregistrez et confirmez d’abord votre emploi du temps.';
+
+  @override
+  String get timetableGenericError =>
+      'L’opération a échoué. Réessayez ; votre emploi du temps enregistré reste disponible.';
+
+  @override
+  String get navPlanning => 'Planning';
+
+  @override
+  String get profileEdit => 'Modifier mes informations';
+
+  @override
+  String get profileEditHint =>
+      'Retrouvez vos informations à chaque connexion. Les champs facultatifs peuvent être complétés plus tard.';
+
+  @override
+  String get profilePersonal => 'Informations personnelles';
+
+  @override
+  String get profileStudies => 'Mes études';
+
+  @override
+  String get profilePreferences => 'Préférences de trajet';
+
+  @override
+  String get profilePreferencesHint =>
+      'Ces choix seront proposés dans vos prochains formulaires.';
+
+  @override
+  String get profileCampus => 'Campus habituel';
+
+  @override
+  String get profileNoPreference => 'Aucune préférence';
+
+  @override
+  String get profileMajor => 'Filière / groupe';
+
+  @override
+  String get profileMajorHint => 'Ex. : 5IIR · 2DSI';
+
+  @override
+  String get profileYear => 'Année universitaire';
+
+  @override
+  String get profileYearHint => 'Ex. : 2026-2027';
+
+  @override
+  String get profileNotSet => 'Non renseigné';
+
+  @override
+  String get profileEmailFixed => 'Cet email identifie votre compte.';
+
+  @override
+  String get profileNameRequired => 'Renseignez votre nom complet.';
+
+  @override
+  String get profilePhoneInvalid =>
+      'Numéro invalide : 9 à 20 chiffres, avec éventuellement un + au début (20 caractères maximum).';
+
+  @override
+  String get profileSave => 'Enregistrer les modifications';
+
+  @override
+  String get profileSaved => 'Vos informations sont enregistrées.';
+
+  @override
+  String get profileSignIn => 'Connectez-vous pour retrouver votre profil.';
+
+  @override
+  String get profileOperationError =>
+      'Impossible de charger ou d’enregistrer vos informations. Réessayez.';
+
+  @override
+  String get planningIntro =>
+      'Vos cours et vos trajets, organisés par journée.';
+
+  @override
+  String get planningEmptyTitle => 'Votre semaine commence ici';
+
+  @override
+  String get planningEmptyHint =>
+      'Importez votre emploi du temps ou saisissez vos cours pour trouver des trajets adaptés à vos horaires.';
+
+  @override
+  String get planningImport => 'Ajouter mon emploi du temps';
+
+  @override
+  String get planningManage => 'Gérer mon emploi du temps';
+
+  @override
+  String get planningFreeDay => 'Aucun cours enregistré pour cette journée.';
+
+  @override
+  String get homeActionsTitle => 'Comment voyagez-vous ?';
+
+  @override
+  String get ridesIntro =>
+      'Trouvez une place, proposez la vôtre et retrouvez vos réservations.';
+
+  @override
+  String get ridesTools => 'Autres outils';
+
+  @override
+  String get rideFormRoute => 'Votre itinéraire';
+
+  @override
+  String get rideFormRouteHint =>
+      'Choisissez le campus et votre point de rendez-vous.';
+
+  @override
+  String get rideFormDeparture => 'Date et heure';
+
+  @override
+  String get rideFormDetails => 'Places et préférences';
+
+  @override
+  String get rideFormSummary => 'Votre trajet en un coup d’œil';
+
+  @override
+  String get ridePointReady => 'Point de rendez-vous sélectionné';
+
+  @override
+  String get mapSelectionTitle => 'Votre point de rendez-vous';
+
+  @override
+  String get mapSelectionHint =>
+      'Touchez un lieu sur la carte ou utilisez votre position.';
+
+  @override
+  String get mapSelectedHint =>
+      'Vous pouvez déplacer le repère en touchant un autre lieu.';
+
+  @override
+  String get mapCampusSummary => 'Campus du trajet';
+
+  @override
+  String get mapCoordinatesDetails => 'Voir les coordonnées';
+
+  @override
+  String get mapRouteLabel => 'Aperçu de l’itinéraire';
 }

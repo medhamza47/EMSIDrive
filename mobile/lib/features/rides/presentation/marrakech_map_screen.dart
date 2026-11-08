@@ -38,6 +38,7 @@ class _MarrakechMapScreenState extends State<MarrakechMapScreen> {
   String? _message;
   bool _locating = false;
   bool _routing = false;
+  bool _showCoordinates = false;
 
   @override
   void dispose() {
@@ -140,6 +141,18 @@ class _MarrakechMapScreenState extends State<MarrakechMapScreen> {
     final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l.marrakechMapTitle)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: PrimaryButton(
+            label: l.confirmMapPoint,
+            onPressed: _point == null
+                ? null
+                : () => Navigator.of(context).pop(_point),
+          ),
+        ),
+      ),
       body: FutureBuilder(
         future: _boundary,
         builder: (context, snapshot) {
@@ -150,11 +163,20 @@ class _MarrakechMapScreenState extends State<MarrakechMapScreen> {
           if (boundary == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          return Column(
-            children: [
-              Expanded(child: _buildMap(context, boundary)),
-              _buildControls(context, boundary),
-            ],
+          return LayoutBuilder(
+            builder: (context, constraints) => Column(
+              children: [
+                Expanded(child: _buildMap(context, boundary)),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: constraints.maxHeight * .45,
+                  ),
+                  child: SingleChildScrollView(
+                    child: _buildControls(context, boundary),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -269,7 +291,20 @@ class _MarrakechMapScreenState extends State<MarrakechMapScreen> {
         height: 42,
         child: Tooltip(
           message: label,
-          child: Icon(icon, color: color, size: 36, semanticLabel: label),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: .16),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: color, size: 28, semanticLabel: label),
+          ),
         ),
       );
 
@@ -284,63 +319,115 @@ class _MarrakechMapScreenState extends State<MarrakechMapScreen> {
       decimalDigits: 1,
     );
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              point == null
-                  ? l.pickPointHint
-                  : l.chosenCoordinates(
-                      point.latitude.toStringAsFixed(5),
-                      point.longitude.toStringAsFixed(5),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .06),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-              style: theme.textTheme.titleSmall,
-            ),
-            if (message != null)
-              Text(message, style: TextStyle(color: theme.colorScheme.error)),
-            if (route != null)
-              Text(
-                l.roadRouteSummary(
-                  number.format(route.distanceMeters / 1000),
-                  (route.durationSeconds / 60).ceil(),
-                ),
+                    child: Icon(
+                      Icons.location_on_outlined,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.mapSelectionTitle,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        Text(
+                          point == null
+                              ? l.mapSelectionHint
+                              : l.mapSelectedHint,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            Wrap(
-              spacing: 8,
-              children: [
-                TextButton.icon(
-                  onPressed: _locating ? null : () => _locate(boundary),
-                  icon: const Icon(Icons.my_location),
-                  label: Text(_locating ? l.locatingPosition : l.useMyLocation),
+              const SizedBox(height: 10),
+              Text(
+                '${l.mapCampusSummary} : ${widget.campusLabel}',
+                style: theme.textTheme.bodySmall,
+              ),
+              if (point != null)
+                TextButton(
+                  onPressed: () =>
+                      setState(() => _showCoordinates = !_showCoordinates),
+                  child: Text(l.mapCoordinatesDetails),
                 ),
-                TextButton.icon(
-                  onPressed: point == null || _routing || route != null
-                      ? null
-                      : _preview,
-                  icon: const Icon(Icons.alt_route),
-                  label: Text(
-                    _routing ? l.calculatingRoute : l.previewRoadRoute,
+              if (point != null && _showCoordinates)
+                Text(
+                  l.chosenCoordinates(
+                    point.latitude.toStringAsFixed(5),
+                    point.longitude.toStringAsFixed(5),
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              if (message != null)
+                Text(message, style: TextStyle(color: theme.colorScheme.error)),
+              if (route != null)
+                Text(
+                  l.roadRouteSummary(
+                    number.format(route.distanceMeters / 1000),
+                    (route.durationSeconds / 60).ceil(),
                   ),
                 ),
-              ],
-            ),
-            if (route == null && point != null)
-              Text(l.routingPrivacyHint, style: theme.textTheme.bodySmall),
-            if (route != null)
-              Text(l.roadRouteSource, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 8),
-            PrimaryButton(
-              label: l.confirmMapPoint,
-              onPressed: point == null
-                  ? null
-                  : () => Navigator.of(context).pop(point),
-            ),
-          ],
+              Wrap(
+                spacing: 8,
+                children: [
+                  TextButton.icon(
+                    onPressed: _locating ? null : () => _locate(boundary),
+                    icon: const Icon(Icons.my_location),
+                    label: Text(
+                      _locating ? l.locatingPosition : l.useMyLocation,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: point == null || _routing || route != null
+                        ? null
+                        : _preview,
+                    icon: const Icon(Icons.alt_route),
+                    label: Text(
+                      _routing ? l.calculatingRoute : l.previewRoadRoute,
+                    ),
+                  ),
+                ],
+              ),
+              if (route == null && point != null)
+                Text(l.routingPrivacyHint, style: theme.textTheme.bodySmall),
+              if (route != null)
+                Text(l.roadRouteSource, style: theme.textTheme.bodySmall),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
