@@ -1,4 +1,10 @@
 spring:
+  config:
+    import: optional:file:./.env.local[.properties]
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 9MB
   application:
     name: emsidrive-api
 
@@ -28,6 +34,10 @@ spring:
     baseline-on-migrate: true
 
 app:
+  schedule:
+    groq-api-key: ${GROQ_API_KEY:}
+    groq-model: ${GROQ_MODEL:qwen/qwen3.8-27b}
+    groq-url: https://api.groq.com/openai/v1/chat/completions
   security:
     jwt:
       # Development-only fallback. Production MUST provide JWT_SECRET (>= 256 bits).
@@ -54,6 +64,9 @@ logging:
   level:
     root: INFO
     ma.emsi.emsidrive: INFO
+    # Request/response bodies may contain credentials or personal timetables.
+    org.springframework.web: INFO
+    org.springframework.http.converter: INFO
 
 management:
   endpoints:
