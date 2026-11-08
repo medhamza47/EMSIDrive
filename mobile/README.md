@@ -74,3 +74,17 @@ extension, reachable through `Theme.of(context).semanticColors`.
 Never hardcode French strings in widgets. Add a key to
 `lib/l10n/app_fr.arb`, run `flutter gen-l10n`, then use
 `AppLocalizations.of(context)!.keyName`.
+
+## Marrakech ride map
+
+The mobile form requires one EMSI campus and one point inside Marrakech or
+Méchouar-Kasba. The boundaries in `assets/maps/marrakech.geojson` come from
+[Communes du Maroc](https://communes.pages.dev/fr/docs/api/) and use
+[OpenStreetMap data under ODbL](https://www.openstreetmap.org/copyright).
+Campus pins are based on the [EMSI contact page](https://emsi.ma/contact/).
+The Targa label uses the published Guéliz pin provisionally.
+
+The development build uses OpenStreetMap tiles and the public OSRM demo.
+`MAP_TILE_URL` and `ROUTING_BASE_URL` can be set with `--dart-define` to
+use a different tile service or OSRM instance. When a student requests a
+route preview, the routing service receives the two selected coordinates.

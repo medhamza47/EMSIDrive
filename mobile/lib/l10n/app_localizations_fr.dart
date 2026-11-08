@@ -605,6 +605,97 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signOutError => 'La déconnexion a échoué. Réessayez.';
 
   @override
+  String get campusTarga => 'EMSI Marrakech Targa';
+
+  @override
+  String get campusCentre => 'EMSI Marrakech Centre';
+
+  @override
+  String get campusTargaProvisionalAddress =>
+      'Repère provisoire à Guéliz · adresse Targa à confirmer';
+
+  @override
+  String get campusCentreAddress => 'Lot Bouizgaren, route de Safi';
+
+  @override
+  String get campusDirectionHint =>
+      'Choisissez le sens du trajet et un campus EMSI.';
+
+  @override
+  String get towardCampus => 'Vers l’EMSI';
+
+  @override
+  String get fromCampus => 'Depuis l’EMSI';
+
+  @override
+  String get chooseMapPoint => 'Choisir un point sur la carte';
+
+  @override
+  String get changeMapPoint => 'Modifier le point ou voir l’itinéraire';
+
+  @override
+  String get marrakechMapTitle => 'Carte de Marrakech';
+
+  @override
+  String get mapUnavailable => 'La carte de Marrakech est indisponible.';
+
+  @override
+  String get pickPointHint =>
+      'Touchez la carte pour placer le repère à Marrakech.';
+
+  @override
+  String get pointOutsideMarrakech =>
+      'Choisissez un point à l’intérieur de Marrakech.';
+
+  @override
+  String get locationDisabled =>
+      'Activez la localisation ou choisissez un point sur la carte.';
+
+  @override
+  String get locationDenied =>
+      'Autorisez la localisation dans les réglages ou choisissez un point sur la carte.';
+
+  @override
+  String get locationUnavailable =>
+      'Position introuvable. Choisissez un point sur la carte.';
+
+  @override
+  String get locatingPosition => 'Recherche de la position…';
+
+  @override
+  String get useMyLocation => 'Ma position';
+
+  @override
+  String get previewRoadRoute => 'Voir l’itinéraire';
+
+  @override
+  String get calculatingRoute => 'Calcul en cours…';
+
+  @override
+  String get roadRouteError =>
+      'Impossible de calculer l’itinéraire. Vous pouvez réessayer.';
+
+  @override
+  String get routingPrivacyHint =>
+      'Le calcul d’itinéraire envoie les deux points à OSRM.';
+
+  @override
+  String get roadRouteSource => 'Itinéraire routier estimé · OSRM';
+
+  @override
+  String get confirmMapPoint => 'Confirmer ce point';
+
+  @override
+  String chosenCoordinates(String latitude, String longitude) {
+    return 'Point choisi : $latitude, $longitude';
+  }
+
+  @override
+  String roadRouteSummary(String distance, int minutes) {
+    return '$distance km · environ $minutes min';
+  }
+
+  @override
   String seatsValue(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

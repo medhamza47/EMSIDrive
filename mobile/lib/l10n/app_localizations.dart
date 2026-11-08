@@ -1210,6 +1210,162 @@ abstract class AppLocalizations {
   /// **'La déconnexion a échoué. Réessayez.'**
   String get signOutError;
 
+  /// No description provided for @campusTarga.
+  ///
+  /// In fr, this message translates to:
+  /// **'EMSI Marrakech Targa'**
+  String get campusTarga;
+
+  /// No description provided for @campusCentre.
+  ///
+  /// In fr, this message translates to:
+  /// **'EMSI Marrakech Centre'**
+  String get campusCentre;
+
+  /// No description provided for @campusTargaProvisionalAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repère provisoire à Guéliz · adresse Targa à confirmer'**
+  String get campusTargaProvisionalAddress;
+
+  /// No description provided for @campusCentreAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lot Bouizgaren, route de Safi'**
+  String get campusCentreAddress;
+
+  /// No description provided for @campusDirectionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le sens du trajet et un campus EMSI.'**
+  String get campusDirectionHint;
+
+  /// No description provided for @towardCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vers l’EMSI'**
+  String get towardCampus;
+
+  /// No description provided for @fromCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis l’EMSI'**
+  String get fromCampus;
+
+  /// No description provided for @chooseMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un point sur la carte'**
+  String get chooseMapPoint;
+
+  /// No description provided for @changeMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le point ou voir l’itinéraire'**
+  String get changeMapPoint;
+
+  /// No description provided for @marrakechMapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte de Marrakech'**
+  String get marrakechMapTitle;
+
+  /// No description provided for @mapUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La carte de Marrakech est indisponible.'**
+  String get mapUnavailable;
+
+  /// No description provided for @pickPointHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez la carte pour placer le repère à Marrakech.'**
+  String get pickPointHint;
+
+  /// No description provided for @pointOutsideMarrakech.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un point à l’intérieur de Marrakech.'**
+  String get pointOutsideMarrakech;
+
+  /// No description provided for @locationDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activez la localisation ou choisissez un point sur la carte.'**
+  String get locationDisabled;
+
+  /// No description provided for @locationDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez la localisation dans les réglages ou choisissez un point sur la carte.'**
+  String get locationDenied;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position introuvable. Choisissez un point sur la carte.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locatingPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de la position…'**
+  String get locatingPosition;
+
+  /// No description provided for @useMyLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma position'**
+  String get useMyLocation;
+
+  /// No description provided for @previewRoadRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l’itinéraire'**
+  String get previewRoadRoute;
+
+  /// No description provided for @calculatingRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcul en cours…'**
+  String get calculatingRoute;
+
+  /// No description provided for @roadRouteError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de calculer l’itinéraire. Vous pouvez réessayer.'**
+  String get roadRouteError;
+
+  /// No description provided for @routingPrivacyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul d’itinéraire envoie les deux points à OSRM.'**
+  String get routingPrivacyHint;
+
+  /// No description provided for @roadRouteSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire routier estimé · OSRM'**
+  String get roadRouteSource;
+
+  /// No description provided for @confirmMapPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer ce point'**
+  String get confirmMapPoint;
+
+  /// No description provided for @chosenCoordinates.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point choisi : {latitude}, {longitude}'**
+  String chosenCoordinates(String latitude, String longitude);
+
+  /// No description provided for @roadRouteSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{distance} km · environ {minutes} min'**
+  String roadRouteSummary(String distance, int minutes);
+
   /// No description provided for @seatsValue.
   ///
   /// In fr, this message translates to:

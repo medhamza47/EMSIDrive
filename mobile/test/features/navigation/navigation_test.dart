@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -147,6 +149,31 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.rideRequest);
       final l10n = l10nOf();
+
+      await tester.tap(find.text(l10n.fromCampus));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.chooseMapPoint));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pumpAndSettle();
+
+      final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+      map.options.onTap!(
+        const TapPosition(Offset.zero, Offset.zero),
+        const LatLng(33.57, -7.59),
+      );
+      await tester.pump();
+      expect(find.text(l10n.pointOutsideMarrakech), findsOneWidget);
+
+      map.options.onTap!(
+        const TapPosition(Offset.zero, Offset.zero),
+        const LatLng(31.632, -8.0111),
+      );
+      await tester.pump();
+      await tester.tap(find.text(l10n.confirmMapPoint));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.changeMapPoint), findsOneWidget);
 
       await tester.ensureVisible(find.text(l10n.publishRequest));
       await tester.tap(find.text(l10n.publishRequest));

@@ -425,6 +425,52 @@
   "proposalDeclined": "Proposition refusée",
   "signOutLabel": "Se déconnecter",
   "signOutError": "La déconnexion a échoué. Réessayez.",
+  "campusTarga": "EMSI Marrakech Targa",
+  "campusCentre": "EMSI Marrakech Centre",
+  "campusTargaProvisionalAddress": "Repère provisoire à Guéliz · adresse Targa à confirmer",
+  "campusCentreAddress": "Lot Bouizgaren, route de Safi",
+  "campusDirectionHint": "Choisissez le sens du trajet et un campus EMSI.",
+  "towardCampus": "Vers l’EMSI",
+  "fromCampus": "Depuis l’EMSI",
+  "chooseMapPoint": "Choisir un point sur la carte",
+  "changeMapPoint": "Modifier le point ou voir l’itinéraire",
+  "marrakechMapTitle": "Carte de Marrakech",
+  "mapUnavailable": "La carte de Marrakech est indisponible.",
+  "pickPointHint": "Touchez la carte pour placer le repère à Marrakech.",
+  "pointOutsideMarrakech": "Choisissez un point à l’intérieur de Marrakech.",
+  "locationDisabled": "Activez la localisation ou choisissez un point sur la carte.",
+  "locationDenied": "Autorisez la localisation dans les réglages ou choisissez un point sur la carte.",
+  "locationUnavailable": "Position introuvable. Choisissez un point sur la carte.",
+  "locatingPosition": "Recherche de la position…",
+  "useMyLocation": "Ma position",
+  "previewRoadRoute": "Voir l’itinéraire",
+  "calculatingRoute": "Calcul en cours…",
+  "roadRouteError": "Impossible de calculer l’itinéraire. Vous pouvez réessayer.",
+  "routingPrivacyHint": "Le calcul d’itinéraire envoie les deux points à OSRM.",
+  "roadRouteSource": "Itinéraire routier estimé · OSRM",
+  "confirmMapPoint": "Confirmer ce point",
+  "chosenCoordinates": "Point choisi : {latitude}, {longitude}",
+  "@chosenCoordinates": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "roadRouteSummary": "{distance} km · environ {minutes} min",
+  "@roadRouteSummary": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "seatsValue": "{count, plural, one{1 place} other{{count} places}}",
   "@seatsValue": {
     "placeholders": {
