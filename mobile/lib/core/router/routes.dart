@@ -26,6 +26,8 @@ abstract final class AppRoutes {
   static String driverDetail(String driverId) => '$rides/driver/$driverId';
   static String trackingFor(String driverId) => '$rideTracking/$driverId';
   static String suggestionDetail(String driverId) => '$suggestions/$driverId';
+  static String listing(String kind, String id) => '$rides/listings/$kind/$id';
+  static String acceptedRide(String id) => '/trip/$id';
 
   /// Initial location shown when the app starts.
   ///

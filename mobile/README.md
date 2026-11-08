@@ -88,3 +88,16 @@ The development build uses OpenStreetMap tiles and the public OSRM demo.
 `MAP_TILE_URL` and `ROUTING_BASE_URL` can be set with `--dart-define` to
 use a different tile service or OSRM instance. When a student requests a
 route preview, the routing service receives the two selected coordinates.
+
+## Ride marketplace
+
+Trajets separates published requests, offers and accepted rides. The API
+reserves a seat and creates the author's in-app notification in the same
+transaction. Before acceptance, other students see an approximate city point.
+An accepted ride gives its participants access to the exact points and a
+private chat.
+
+The driver can share their location from the accepted ride. The passenger's
+map refreshes while that screen is open. Sharing stops when the driver leaves
+the screen or backgrounds the app, and the server hides stale positions after
+30 seconds. Acceptance notifications appear inside the app.

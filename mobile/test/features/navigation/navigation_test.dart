@@ -5,6 +5,8 @@ import 'package:emsidrive_mobile/features/home/data/home_repository.dart';
 import 'package:emsidrive_mobile/features/home/data/home_repository_provider.dart';
 import 'package:emsidrive_mobile/features/home/domain/home_overview.dart';
 import 'package:emsidrive_mobile/features/home/presentation/home_screen.dart';
+import 'package:emsidrive_mobile/core/network/dio_client_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../helpers/pump_app.dart';
+import '../../helpers/fake_http_adapter.dart';
 
 const HomeOverview _overview = HomeOverview(displayName: 'Yassine');
 
@@ -26,6 +29,8 @@ List<Override> get _homeOverrides => <Override>[
 ];
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+
   group('AppTab', () {
     test('follows the bottom navigation order', () {
       expect(AppTab.values, <AppTab>[
@@ -144,10 +149,33 @@ void main() {
       expect(find.byType(NavigationBar), findsNothing);
     });
 
-    testWidgets('opens a driver from the ride request form', (tester) async {
+    testWidgets('publishes a request with the selected city point', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(400, 900));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.rideRequest);
+      FlutterSecureStorage.setMockInitialValues({
+        StorageKeys.accessToken: 'test-token',
+      });
+      final adapter = FakeHttpAdapter((options) async {
+        if (options.method == 'POST') {
+          return jsonResponse({'id': 'test-request'});
+        }
+        return ResponseBody.fromString(
+          '[]',
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      await pumpEmsiDriveApp(
+        tester,
+        initialLocation: AppRoutes.rideRequest,
+        overrides: [
+          dioClientProvider.overrideWithValue(dioWithAdapter(adapter)),
+        ],
+      );
       final l10n = l10nOf();
 
       await tester.tap(find.text(l10n.fromCampus));
@@ -178,16 +206,15 @@ void main() {
       await tester.ensureVisible(find.text(l10n.publishRequest));
       await tester.tap(find.text(l10n.publishRequest));
       await tester.pumpAndSettle();
-      expect(find.text(l10n.nearbyTitle), findsOneWidget);
-
-      await tester.tap(find.text('Omar K.'));
-      await tester.pumpAndSettle();
-      expect(find.text(l10n.driverTitle), findsOneWidget);
-
-      await tester.ensureVisible(find.text(l10n.sendRequest));
-      await tester.tap(find.text(l10n.sendRequest));
-      await tester.pumpAndSettle();
-      expect(find.text(l10n.arrivalEstimate('Omar')), findsOneWidget);
+      expect(find.text(l10n.rideRequests), findsOneWidget);
+      expect(find.text(l10n.rideOffers), findsOneWidget);
+      final request = adapter.requests.singleWhere(
+        (request) => request.method == 'POST',
+      );
+      expect(request.path, '/marketplace/listings');
+      expect(request.data['kind'], 'REQUEST');
+      expect(request.data['toCampus'], isFalse);
+      expect(request.data['point'], {'latitude': 31.632, 'longitude': -8.0111});
     });
 
     testWidgets('follows the schedule demo through to a suggestion', (

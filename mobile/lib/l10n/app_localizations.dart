@@ -1210,6 +1210,216 @@ abstract class AppLocalizations {
   /// **'La déconnexion a échoué. Réessayez.'**
   String get signOutError;
 
+  /// No description provided for @rideRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandes'**
+  String get rideRequests;
+
+  /// No description provided for @rideOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offres'**
+  String get rideOffers;
+
+  /// No description provided for @myAcceptedRides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes trajets'**
+  String get myAcceptedRides;
+
+  /// No description provided for @refreshListings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get refreshListings;
+
+  /// No description provided for @marketplaceLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au service indisponible. Réessayez.'**
+  String get marketplaceLoadError;
+
+  /// No description provided for @noRideRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune demande à venir.'**
+  String get noRideRequests;
+
+  /// No description provided for @noRideOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune offre à venir.'**
+  String get noRideOffers;
+
+  /// No description provided for @noAcceptedRides.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun trajet accepté.'**
+  String get noAcceptedRides;
+
+  /// No description provided for @rideRequestDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de trajet'**
+  String get rideRequestDetail;
+
+  /// No description provided for @rideOfferDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre de trajet'**
+  String get rideOfferDetail;
+
+  /// No description provided for @approximatePickup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le point en ville est approximatif avant l’acceptation.'**
+  String get approximatePickup;
+
+  /// No description provided for @acceptRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter le trajet'**
+  String get acceptRide;
+
+  /// No description provided for @acceptRideError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’accepter ce trajet. Vérifiez sa disponibilité.'**
+  String get acceptRideError;
+
+  /// No description provided for @ownRideListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez publié cette annonce.'**
+  String get ownRideListing;
+
+  /// No description provided for @rideUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce trajet n’est plus disponible.'**
+  String get rideUnavailable;
+
+  /// No description provided for @acceptedRideTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trajet accepté'**
+  String get acceptedRideTitle;
+
+  /// No description provided for @rideChat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chat'**
+  String get rideChat;
+
+  /// No description provided for @driverLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position du conducteur'**
+  String get driverLocation;
+
+  /// No description provided for @sendChatError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le message n’a pas pu être envoyé.'**
+  String get sendChatError;
+
+  /// No description provided for @liveSharingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage de position a rencontré un problème.'**
+  String get liveSharingError;
+
+  /// No description provided for @youDrive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous conduisez'**
+  String get youDrive;
+
+  /// No description provided for @youRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes passager'**
+  String get youRide;
+
+  /// No description provided for @locationSharingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre passager voit votre position pendant que cet écran reste ouvert et que le partage est actif.'**
+  String get locationSharingHint;
+
+  /// No description provided for @startLiveSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager ma position'**
+  String get startLiveSharing;
+
+  /// No description provided for @stopLiveSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter le partage'**
+  String get stopLiveSharing;
+
+  /// No description provided for @noLiveLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur ne partage pas sa position actuellement.'**
+  String get noLiveLocation;
+
+  /// No description provided for @noChatMessages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun message pour le moment.'**
+  String get noChatMessages;
+
+  /// No description provided for @writeChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrire un message'**
+  String get writeChatMessage;
+
+  /// No description provided for @sendChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le message'**
+  String get sendChatMessage;
+
+  /// No description provided for @noRideNotices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune notification de trajet.'**
+  String get noRideNotices;
+
+  /// No description provided for @openAcceptedRide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le trajet et le chat'**
+  String get openAcceptedRide;
+
+  /// No description provided for @departureMustBeFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une date et une heure de départ à venir.'**
+  String get departureMustBeFuture;
+
+  /// No description provided for @publishRideError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de publier le trajet. Réessayez.'**
+  String get publishRideError;
+
+  /// No description provided for @requestAcceptedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a accepté votre demande'**
+  String requestAcceptedNotice(String name);
+
+  /// No description provided for @offerAcceptedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a accepté votre offre'**
+  String offerAcceptedNotice(String name);
+
   /// No description provided for @campusTarga.
   ///
   /// In fr, this message translates to:

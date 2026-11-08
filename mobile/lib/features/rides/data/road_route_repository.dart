@@ -22,11 +22,14 @@ class RoadRouteRepository {
 
   final Dio _client;
 
-  Future<RoadRoute> calculate(MarrakechTrip trip) async {
+  Future<RoadRoute> calculate(MarrakechTrip trip) =>
+      between(trip.origin, trip.destination);
+
+  Future<RoadRoute> between(LatLng origin, LatLng destination) async {
     String coordinate(LatLng point) =>
         '${point.longitude.toStringAsFixed(6)},${point.latitude.toStringAsFixed(6)}';
-    final start = coordinate(trip.origin);
-    final end = coordinate(trip.destination);
+    final start = coordinate(origin);
+    final end = coordinate(destination);
     final response = await _client.get<Map<String, dynamic>>(
       '/route/v1/driving/$start;$end',
       queryParameters: const {'overview': 'full', 'geometries': 'geojson'},

@@ -605,6 +605,122 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signOutError => 'La déconnexion a échoué. Réessayez.';
 
   @override
+  String get rideRequests => 'Demandes';
+
+  @override
+  String get rideOffers => 'Offres';
+
+  @override
+  String get myAcceptedRides => 'Mes trajets';
+
+  @override
+  String get refreshListings => 'Actualiser';
+
+  @override
+  String get marketplaceLoadError =>
+      'Connexion au service indisponible. Réessayez.';
+
+  @override
+  String get noRideRequests => 'Aucune demande à venir.';
+
+  @override
+  String get noRideOffers => 'Aucune offre à venir.';
+
+  @override
+  String get noAcceptedRides => 'Aucun trajet accepté.';
+
+  @override
+  String get rideRequestDetail => 'Demande de trajet';
+
+  @override
+  String get rideOfferDetail => 'Offre de trajet';
+
+  @override
+  String get approximatePickup =>
+      'Le point en ville est approximatif avant l’acceptation.';
+
+  @override
+  String get acceptRide => 'Accepter le trajet';
+
+  @override
+  String get acceptRideError =>
+      'Impossible d’accepter ce trajet. Vérifiez sa disponibilité.';
+
+  @override
+  String get ownRideListing => 'Vous avez publié cette annonce.';
+
+  @override
+  String get rideUnavailable => 'Ce trajet n’est plus disponible.';
+
+  @override
+  String get acceptedRideTitle => 'Trajet accepté';
+
+  @override
+  String get rideChat => 'Chat';
+
+  @override
+  String get driverLocation => 'Position du conducteur';
+
+  @override
+  String get sendChatError => 'Le message n’a pas pu être envoyé.';
+
+  @override
+  String get liveSharingError =>
+      'Le partage de position a rencontré un problème.';
+
+  @override
+  String get youDrive => 'Vous conduisez';
+
+  @override
+  String get youRide => 'Vous êtes passager';
+
+  @override
+  String get locationSharingHint =>
+      'Votre passager voit votre position pendant que cet écran reste ouvert et que le partage est actif.';
+
+  @override
+  String get startLiveSharing => 'Partager ma position';
+
+  @override
+  String get stopLiveSharing => 'Arrêter le partage';
+
+  @override
+  String get noLiveLocation =>
+      'Le conducteur ne partage pas sa position actuellement.';
+
+  @override
+  String get noChatMessages => 'Aucun message pour le moment.';
+
+  @override
+  String get writeChatMessage => 'Écrire un message';
+
+  @override
+  String get sendChatMessage => 'Envoyer le message';
+
+  @override
+  String get noRideNotices => 'Aucune notification de trajet.';
+
+  @override
+  String get openAcceptedRide => 'Ouvrir le trajet et le chat';
+
+  @override
+  String get departureMustBeFuture =>
+      'Choisissez une date et une heure de départ à venir.';
+
+  @override
+  String get publishRideError => 'Impossible de publier le trajet. Réessayez.';
+
+  @override
+  String requestAcceptedNotice(String name) {
+    return '$name a accepté votre demande';
+  }
+
+  @override
+  String offerAcceptedNotice(String name) {
+    return '$name a accepté votre offre';
+  }
+
+  @override
   String get campusTarga => 'EMSI Marrakech Targa';
 
   @override

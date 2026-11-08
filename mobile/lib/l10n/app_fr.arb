@@ -425,6 +425,55 @@
   "proposalDeclined": "Proposition refusée",
   "signOutLabel": "Se déconnecter",
   "signOutError": "La déconnexion a échoué. Réessayez.",
+  "rideRequests": "Demandes",
+  "rideOffers": "Offres",
+  "myAcceptedRides": "Mes trajets",
+  "refreshListings": "Actualiser",
+  "marketplaceLoadError": "Connexion au service indisponible. Réessayez.",
+  "noRideRequests": "Aucune demande à venir.",
+  "noRideOffers": "Aucune offre à venir.",
+  "noAcceptedRides": "Aucun trajet accepté.",
+  "rideRequestDetail": "Demande de trajet",
+  "rideOfferDetail": "Offre de trajet",
+  "approximatePickup": "Le point en ville est approximatif avant l’acceptation.",
+  "acceptRide": "Accepter le trajet",
+  "acceptRideError": "Impossible d’accepter ce trajet. Vérifiez sa disponibilité.",
+  "ownRideListing": "Vous avez publié cette annonce.",
+  "rideUnavailable": "Ce trajet n’est plus disponible.",
+  "acceptedRideTitle": "Trajet accepté",
+  "rideChat": "Chat",
+  "driverLocation": "Position du conducteur",
+  "sendChatError": "Le message n’a pas pu être envoyé.",
+  "liveSharingError": "Le partage de position a rencontré un problème.",
+  "youDrive": "Vous conduisez",
+  "youRide": "Vous êtes passager",
+  "locationSharingHint": "Votre passager voit votre position pendant que cet écran reste ouvert et que le partage est actif.",
+  "startLiveSharing": "Partager ma position",
+  "stopLiveSharing": "Arrêter le partage",
+  "noLiveLocation": "Le conducteur ne partage pas sa position actuellement.",
+  "noChatMessages": "Aucun message pour le moment.",
+  "writeChatMessage": "Écrire un message",
+  "sendChatMessage": "Envoyer le message",
+  "noRideNotices": "Aucune notification de trajet.",
+  "openAcceptedRide": "Ouvrir le trajet et le chat",
+  "departureMustBeFuture": "Choisissez une date et une heure de départ à venir.",
+  "publishRideError": "Impossible de publier le trajet. Réessayez.",
+  "requestAcceptedNotice": "{name} a accepté votre demande",
+  "offerAcceptedNotice": "{name} a accepté votre offre",
+  "@requestAcceptedNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@offerAcceptedNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "campusTarga": "EMSI Marrakech Targa",
   "campusCentre": "EMSI Marrakech Centre",
   "campusCentreAddress": "Lot Bouizgaren, route de Safi",

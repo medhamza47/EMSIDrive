@@ -7,19 +7,31 @@ import '../../l10n/app_localizations.dart';
 ///
 /// Rendered by the router shell so each tab keeps its own navigation stack.
 class AppBottomNavBar extends StatelessWidget {
-  const AppBottomNavBar({required this.currentTab, required this.onTabSelected, super.key});
+  const AppBottomNavBar({
+    required this.currentTab,
+    required this.onTabSelected,
+    this.hasUnreadNotifications = false,
+    super.key,
+  });
 
   /// Tab currently displayed, derived from the active branch.
   final AppTab currentTab;
 
   /// Invoked with the tapped tab.
   final ValueChanged<AppTab> onTabSelected;
+  final bool hasUnreadNotifications;
 
   /// Icons shown for each tab, in [AppTab] declaration order.
   static const Map<AppTab, ({IconData icon, IconData selectedIcon})> _icons =
       <AppTab, ({IconData icon, IconData selectedIcon})>{
-        AppTab.home: (icon: Icons.home_outlined, selectedIcon: Icons.home_rounded),
-        AppTab.rides: (icon: Icons.route_outlined, selectedIcon: Icons.route_rounded),
+        AppTab.home: (
+          icon: Icons.home_outlined,
+          selectedIcon: Icons.home_rounded,
+        ),
+        AppTab.rides: (
+          icon: Icons.route_outlined,
+          selectedIcon: Icons.route_rounded,
+        ),
         AppTab.notifications: (
           icon: Icons.notifications_outlined,
           selectedIcon: Icons.notifications_rounded,
@@ -33,6 +45,10 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    Widget icon(AppTab tab, IconData data) =>
+        tab == AppTab.notifications && hasUnreadNotifications
+        ? Badge(child: Icon(data))
+        : Icon(data);
 
     return NavigationBar(
       selectedIndex: currentTab.index,
@@ -42,8 +58,8 @@ class AppBottomNavBar extends StatelessWidget {
       destinations: <Widget>[
         for (final tab in AppTab.values)
           NavigationDestination(
-            icon: Icon(_icons[tab]!.icon),
-            selectedIcon: Icon(_icons[tab]!.selectedIcon),
+            icon: icon(tab, _icons[tab]!.icon),
+            selectedIcon: icon(tab, _icons[tab]!.selectedIcon),
             label: _label(l10n, tab),
           ),
       ],

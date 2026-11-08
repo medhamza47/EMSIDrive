@@ -113,6 +113,18 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>../mobile/assets/maps</directory>
+                <targetPath>maps</targetPath>
+                <includes>
+                    <include>marrakech.geojson</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

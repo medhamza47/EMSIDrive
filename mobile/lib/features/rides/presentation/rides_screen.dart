@@ -5,37 +5,22 @@ import '../../../core/router/routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/flow_page.dart';
+import 'marketplace_screens.dart';
 
 class RidesScreen extends StatelessWidget {
-  const RidesScreen({super.key});
+  const RidesScreen({this.initialTab = 0, super.key});
+
+  final int initialTab;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final entries = [
       (
-        Icons.add_location_alt_outlined,
-        l.requestTitle,
-        l.homeSearchRideSubtitle,
-        AppRoutes.rideRequest,
-      ),
-      (
-        Icons.near_me_outlined,
-        l.nearbyTitle,
-        l.homeSearchRideTitle,
-        AppRoutes.nearbyDrivers,
-      ),
-      (
         Icons.calendar_month_outlined,
         l.scheduleTitle,
         l.scheduleFormats,
         AppRoutes.scheduleImport,
-      ),
-      (
-        Icons.route_outlined,
-        l.trackingTitle,
-        l.demoRoute,
-        AppRoutes.rideTracking,
       ),
       (
         Icons.local_gas_station_outlined,
@@ -49,6 +34,8 @@ class RidesScreen extends StatelessWidget {
     return FlowPage(
       title: l.navRides,
       children: [
+        MarketplaceBoard(initialTab: initialTab),
+        const Divider(),
         for (final (icon, title, subtitle, route) in entries)
           AppCard(
             leading: Icon(icon, color: Theme.of(context).colorScheme.primary),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,26 +8,82 @@ import '../../../core/router/routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/flow_page.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../data/marketplace_api.dart';
+import '../domain/marketplace_models.dart';
 import '../domain/marrakech_trip.dart';
 import 'marrakech_map_screen.dart';
 
-class RideRequestScreen extends StatefulWidget {
+class RideRequestScreen extends ConsumerStatefulWidget {
   const RideRequestScreen({this.isOffer = false, super.key});
 
   final bool isOffer;
 
   @override
-  State<RideRequestScreen> createState() => _RideRequestScreenState();
+  ConsumerState<RideRequestScreen> createState() => _RideRequestScreenState();
 }
 
-class _RideRequestScreenState extends State<RideRequestScreen> {
-  DateTime _date = DateUtils.dateOnly(DateTime.now());
-  TimeOfDay _time = const TimeOfDay(hour: 8, minute: 15);
+class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
+  final _notes = TextEditingController();
+  bool _publishing = false;
+  late final _initialDeparture = DateTime.now().add(const Duration(hours: 1));
+  late DateTime _date = DateUtils.dateOnly(_initialDeparture);
+  late TimeOfDay _time = TimeOfDay.fromDateTime(_initialDeparture);
   int _vehicle = 0;
   int _seats = 1;
   EmsiCampus _campus = EmsiCampus.centre;
   CampusDirection _direction = CampusDirection.toCampus;
   LatLng? _cityPoint;
+
+  @override
+  void dispose() {
+    _notes.dispose();
+    super.dispose();
+  }
+
+  Future<void> _publish(LatLng cityPoint) async {
+    final l = AppLocalizations.of(context);
+    final departure = DateTime(
+      _date.year,
+      _date.month,
+      _date.day,
+      _time.hour,
+      _time.minute,
+    );
+    if (!departure.isAfter(DateTime.now())) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.departureMustBeFuture)));
+      return;
+    }
+    setState(() => _publishing = true);
+    try {
+      await ref
+          .read(marketplaceApiProvider)
+          .publish(
+            kind: widget.isOffer ? ListingKind.offer : ListingKind.request,
+            trip: MarrakechTrip(
+              campus: _campus,
+              direction: _direction,
+              cityPoint: cityPoint,
+            ),
+            departure: departure,
+            seats: _seats,
+            vehicle: const ['MOTO', 'CAR', 'ANY'][_vehicle],
+            notes: _notes.text.trim(),
+          );
+      if (mounted) {
+        context.go(
+          '${AppRoutes.rides}?tab=${widget.isOffer ? 'offers' : 'requests'}',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.publishRideError)));
+      }
+    } finally {
+      if (mounted) setState(() => _publishing = false);
+    }
+  }
 
   String _campusName(EmsiCampus campus, AppLocalizations l) => switch (campus) {
     EmsiCampus.targa => l.campusTarga,
@@ -187,6 +244,8 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
           ],
         ),
         TextField(
+          controller: _notes,
+          maxLength: 500,
           maxLines: 3,
           decoration: InputDecoration(
             labelText: l.optionalMessage,
@@ -195,18 +254,8 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
         ),
         PrimaryButton(
           label: widget.isOffer ? l.publishOffer : l.publishRequest,
-          onPressed: cityPoint == null
-              ? null
-              : () {
-                  if (widget.isOffer) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(l.demoOfferSaved)));
-                    context.pop();
-                  } else {
-                    context.push(AppRoutes.nearbyDrivers);
-                  }
-                },
+          isLoading: _publishing,
+          onPressed: cityPoint == null ? null : () => _publish(cityPoint),
         ),
       ],
     );

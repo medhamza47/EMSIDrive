@@ -1,71 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/routes.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/flow_page.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../../rides/data/marketplace_api.dart';
+import '../../rides/domain/marketplace_models.dart';
+import '../data/ride_notices_provider.dart';
 
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
-  @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
-}
+  Future<void> _open(
+    BuildContext context,
+    WidgetRef ref,
+    RideNotice notice,
+  ) async {
+    if (!notice.seen) {
+      try {
+        await ref.read(marketplaceApiProvider).markRead(notice.id);
+        if (context.mounted) ref.invalidate(rideNoticesProvider);
+      } catch (_) {
+        // An unavailable read receipt does not prevent opening the trip.
+      }
+    }
+    if (context.mounted) context.push(AppRoutes.acceptedRide(notice.bookingId));
+  }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  bool? _accepted;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
-    final notifications = [
-      (l.proposalNotification, l.proposalNotificationBody),
-      (l.acceptedNotification, l.acceptedNotificationBody),
-      (l.matchNotification, l.matchNotificationBody),
-      (l.reminderNotification, l.reminderNotificationBody),
-    ];
-
+    final notices = ref.watch(rideNoticesProvider);
     return FlowPage(
       title: l.navNotifications,
       children: [
-        for (final (index, (title, subtitle)) in notifications.indexed)
-          AppCard(
-            leading: index < 2
-                ? Icon(Icons.circle, color: colors.secondary, size: 10)
-                : null,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FlowCopy(title, subtitle),
-                if (index == 0) ...[
-                  const SizedBox(height: 8),
-                  if (_accepted == null)
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        FilledButton(
-                          onPressed: () => setState(() => _accepted = true),
-                          child: Text(l.acceptProposal),
-                        ),
-                        OutlinedButton(
-                          onPressed: () => setState(() => _accepted = false),
-                          child: Text(l.declineProposal),
-                        ),
-                      ],
-                    )
-                  else
-                    AppBadge(
-                      label: _accepted!
-                          ? l.proposalAccepted
-                          : l.proposalDeclined,
-                      tone: _accepted!
-                          ? AppBadgeTone.accent
-                          : AppBadgeTone.neutral,
-                    ),
-                ],
-              ],
+        if (notices.isLoading && !notices.hasValue)
+          const LinearProgressIndicator()
+        else if (notices.hasError)
+          TextButton(
+            onPressed: () => ref.invalidate(rideNoticesProvider),
+            child: Text(l.marketplaceLoadError),
+          )
+        else if (notices.value?.isEmpty ?? true)
+          Text(l.noRideNotices)
+        else
+          for (final notice in notices.value!)
+            AppCard(
+              onTap: () => _open(context, ref, notice),
+              leading: Icon(
+                notice.seen
+                    ? Icons.notifications_none
+                    : Icons.notifications_active,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              child: FlowCopy(
+                notice.isRequest
+                    ? l.requestAcceptedNotice(notice.accepter)
+                    : l.offerAcceptedNotice(notice.accepter),
+                l.openAcceptedRide,
+              ),
             ),
-          ),
       ],
     );
   }
