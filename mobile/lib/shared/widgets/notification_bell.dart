@@ -17,7 +17,9 @@ class NotificationBell extends ConsumerWidget {
       onPressed: () => context.push(AppRoutes.notifications),
       icon: Badge(
         isLabelVisible: unread,
-        child: const Icon(Icons.notifications_none_rounded),
+        // Outline like the other icons; slightly larger so it balances the
+        // logo and avatar.
+        child: const Icon(Icons.notifications_outlined, size: 27),
       ),
     );
   }
