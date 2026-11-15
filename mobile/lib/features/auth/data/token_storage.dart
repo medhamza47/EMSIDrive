@@ -68,13 +68,41 @@ class TokenStorage extends ChangeNotifier {
     await _storage.write(key: StorageKeys.refreshToken, value: refreshToken);
   }
 
+  /// Whether the stored session must be unlocked with a biometric check.
+  Future<bool> readBiometricEnabled() async {
+    await _writes;
+    return await _storage.read(key: StorageKeys.biometricEnabled) == 'true';
+  }
+
+  /// Turns the biometric unlock on or off for the current session.
+  ///
+  /// Does nothing when the account changed since [expectedSession], so a late
+  /// toggle cannot enable the unlock for another account.
+  Future<bool> setBiometricEnabled(int expectedSession, bool enabled) async {
+    var saved = false;
+    await _serialize(() async {
+      if (expectedSession != _session) return;
+      if (enabled) {
+        await _storage.write(key: StorageKeys.biometricEnabled, value: 'true');
+      } else {
+        await _storage.delete(key: StorageKeys.biometricEnabled);
+      }
+      saved = expectedSession == _session;
+    });
+    return saved;
+  }
+
   /// Removes both tokens, used when signing out or when a token is rejected.
+  ///
+  /// The biometric unlock is turned off too: it belongs to the account that
+  /// was signed in, and the next account must opt in again.
   Future<void> clear() async {
     final session = ++_session;
     _signedIn = false;
     await _serialize(() async {
       await _storage.delete(key: StorageKeys.accessToken);
       await _storage.delete(key: StorageKeys.refreshToken);
+      await _storage.delete(key: StorageKeys.biometricEnabled);
     });
     if (session == _session) notifyListeners();
   }

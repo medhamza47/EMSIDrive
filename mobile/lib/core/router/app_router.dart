@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/biometric_offer_host.dart';
 import '../../features/auth/presentation/session_screen.dart';
 import '../../features/auth/application/session_controller.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -62,7 +63,9 @@ GoRouter createAppRouter({
             final authenticating =
                 path == AppRoutes.login || path == AppRoutes.register;
             switch (session.status) {
-              case SessionStatus.restoring || SessionStatus.unavailable:
+              case SessionStatus.restoring ||
+                  SessionStatus.locked ||
+                  SessionStatus.unavailable:
                 if (path == AppRoutes.session) return null;
                 return Uri(
                   path: AppRoutes.session,
@@ -270,7 +273,7 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: navigationShell,
+      body: BiometricOfferHost(child: navigationShell),
       bottomNavigationBar: AppBottomNavBar(
         currentTab: AppTab.values[navigationShell.currentIndex],
 

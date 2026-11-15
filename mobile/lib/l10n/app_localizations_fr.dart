@@ -1289,4 +1289,66 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sessionUseAnotherAccount => 'Utiliser un autre compte';
+
+  @override
+  String get biometricLockedTitle => 'Session verrouillée';
+
+  @override
+  String get biometricLockedBody =>
+      'Utilisez votre empreinte pour ouvrir EMSIDrive.';
+
+  @override
+  String get biometricUnlockButton => 'Déverrouiller avec l’empreinte';
+
+  @override
+  String get biometricUsePassword => 'Utiliser le mot de passe';
+
+  @override
+  String get biometricUnlockReason =>
+      'Confirmez votre identité pour ouvrir EMSIDrive';
+
+  @override
+  String get biometricEnableReason =>
+      'Confirmez votre empreinte pour activer la connexion rapide';
+
+  @override
+  String get biometricLockedOut =>
+      'Trop de tentatives. Réessayez plus tard ou utilisez votre mot de passe.';
+
+  @override
+  String get biometricUnavailable =>
+      'Aucune empreinte n’est disponible sur cet appareil. Utilisez votre mot de passe.';
+
+  @override
+  String get biometricFailed => 'Empreinte non reconnue. Réessayez.';
+
+  @override
+  String get biometricSecurityTitle => 'Sécurité';
+
+  @override
+  String get biometricSettingTitle => 'Connexion par empreinte';
+
+  @override
+  String get biometricSettingSubtitle =>
+      'Ouvrir l’app avec votre empreinte au lieu du mot de passe.';
+
+  @override
+  String get biometricSettingUnavailable =>
+      'Enregistrez une empreinte dans les réglages du téléphone pour activer cette option.';
+
+  @override
+  String get biometricOfferTitle => 'Activer l’empreinte ?';
+
+  @override
+  String get biometricOfferBody =>
+      'La prochaine fois, ouvrez EMSIDrive avec votre empreinte. Votre mot de passe n’est pas enregistré sur le téléphone.';
+
+  @override
+  String get biometricOfferAccept => 'Activer';
+
+  @override
+  String get biometricOfferLater => 'Plus tard';
+
+  @override
+  String get biometricEnabledMessage => 'Connexion par empreinte activée.';
 }

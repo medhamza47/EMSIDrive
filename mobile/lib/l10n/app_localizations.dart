@@ -2373,6 +2373,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Utiliser un autre compte'**
   String get sessionUseAnotherAccount;
+
+  /// No description provided for @biometricLockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session verrouillée'**
+  String get biometricLockedTitle;
+
+  /// No description provided for @biometricLockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez votre empreinte pour ouvrir EMSIDrive.'**
+  String get biometricLockedBody;
+
+  /// No description provided for @biometricUnlockButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouiller avec l’empreinte'**
+  String get biometricUnlockButton;
+
+  /// No description provided for @biometricUsePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser le mot de passe'**
+  String get biometricUsePassword;
+
+  /// No description provided for @biometricUnlockReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre identité pour ouvrir EMSIDrive'**
+  String get biometricUnlockReason;
+
+  /// No description provided for @biometricEnableReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre empreinte pour activer la connexion rapide'**
+  String get biometricEnableReason;
+
+  /// No description provided for @biometricLockedOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessayez plus tard ou utilisez votre mot de passe.'**
+  String get biometricLockedOut;
+
+  /// No description provided for @biometricUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune empreinte n’est disponible sur cet appareil. Utilisez votre mot de passe.'**
+  String get biometricUnavailable;
+
+  /// No description provided for @biometricFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empreinte non reconnue. Réessayez.'**
+  String get biometricFailed;
+
+  /// No description provided for @biometricSecurityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get biometricSecurityTitle;
+
+  /// No description provided for @biometricSettingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par empreinte'**
+  String get biometricSettingTitle;
+
+  /// No description provided for @biometricSettingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir l’app avec votre empreinte au lieu du mot de passe.'**
+  String get biometricSettingSubtitle;
+
+  /// No description provided for @biometricSettingUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrez une empreinte dans les réglages du téléphone pour activer cette option.'**
+  String get biometricSettingUnavailable;
+
+  /// No description provided for @biometricOfferTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer l’empreinte ?'**
+  String get biometricOfferTitle;
+
+  /// No description provided for @biometricOfferBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La prochaine fois, ouvrez EMSIDrive avec votre empreinte. Votre mot de passe n’est pas enregistré sur le téléphone.'**
+  String get biometricOfferBody;
+
+  /// No description provided for @biometricOfferAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get biometricOfferAccept;
+
+  /// No description provided for @biometricOfferLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get biometricOfferLater;
+
+  /// No description provided for @biometricEnabledMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par empreinte activée.'**
+  String get biometricEnabledMessage;
 }
 
 class _AppLocalizationsDelegate
