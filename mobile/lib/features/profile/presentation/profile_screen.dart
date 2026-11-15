@@ -173,10 +173,20 @@ class _BiometricSettingState extends ConsumerState<_BiometricSetting> {
 
   Future<void> _toggle(bool enabled) async {
     final l = AppLocalizations.of(context);
+    if (!enabled &&
+        !await confirmBiometricUnlink(
+          context,
+          title: l.biometricDisableTitle,
+          body: l.biometricDisableBody,
+          confirm: l.biometricDisableConfirm,
+        )) {
+      return;
+    }
+    if (!mounted) return;
     setState(() => _saving = true);
     final result = await ref
         .read(biometricSettingsProvider.notifier)
-        .setEnabled(enabled, reason: l.biometricEnableReason);
+        .setEnabled(enabled, prompt: l.biometricEnablePrompt);
     if (!mounted) return;
     setState(() => _saving = false);
     final message = biometricResultMessage(l, result, enabling: enabled);

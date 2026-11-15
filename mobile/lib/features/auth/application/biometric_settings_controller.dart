@@ -2,37 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/biometric_auth.dart';
 import '../data/session_id_provider.dart';
-import '../data/token_storage.dart';
 import '../data/token_storage_provider.dart';
+import 'biometric_link_service.dart';
 
-/// What the profile switch needs to know about the biometric unlock.
+/// What the profile switch needs to know about fingerprint login.
 class BiometricSettings {
   const BiometricSettings({required this.available, required this.enabled});
 
   /// The device has a sensor with at least one enrolled biometric.
   final bool available;
 
-  /// The stored session is unlocked with a biometric check at startup.
+  /// This phone is linked: fingerprint login and startup unlock are on.
   final bool enabled;
-}
-
-/// Turns the biometric unlock on after a successful check, or off directly.
-///
-/// Enabling requires the user to pass the prompt once, which proves the sensor
-/// works and that the person holding the phone owns the enrolled biometric.
-Future<BiometricResult> setBiometricUnlock(
-  TokenStorage tokens,
-  BiometricAuth biometrics, {
-  required bool enabled,
-  required String reason,
-}) async {
-  final session = tokens.session;
-  if (enabled) {
-    final result = await biometrics.authenticate(reason);
-    if (result != BiometricResult.success) return result;
-  }
-  final saved = await tokens.setBiometricEnabled(session, enabled);
-  return saved ? BiometricResult.success : BiometricResult.cancelled;
 }
 
 final biometricSettingsProvider =
@@ -54,16 +35,20 @@ class BiometricSettingsController extends AsyncNotifier<BiometricSettings> {
     );
   }
 
+  /// Links this phone after a fingerprint check, or unlinks it.
   Future<BiometricResult> setEnabled(
     bool enabled, {
-    required String reason,
+    required BiometricPromptTexts prompt,
   }) async {
-    final result = await setBiometricUnlock(
-      ref.read(tokenStorageProvider),
-      ref.read(biometricAuthProvider),
-      enabled: enabled,
-      reason: reason,
-    );
+    final service = ref.read(biometricLinkServiceProvider);
+    final BiometricResult result;
+    if (enabled) {
+      result = await service.link(prompt: prompt);
+    } else {
+      await service.unlink();
+      result = BiometricResult.success;
+    }
+    ref.invalidate(biometricLinkProvider);
     if (ref.mounted && result == BiometricResult.success) {
       state = AsyncData(
         BiometricSettings(
@@ -76,26 +61,27 @@ class BiometricSettingsController extends AsyncNotifier<BiometricSettings> {
   }
 }
 
-/// `true` right after a password login or a registration, until the app has
-/// offered to turn the biometric unlock on.
-final biometricOfferProvider = NotifierProvider<BiometricOfferController, bool>(
-  BiometricOfferController.new,
-);
+/// Email of the account that just signed in with a password or registered,
+/// until the app has offered to turn fingerprint login on; `null` otherwise.
+final biometricOfferProvider =
+    NotifierProvider<BiometricOfferController, String?>(
+      BiometricOfferController.new,
+    );
 
-class BiometricOfferController extends Notifier<bool> {
+class BiometricOfferController extends Notifier<String?> {
   @override
-  bool build() {
+  String? build() {
     // A pending offer belongs to the account that just signed in.
     ref.watch(sessionIdProvider);
-    return false;
+    return null;
   }
 
-  void request() => state = true;
+  void request(String email) => state = email;
 
-  /// Returns whether an offer was pending, and clears it.
-  bool consume() {
+  /// Returns the pending account email, and clears the offer.
+  String? consume() {
     final pending = state;
-    state = false;
+    state = null;
     return pending;
   }
 }

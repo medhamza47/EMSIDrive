@@ -1291,21 +1291,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sessionUseAnotherAccount => 'Utiliser un autre compte';
 
   @override
-  String get biometricLockedTitle => 'Session verrouillée';
+  String get biometricScanning => 'Touchez le capteur d’empreinte…';
 
   @override
-  String get biometricLockedBody =>
-      'Utilisez votre empreinte pour ouvrir EMSIDrive.';
-
-  @override
-  String get biometricUnlockButton => 'Déverrouiller avec l’empreinte';
+  String get biometricUnlocked => 'Empreinte reconnue';
 
   @override
   String get biometricUsePassword => 'Utiliser le mot de passe';
-
-  @override
-  String get biometricUnlockReason =>
-      'Confirmez votre identité pour ouvrir EMSIDrive';
 
   @override
   String get biometricEnableReason =>
@@ -1330,7 +1322,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get biometricSettingSubtitle =>
-      'Ouvrir l’app avec votre empreinte au lieu du mot de passe.';
+      'Vous connecter avec votre empreinte au lieu de l’email et du mot de passe.';
 
   @override
   String get biometricSettingUnavailable =>
@@ -1341,7 +1333,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get biometricOfferBody =>
-      'La prochaine fois, ouvrez EMSIDrive avec votre empreinte. Votre mot de passe n’est pas enregistré sur le téléphone.';
+      'Connectez-vous ensuite d’une simple empreinte, même après une déconnexion. Votre mot de passe n’est jamais enregistré sur le téléphone.';
+
+  @override
+  String get biometricUnlinked =>
+      'Ce téléphone n’est plus lié à votre compte. Connectez-vous avec votre mot de passe.';
+
+  @override
+  String get biometricNetworkError =>
+      'Connexion au serveur impossible. Vérifiez votre réseau et réessayez.';
+
+  @override
+  String biometricWelcomeBack(String name) {
+    return 'Bon retour, $name';
+  }
+
+  @override
+  String get biometricSignInButton => 'Se connecter avec l’empreinte';
+
+  @override
+  String get biometricSignInReason =>
+      'Confirmez votre identité pour vous connecter à EMSIDrive';
+
+  @override
+  String get biometricSwitchAccount => 'Changer de compte';
+
+  @override
+  String get biometricPromptTitle => 'Connexion à EMSIDrive';
+
+  @override
+  String get biometricCancel => 'Annuler';
+
+  @override
+  String get biometricPromptHint => 'Vérification de votre identité';
+
+  @override
+  String get biometricCancelledHint =>
+      'Empreinte non reconnue ? Réessayez ou utilisez votre mot de passe.';
+
+  @override
+  String get biometricDisableTitle => 'Désactiver la connexion par empreinte ?';
+
+  @override
+  String get biometricDisableBody =>
+      'Vous devrez saisir votre email et votre mot de passe pour vous reconnecter. Vous pourrez la réactiver depuis le Profil.';
+
+  @override
+  String get biometricDisableConfirm => 'Désactiver';
+
+  @override
+  String get biometricSwitchTitle => 'Changer de compte ?';
+
+  @override
+  String biometricSwitchBody(String email) {
+    return 'Ce téléphone ne sera plus lié à $email. La connexion par empreinte devra être réactivée.';
+  }
 
   @override
   String get biometricOfferAccept => 'Activer';

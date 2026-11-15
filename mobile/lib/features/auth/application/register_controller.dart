@@ -33,7 +33,7 @@ class RegisterController extends _$RegisterController {
         phoneNumber: phoneNumber,
       );
       if (ref.mounted) {
-        ref.read(biometricOfferProvider.notifier).request();
+        ref.read(biometricOfferProvider.notifier).request(session.user.email);
         state = AuthSucceeded(session);
       }
     } on AppFailure catch (failure) {

@@ -47,8 +47,19 @@ class AuthRepository {
     );
   }
 
-  /// Removes the stored tokens.
-  Future<void> signOut() => _tokenStorage.clear();
+  /// Ends the session on the server, then removes the stored tokens.
+  ///
+  /// The server call is best effort: offline, the phone still signs out and
+  /// the refresh token simply expires on its own.
+  Future<void> signOut() async {
+    try {
+      final refresh = await _tokenStorage.readRefreshToken();
+      if (refresh != null && refresh.isNotEmpty) await _api.logout(refresh);
+    } catch (_) {
+      // Signing out locally must never be blocked by the network.
+    }
+    await _tokenStorage.clear();
+  }
 
   /// Reads the stored access token, used to restore a session at startup.
   Future<String?> readAccessToken() => _tokenStorage.readAccessToken();

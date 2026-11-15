@@ -2374,35 +2374,23 @@ abstract class AppLocalizations {
   /// **'Utiliser un autre compte'**
   String get sessionUseAnotherAccount;
 
-  /// No description provided for @biometricLockedTitle.
+  /// No description provided for @biometricScanning.
   ///
   /// In fr, this message translates to:
-  /// **'Session verrouillée'**
-  String get biometricLockedTitle;
+  /// **'Touchez le capteur d’empreinte…'**
+  String get biometricScanning;
 
-  /// No description provided for @biometricLockedBody.
+  /// No description provided for @biometricUnlocked.
   ///
   /// In fr, this message translates to:
-  /// **'Utilisez votre empreinte pour ouvrir EMSIDrive.'**
-  String get biometricLockedBody;
-
-  /// No description provided for @biometricUnlockButton.
-  ///
-  /// In fr, this message translates to:
-  /// **'Déverrouiller avec l’empreinte'**
-  String get biometricUnlockButton;
+  /// **'Empreinte reconnue'**
+  String get biometricUnlocked;
 
   /// No description provided for @biometricUsePassword.
   ///
   /// In fr, this message translates to:
   /// **'Utiliser le mot de passe'**
   String get biometricUsePassword;
-
-  /// No description provided for @biometricUnlockReason.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confirmez votre identité pour ouvrir EMSIDrive'**
-  String get biometricUnlockReason;
 
   /// No description provided for @biometricEnableReason.
   ///
@@ -2443,7 +2431,7 @@ abstract class AppLocalizations {
   /// No description provided for @biometricSettingSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir l’app avec votre empreinte au lieu du mot de passe.'**
+  /// **'Vous connecter avec votre empreinte au lieu de l’email et du mot de passe.'**
   String get biometricSettingSubtitle;
 
   /// No description provided for @biometricSettingUnavailable.
@@ -2461,8 +2449,98 @@ abstract class AppLocalizations {
   /// No description provided for @biometricOfferBody.
   ///
   /// In fr, this message translates to:
-  /// **'La prochaine fois, ouvrez EMSIDrive avec votre empreinte. Votre mot de passe n’est pas enregistré sur le téléphone.'**
+  /// **'Connectez-vous ensuite d’une simple empreinte, même après une déconnexion. Votre mot de passe n’est jamais enregistré sur le téléphone.'**
   String get biometricOfferBody;
+
+  /// No description provided for @biometricUnlinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce téléphone n’est plus lié à votre compte. Connectez-vous avec votre mot de passe.'**
+  String get biometricUnlinked;
+
+  /// No description provided for @biometricNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au serveur impossible. Vérifiez votre réseau et réessayez.'**
+  String get biometricNetworkError;
+
+  /// No description provided for @biometricWelcomeBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon retour, {name}'**
+  String biometricWelcomeBack(String name);
+
+  /// No description provided for @biometricSignInButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec l’empreinte'**
+  String get biometricSignInButton;
+
+  /// No description provided for @biometricSignInReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre identité pour vous connecter à EMSIDrive'**
+  String get biometricSignInReason;
+
+  /// No description provided for @biometricSwitchAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de compte'**
+  String get biometricSwitchAccount;
+
+  /// No description provided for @biometricPromptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion à EMSIDrive'**
+  String get biometricPromptTitle;
+
+  /// No description provided for @biometricCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get biometricCancel;
+
+  /// No description provided for @biometricPromptHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de votre identité'**
+  String get biometricPromptHint;
+
+  /// No description provided for @biometricCancelledHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empreinte non reconnue ? Réessayez ou utilisez votre mot de passe.'**
+  String get biometricCancelledHint;
+
+  /// No description provided for @biometricDisableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver la connexion par empreinte ?'**
+  String get biometricDisableTitle;
+
+  /// No description provided for @biometricDisableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous devrez saisir votre email et votre mot de passe pour vous reconnecter. Vous pourrez la réactiver depuis le Profil.'**
+  String get biometricDisableBody;
+
+  /// No description provided for @biometricDisableConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get biometricDisableConfirm;
+
+  /// No description provided for @biometricSwitchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de compte ?'**
+  String get biometricSwitchTitle;
+
+  /// No description provided for @biometricSwitchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce téléphone ne sera plus lié à {email}. La connexion par empreinte devra être réactivée.'**
+  String biometricSwitchBody(String email);
 
   /// No description provided for @biometricOfferAccept.
   ///

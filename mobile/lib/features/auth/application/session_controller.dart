@@ -4,54 +4,54 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/authenticated_api.dart';
-import '../data/biometric_auth.dart';
+import '../data/auth_repository.dart';
+import '../data/auth_repository_provider.dart';
 import '../data/token_storage.dart';
 import '../data/token_storage_provider.dart';
 
-/// `locked`: a session is stored but the biometric unlock is enabled and has
-/// not been passed yet in this run of the app.
-enum SessionStatus { restoring, locked, signedIn, signedOut, unavailable }
+enum SessionStatus { restoring, signedIn, signedOut, unavailable }
 
 final sessionControllerProvider = Provider<SessionController>((ref) {
   final controller = SessionController(
     ref.watch(tokenStorageProvider),
     ref.watch(authenticatedApiProvider),
-    ref.watch(biometricAuthProvider),
+    ref.watch(authRepositoryProvider),
   );
   ref.onDispose(controller.dispose);
   return controller;
 });
 
 /// Validates stored credentials with the API before opening private screens.
+///
+/// An open session reopens straight on the home tab; the fingerprint is only
+/// used to sign back in after a sign-out, from the login screen.
 class SessionController extends ChangeNotifier {
-  SessionController(this._tokens, this._api, this._biometrics) {
+  SessionController(this._tokens, this._api, this._auth) {
     _tokens.addListener(_tokensChanged);
     unawaited(restore());
   }
 
   final TokenStorage _tokens;
   final AuthenticatedApi _api;
-  final BiometricAuth _biometrics;
+  final AuthRepository _auth;
   SessionStatus _status = SessionStatus.restoring;
   SessionStatus get status => _status;
   bool _restoring = false;
-  bool _unlocking = false;
   bool _disposed = false;
 
-  /// Set once the biometric check passed, or when the user typed the password
-  /// in this run, so the lock is not shown again until the app restarts.
-  bool _unlocked = false;
+  /// Whether a session was open at some point in this run of the app.
+  bool get wasSignedIn => _wasSignedIn;
+  bool _wasSignedIn = false;
 
   void _setStatus(SessionStatus value) {
     if (_disposed || _status == value) return;
     _status = value;
+    if (value == SessionStatus.signedIn) _wasSignedIn = true;
     notifyListeners();
   }
 
   void _tokensChanged() {
     if (_tokens.signedIn case final signedIn?) {
-      // A password login is proof enough: no fingerprint right after it.
-      _unlocked = signedIn;
       _setStatus(signedIn ? SessionStatus.signedIn : SessionStatus.signedOut);
     }
   }
@@ -76,11 +76,6 @@ class SessionController extends ChangeNotifier {
         await _tokens.invalidate(session);
         return;
       }
-      // Lock before any network call, so the check also applies offline.
-      if (!_unlocked && await _tokens.readBiometricEnabled()) {
-        if (_tokens.session == session) _setStatus(SessionStatus.locked);
-        return;
-      }
       await _api.request<Map<String, dynamic>>('GET', '/me');
       if (_tokens.session == session) _setStatus(SessionStatus.signedIn);
     } catch (_) {
@@ -92,31 +87,9 @@ class SessionController extends ChangeNotifier {
     }
   }
 
-  /// Shows the biometric prompt and, on success, continues the restore.
-  ///
-  /// [reason] is the localized text displayed by the system prompt.
-  Future<BiometricResult> unlock(String reason) async {
-    if (_status != SessionStatus.locked || _unlocking) {
-      return BiometricResult.cancelled;
-    }
-    _unlocking = true;
-    final session = _tokens.session;
-    try {
-      final result = await _biometrics.authenticate(reason);
-      if (_disposed || _tokens.session != session) {
-        return BiometricResult.cancelled;
-      }
-      if (result == BiometricResult.success) {
-        _unlocked = true;
-        await restore();
-      }
-      return result;
-    } finally {
-      _unlocking = false;
-    }
-  }
-
-  Future<void> signOut() => _tokens.clear();
+  /// Ends the session on the server when reachable, then locally. The
+  /// fingerprint link is kept.
+  Future<void> signOut() => _auth.signOut();
 
   @override
   void dispose() {

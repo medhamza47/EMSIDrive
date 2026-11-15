@@ -63,9 +63,7 @@ GoRouter createAppRouter({
             final authenticating =
                 path == AppRoutes.login || path == AppRoutes.register;
             switch (session.status) {
-              case SessionStatus.restoring ||
-                  SessionStatus.locked ||
-                  SessionStatus.unavailable:
+              case SessionStatus.restoring || SessionStatus.unavailable:
                 if (path == AppRoutes.session) return null;
                 return Uri(
                   path: AppRoutes.session,

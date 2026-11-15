@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/constants/storage_keys.dart';
+import '../domain/biometric_link.dart';
 
 /// Persists the token pair in platform secure storage.
 ///
@@ -68,41 +69,78 @@ class TokenStorage extends ChangeNotifier {
     await _storage.write(key: StorageKeys.refreshToken, value: refreshToken);
   }
 
-  /// Whether the stored session must be unlocked with a biometric check.
-  Future<bool> readBiometricEnabled() async {
+  /// The fingerprint link of this phone, or `null` when it is not linked.
+  Future<BiometricLink?> readBiometricLink() async {
     await _writes;
-    return await _storage.read(key: StorageKeys.biometricEnabled) == 'true';
+    final id = await _storage.read(key: StorageKeys.biometricDeviceId);
+    final key = await _storage.read(key: StorageKeys.biometricDeviceKey);
+    if (id == null || id.isEmpty || key == null || key.isEmpty) return null;
+    return BiometricLink(
+      deviceId: id,
+      deviceKey: key,
+      email: await _storage.read(key: StorageKeys.biometricEmail) ?? '',
+      fullName: await _storage.read(key: StorageKeys.biometricName) ?? '',
+    );
   }
 
-  /// Turns the biometric unlock on or off for the current session.
-  ///
-  /// Does nothing when the account changed since [expectedSession], so a late
-  /// toggle cannot enable the unlock for another account.
-  Future<bool> setBiometricEnabled(int expectedSession, bool enabled) async {
+  /// Whether a stored session must be unlocked with a fingerprint.
+  Future<bool> readBiometricEnabled() async =>
+      await readBiometricLink() != null;
+
+  /// Stores [link], unless the account changed since [expectedSession].
+  Future<bool> saveBiometricLink(
+    int expectedSession,
+    BiometricLink link,
+  ) async {
     var saved = false;
     await _serialize(() async {
       if (expectedSession != _session) return;
-      if (enabled) {
-        await _storage.write(key: StorageKeys.biometricEnabled, value: 'true');
-      } else {
-        await _storage.delete(key: StorageKeys.biometricEnabled);
-      }
+      await _writeLink(link);
       saved = expectedSession == _session;
     });
     return saved;
   }
 
+  /// Replaces the device key after the server rotated it.
+  Future<void> rotateBiometricKey(BiometricLink link, String key) =>
+      _serialize(() => _writeLink(link.withKey(key)));
+
+  /// Forgets the fingerprint link of this phone.
+  Future<void> clearBiometricLink() => _serialize(() async {
+    for (final key in const [
+      StorageKeys.biometricDeviceId,
+      StorageKeys.biometricDeviceKey,
+      StorageKeys.biometricEmail,
+      StorageKeys.biometricName,
+      StorageKeys.legacyBiometricEnabled,
+    ]) {
+      await _storage.delete(key: key);
+    }
+  });
+
+  Future<void> _writeLink(BiometricLink link) async {
+    await _storage.write(
+      key: StorageKeys.biometricDeviceId,
+      value: link.deviceId,
+    );
+    await _storage.write(
+      key: StorageKeys.biometricDeviceKey,
+      value: link.deviceKey,
+    );
+    await _storage.write(key: StorageKeys.biometricEmail, value: link.email);
+    await _storage.write(key: StorageKeys.biometricName, value: link.fullName);
+  }
+
   /// Removes both tokens, used when signing out or when a token is rejected.
   ///
-  /// The biometric unlock is turned off too: it belongs to the account that
-  /// was signed in, and the next account must opt in again.
+  /// The fingerprint link is kept on purpose: it lets the student sign back in
+  /// with a fingerprint after a sign-out.
   Future<void> clear() async {
     final session = ++_session;
     _signedIn = false;
     await _serialize(() async {
       await _storage.delete(key: StorageKeys.accessToken);
       await _storage.delete(key: StorageKeys.refreshToken);
-      await _storage.delete(key: StorageKeys.biometricEnabled);
     });
     if (session == _session) notifyListeners();
   }

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../application/biometric_link_service.dart';
 import '../application/biometric_settings_controller.dart';
 import '../data/biometric_auth.dart';
 import '../data/token_storage_provider.dart';
+import 'widgets/biometric_indicator.dart';
 
 /// Offers once, right after a password login, to unlock the app with a
 /// fingerprint next time.
@@ -32,12 +34,17 @@ class _BiometricOfferHostState extends ConsumerState<BiometricOfferHost> {
 
   Future<void> _maybeOffer() async {
     if (!mounted || _offering) return;
-    if (!ref.read(biometricOfferProvider.notifier).consume()) return;
+    final email = ref.read(biometricOfferProvider.notifier).consume();
+    if (email == null) return;
     _offering = true;
     try {
       final tokens = ref.read(tokenStorageProvider);
       final biometrics = ref.read(biometricAuthProvider);
       final session = tokens.session;
+      // Another account was linked on this phone: that link goes away.
+      await ref.read(biometricLinkServiceProvider).unlinkIfOtherAccount(email);
+      ref.invalidate(biometricLinkProvider);
+      if (!mounted) return;
       if (!await biometrics.isAvailable() ||
           await tokens.readBiometricEnabled() ||
           !mounted ||
@@ -50,13 +57,12 @@ class _BiometricOfferHostState extends ConsumerState<BiometricOfferHost> {
         builder: (_) => const BiometricOfferDialog(),
       );
       if (accepted != true || !mounted || tokens.session != session) return;
-      final result = await setBiometricUnlock(
-        tokens,
-        biometrics,
-        enabled: true,
-        reason: l.biometricEnableReason,
-      );
-      ref.invalidate(biometricSettingsProvider);
+      final result = await ref
+          .read(biometricLinkServiceProvider)
+          .link(prompt: l.biometricEnablePrompt);
+      ref
+        ..invalidate(biometricSettingsProvider)
+        ..invalidate(biometricLinkProvider);
       if (!mounted) return;
       final message = biometricResultMessage(l, result, enabling: true);
       if (message != null) {
@@ -71,8 +77,8 @@ class _BiometricOfferHostState extends ConsumerState<BiometricOfferHost> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<bool>(biometricOfferProvider, (_, pending) {
-      if (pending) _maybeOffer();
+    ref.listen<String?>(biometricOfferProvider, (_, pending) {
+      if (pending != null) _maybeOffer();
     });
     return widget.child;
   }
@@ -96,13 +102,9 @@ class BiometricOfferDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Icon(
-                Icons.fingerprint,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
+            const Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: BiometricIndicator(visual: BiometricVisual.idle, size: 96),
             ),
             const SizedBox(height: 16),
             Text(
@@ -138,6 +140,53 @@ class BiometricOfferDialog extends StatelessWidget {
   }
 }
 
+/// French texts of the system fingerprint prompt, one set per use.
+extension BiometricPrompts on AppLocalizations {
+  /// Unlocking the app at startup, or signing in from the login screen.
+  BiometricPromptTexts get biometricSignInPrompt => BiometricPromptTexts(
+    reason: biometricSignInReason,
+    title: biometricPromptTitle,
+    hint: biometricPromptHint,
+    cancel: biometricUsePassword,
+  );
+
+  /// Linking this phone, from the offer or the profile switch.
+  BiometricPromptTexts get biometricEnablePrompt => BiometricPromptTexts(
+    reason: biometricEnableReason,
+    title: biometricOfferTitle,
+    hint: biometricPromptHint,
+    cancel: biometricCancel,
+  );
+}
+
+/// Asks before unlinking the phone, so a stray tap cannot remove it.
+Future<bool> confirmBiometricUnlink(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String confirm,
+}) async {
+  final l = AppLocalizations.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.biometricCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(confirm),
+        ),
+      ],
+    ),
+  );
+  return confirmed ?? false;
+}
+
 /// User-facing message for [result], or `null` when nothing should be shown.
 String? biometricResultMessage(
   AppLocalizations l,
@@ -149,4 +198,6 @@ String? biometricResultMessage(
   BiometricResult.lockedOut => l.biometricLockedOut,
   BiometricResult.unavailable => l.biometricUnavailable,
   BiometricResult.failed => l.biometricFailed,
+  BiometricResult.unlinked => l.biometricUnlinked,
+  BiometricResult.networkError => l.biometricNetworkError,
 };
