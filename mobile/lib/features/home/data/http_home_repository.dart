@@ -17,7 +17,13 @@ class HttpHomeRepository implements HomeRepository {
       final profile = await _profiles.loadProfile();
       final trips = await _rides.trips();
       final upcoming =
-          trips.where((t) => t.path.departure.isAfter(DateTime.now())).toList()
+          trips
+              .where(
+                (t) =>
+                    t.status == 'ONGOING' ||
+                    t.path.departure.isAfter(DateTime.now()),
+              )
+              .toList()
             ..sort((a, b) => a.path.departure.compareTo(b.path.departure));
       return HomeOverview(
         displayName: profile.fullName,
@@ -31,6 +37,9 @@ class HttpHomeRepository implements HomeRepository {
                   .add_Hm()
                   .format(trip.path.departure),
               driverName: trip.partner,
+              status: trip.status == 'ONGOING'
+                  ? TripStatus.ongoing
+                  : TripStatus.confirmed,
             ),
         ],
       );

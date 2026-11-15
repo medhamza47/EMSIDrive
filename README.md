@@ -168,7 +168,46 @@ Le fichier est généré dans `mobile/build/app/outputs/flutter-apk/app-debug.ap
 la racine du dépôt. Une mise à jour avec le même identifiant d’application et la même
 signature conserve les données locales de l’application.
 
-### Compte de test local
+### Gestion des annonces et cycle de vie des trajets
+
+Depuis **Trajets → Demandes / Offres → Mes annonces**, l’auteur retrouve ses
+annonces, y compris celles qui sont fermées. La fiche permet de modifier une
+annonce à venir sans réservation, ou de l’annuler après confirmation.
+L’édition reprend les coordonnées exactes de l’auteur et vérifie la révision
+pour refuser une sauvegarde devenue obsolète. Dès qu’une réservation a existé,
+la modification est bloquée afin de préserver son itinéraire dans l’historique.
+
+Depuis **Mes trajets**, les participants retrouvent leurs réservations actives.
+Chacun peut annuler sa réservation avant le départ. Le conducteur peut démarrer
+puis terminer le trajet pour tous les passagers confirmés de la même offre.
+Annuler une annonce ferme toutes ses réservations actives et prévient les
+participants. Annuler une réservation d’offre restitue les places une seule fois.
+Si un conducteur annule une demande acceptée, la demande est remise en attente.
+Si le passager annule sa propre demande, celle-ci est fermée.
+
+**Mes trajets → Historique** affiche les trajets terminés ou annulés avec leur
+fiche et leurs anciens messages. Le chat devient consultable en lecture seule
+et toute position partagée est masquée à la clôture du trajet. Les notifications
+d’annulation, de départ et d’arrivée ouvrent également la fiche concernée.
+
+La migration **V23** conserve les réservations annulées et permet une nouvelle
+réservation du même passager, avec un nouvel identifiant. Les actions verrouillent
+les données dans une transaction pour éviter les doubles réservations et les
+restitutions de places multiples. Le départ est une action explicite du conducteur.
+
+| Action API authentifiée | Route sous `/api/v1/marketplace` |
+| --- | --- |
+| Mes annonces | `GET /listings?kind=OFFER&mine=true` ou `kind=REQUEST` |
+| Modifier | `PUT /listings/{kind}/{id}` avec `listing` et `revision` |
+| Annuler l’annonce | `POST /listings/{kind}/{id}/cancel` |
+| Départ / arrivée / annulation d’une réservation | `POST /trips/{id}/actions/START`, `COMPLETE` ou `CANCEL` |
+| Historique | `GET /trips?history=true` |
+
+Validation du 15 novembre 2026 avec 166 tests mobiles et 6 tests d’intégration
+marketplace, dont les accès par rôle, les transitions, l’historique, les éditions
+obsolètes et les acceptations / annulations concurrentes.
+
+### Comptes de démonstration locaux
 
 #### Validation à deux comptes du 15 novembre 2026
 

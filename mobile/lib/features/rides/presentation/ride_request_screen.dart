@@ -16,9 +16,10 @@ import '../domain/marrakech_trip.dart';
 import 'marrakech_map_screen.dart';
 
 class RideRequestScreen extends ConsumerStatefulWidget {
-  const RideRequestScreen({this.isOffer = false, super.key});
+  const RideRequestScreen({this.isOffer = false, this.editing, super.key});
 
   final bool isOffer;
+  final RideListing? editing;
 
   @override
   ConsumerState<RideRequestScreen> createState() => _RideRequestScreenState();
@@ -40,7 +41,26 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    final editing = widget.editing;
+    if (editing == null) {
+      _loadPreferences();
+    } else {
+      final path = editing.path;
+      final toCampus = path.originLabel == 'Marrakech';
+      _campus = path.title.contains('Targa')
+          ? EmsiCampus.targa
+          : EmsiCampus.centre;
+      _direction = toCampus
+          ? CampusDirection.toCampus
+          : CampusDirection.fromCampus;
+      _cityPoint = toCampus ? path.origin : path.destination;
+      _date = DateUtils.dateOnly(path.departure);
+      _time = TimeOfDay.fromDateTime(path.departure);
+      _seats = editing.seats;
+      _vehicle = const ['MOTO', 'CAR', 'ANY'].indexOf(editing.vehicle);
+      if (_vehicle < 0) _vehicle = 2;
+      _notes.text = editing.notes ?? '';
+    }
   }
 
   Future<void> _loadPreferences() async {
@@ -103,16 +123,26 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
             seats: _seats,
             vehicle: const ['MOTO', 'CAR', 'ANY'][_vehicle],
             notes: _notes.text.trim(),
+            editing: widget.editing,
           );
       if (mounted) {
-        context.go(
-          '${AppRoutes.rides}?tab=${widget.isOffer ? 'offers' : 'requests'}',
-        );
+        if (widget.editing != null) {
+          Navigator.of(context).pop();
+        } else {
+          context.go(
+            '${AppRoutes.rides}?tab=${widget.isOffer ? 'offers' : 'requests'}',
+          );
+        }
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l.publishRideError)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.editing == null ? l.publishRideError : l.rideActionFailed,
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _publishing = false);
@@ -202,7 +232,11 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
       ],
     );
     return FlowPage(
-      title: widget.isOffer ? l.offerTitle : l.requestTitle,
+      title: widget.editing != null
+          ? l.rideEditListing
+          : widget.isOffer
+          ? l.offerTitle
+          : l.requestTitle,
       children: [
         FormSection(
           title: l.rideFormRoute,
@@ -323,7 +357,11 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
             ),
           ),
         PrimaryButton(
-          label: widget.isOffer ? l.publishOffer : l.publishRequest,
+          label: widget.editing != null
+              ? l.rideSaveListing
+              : widget.isOffer
+              ? l.publishOffer
+              : l.publishRequest,
           isLoading: _publishing,
           onPressed: cityPoint == null ? null : () => _publish(cityPoint),
         ),

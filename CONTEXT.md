@@ -503,3 +503,26 @@ nouvel essai après 401 et rejette les réponses d’une session déjà déconne
 | `JWT_REFRESH_TOKEN_TTL` | `P7D` | Durée de vie du refresh token |
 | `STUDENT_EMAIL_DOMAINS` | `emsi-edu.ma` | Domaines autorisés à l'inscription, séparés par des virgules |
 
+## Cycle de vie marketplace
+
+La migration V23 ajoute les horodatages réels de départ et de fin aux offres.
+Une réservation reste `CONFIRMED` pendant le trajet, avec un statut exposé
+`ONGOING` lorsque l’offre est en cours. Le conducteur démarre et termine l’offre
+pour tous ses passagers confirmés. Les réservations terminées deviennent
+`COMPLETED` et les annulations deviennent `CANCELLED`.
+
+Les mutations verrouillent les lignes dans l’ordre demande, offre, réservation.
+Une annulation est idempotente et restitue les places d’une offre une seule fois.
+L’unicité offre/passager s’applique aux réservations actives via un index partiel.
+Une réservation annulée reste en historique et une nouvelle acceptation crée un
+nouvel identifiant. Une annonce ayant déjà eu une réservation ne peut plus être
+modifiée afin de conserver les itinéraires historiques. Les éditions vérifient
+une révision et reprennent les coordonnées exactes uniquement pour l’auteur.
+
+Une annulation par le conducteur remet une demande acceptée en attente. Une
+annulation de la demande par son passager la ferme. L’annulation d’une annonce
+ferme ses réservations actives. Les notifications de changement restent privées
+aux participants. Les messages historiques restent lisibles, leur envoi et le
+partage de position sont refusés après clôture. Le mobile expose les annonces
+personnelles, les actions confirmées et l’historique depuis Trajets.
+

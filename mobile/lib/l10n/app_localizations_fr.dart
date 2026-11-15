@@ -1179,4 +1179,101 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mapRouteLabel => 'Aperçu de l’itinéraire';
+
+  @override
+  String get rideMyListings => 'Mes annonces';
+
+  @override
+  String get rideActiveTrips => 'En cours et à venir';
+
+  @override
+  String get rideHistory => 'Historique';
+
+  @override
+  String get rideNoHistory => 'Aucun trajet terminé ou annulé.';
+
+  @override
+  String get rideEditListing => 'Modifier l’annonce';
+
+  @override
+  String get rideSaveListing => 'Enregistrer les modifications';
+
+  @override
+  String get rideCancelListing => 'Annuler l’annonce';
+
+  @override
+  String get rideCancelBooking => 'Annuler cette réservation';
+
+  @override
+  String get rideStart => 'Démarrer le trajet';
+
+  @override
+  String get rideComplete => 'Terminer le trajet';
+
+  @override
+  String get rideActionFailed =>
+      'Action impossible. Le trajet a peut-être changé. Actualisez puis réessayez.';
+
+  @override
+  String get rideConfirmAction => 'Confirmer l’action';
+
+  @override
+  String get rideCancelListingHint =>
+      'L’annonce sera fermée et toutes ses réservations actives seront annulées. Les participants seront prévenus.';
+
+  @override
+  String get rideCancelBookingHint =>
+      'Cette réservation sera annulée et l’autre participant sera prévenu.';
+
+  @override
+  String get rideStartHint =>
+      'Le trajet commencera pour tous les passagers confirmés. Les nouvelles réservations seront fermées.';
+
+  @override
+  String get rideCompleteHint =>
+      'Le trajet sera terminé pour tous les passagers et le partage de position sera arrêté.';
+
+  @override
+  String get rideConfirm => 'Confirmer';
+
+  @override
+  String get rideKeep => 'Retour';
+
+  @override
+  String get rideReadOnlyChat =>
+      'Ce trajet est clos. Les messages restent consultables.';
+
+  @override
+  String get rideEditLocked =>
+      'La modification est disponible avant toute réservation. Pour changer un trajet déjà réservé, annulez l’annonce et prévenez les participants.';
+
+  @override
+  String get rideStatusOpen => 'Disponible';
+
+  @override
+  String get rideStatusFull => 'Complet';
+
+  @override
+  String get rideStatusMatched => 'Réservé';
+
+  @override
+  String get rideStatusOngoing => 'En route';
+
+  @override
+  String get rideStatusCompleted => 'Terminé';
+
+  @override
+  String get rideStatusCancelled => 'Annulé';
+
+  @override
+  String get rideStatusExpired => 'Expiré';
+
+  @override
+  String get rideNoticeCancelled => 'Le trajet a été annulé';
+
+  @override
+  String get rideNoticeStarted => 'Le conducteur a démarré le trajet';
+
+  @override
+  String get rideNoticeCompleted => 'Le trajet est terminé';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 /// Outcome of a ride request shown on the Accueil tab.
 enum TripStatus {
+  ongoing,
   /// The driver accepted the request.
   confirmed,
 

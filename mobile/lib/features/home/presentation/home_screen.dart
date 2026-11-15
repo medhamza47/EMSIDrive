@@ -349,7 +349,11 @@ class _UpcomingTripCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       crossAxisAlignment: CrossAxisAlignment.center,
       trailing: AppBadge(
-        label: isConfirmed ? l10n.tripStatusConfirmed : l10n.tripStatusPending,
+        label: trip.status == TripStatus.ongoing
+            ? l10n.rideStatusOngoing
+            : isConfirmed
+            ? l10n.tripStatusConfirmed
+            : l10n.tripStatusPending,
         tone: isConfirmed ? AppBadgeTone.accent : AppBadgeTone.warning,
       ),
       child: Column(

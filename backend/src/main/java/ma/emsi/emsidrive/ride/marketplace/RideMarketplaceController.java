@@ -22,6 +22,7 @@ public class RideMarketplaceController {
     public enum Kind { REQUEST, OFFER }
     public enum Campus { CENTRE, TARGA }
     public enum Vehicle { MOTO, CAR, ANY }
+    public enum TripAction { START, COMPLETE, CANCEL }
 
     public record ListingInput(
             @NotNull Kind kind, @NotNull Campus campus, @NotNull Boolean toCampus,
@@ -33,11 +34,13 @@ public class RideMarketplaceController {
             @NotNull @DecimalMin("-180") @DecimalMax("180") java.math.BigDecimal longitude) {}
 
     public record MessageInput(@NotBlank @Size(max = 1000) String body) {}
+    public record ListingUpdate(@NotNull @Valid ListingInput listing, @NotBlank String revision) {}
 
     @GetMapping("/listings")
     public List<Map<String, Object>> listings(
-            @AuthenticationPrincipal AuthenticatedUser user, @RequestParam Kind kind) {
-        return service.listings(user.id(), kind);
+            @AuthenticationPrincipal AuthenticatedUser user, @RequestParam Kind kind,
+            @RequestParam(defaultValue = "false") boolean mine) {
+        return service.listings(user.id(), kind, mine);
     }
 
     @PostMapping("/listings")
@@ -58,9 +61,28 @@ public class RideMarketplaceController {
         return Map.of("id", service.accept(user.id(), kind, id));
     }
 
+    @PutMapping("/listings/{kind}/{id}")
+    public void updateListing(@AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable Kind kind, @PathVariable UUID id, @Valid @RequestBody ListingUpdate input) {
+        service.updateListing(user.id(), kind, id, input);
+    }
+
+    @PostMapping("/listings/{kind}/{id}/cancel")
+    public void cancelListing(@AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable Kind kind, @PathVariable UUID id) {
+        service.cancelListing(user.id(), kind, id);
+    }
+
     @GetMapping("/trips")
-    public List<Map<String, Object>> trips(@AuthenticationPrincipal AuthenticatedUser user) {
-        return service.trips(user.id());
+    public List<Map<String, Object>> trips(@AuthenticationPrincipal AuthenticatedUser user,
+            @RequestParam(defaultValue = "false") boolean history) {
+        return service.trips(user.id(), history);
+    }
+
+    @PostMapping("/trips/{id}/actions/{action}")
+    public void transition(@AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable UUID id, @PathVariable TripAction action) {
+        service.transition(user.id(), id, action);
     }
 
     @GetMapping("/trips/{id}")

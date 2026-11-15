@@ -12,6 +12,8 @@ import '../data/marketplace_api.dart';
 import '../domain/marketplace_models.dart';
 import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
+import 'ride_lifecycle.dart';
+import '../../home/application/home_controller.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
@@ -36,6 +38,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
   bool _sending = false;
   bool _starting = false;
   bool _sharing = false;
+  bool _changing = false;
   bool _foreground = true;
   String? _locationError;
 
@@ -67,11 +70,15 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         _api.messages(widget.id, after),
       ).wait;
       if (!mounted) return;
+      if (_ride != null && _ride!.status != ride.status) {
+        ref.invalidate(homeControllerProvider);
+      }
       setState(() {
         _ride = ride;
         _loadingError = false;
         _messages.addAll(messages);
       });
+      if (!ride.active && _sharing) unawaited(_stopSharing());
     } catch (_) {
       if (mounted) setState(() => _loadingError = true);
     } finally {
@@ -80,6 +87,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
   }
 
   Future<void> _send() async {
+    if (_ride?.active != true) return;
     final body = _draft.text.trim();
     if (body.isEmpty || _sending) return;
     setState(() => _sending = true);
@@ -100,6 +108,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
   }
 
   Future<void> _startSharing() async {
+    if (_ride?.active != true) return;
     final l = AppLocalizations.of(context);
     setState(() {
       _starting = true;
@@ -130,6 +139,31 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
       if (mounted) setState(() => _locationError = l.liveSharingError);
     } finally {
       if (mounted) setState(() => _starting = false);
+    }
+  }
+
+  Future<void> _transition(String action, String confirmation) async {
+    if (_changing ||
+        !await confirmRideAction(context, confirmation) ||
+        !mounted) {
+      return;
+    }
+    setState(() => _changing = true);
+    try {
+      await _api.transition(widget.id, action);
+      ref.invalidate(homeControllerProvider);
+      await _refresh();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).rideActionFailed),
+          ),
+        );
+      }
+      await _refresh();
+    } finally {
+      if (mounted) setState(() => _changing = false);
     }
   }
 
@@ -204,7 +238,9 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
           title: Text(ride?.partner ?? l.acceptedRideTitle),
           bottom: TabBar(
             labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            unselectedLabelColor: Theme.of(context)
+                .colorScheme
+                .onSurfaceVariant,
             indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: l.navRides, icon: const Icon(Icons.route)),
@@ -238,10 +274,15 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
       children: [
         AppBadge(label: ride.isDriver ? l.youDrive : l.youRide),
         const SizedBox(height: 8),
+        Text(
+          rideStatusLabel(l, ride.status),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
         FlowCopy(ride.path.title, rideDeparture(ride.path.departure)),
         const SizedBox(height: 12),
         MarketplaceMap(path: ride.path, live: live),
-        if (ride.isDriver) ...[
+        if (ride.isDriver && ride.active) ...[
           Text(l.locationSharingHint),
           const SizedBox(height: 8),
           PrimaryButton(
@@ -251,8 +292,29 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
             onPressed: _sharing ? _stopSharing : _startSharing,
           ),
           if (_locationError case final error?) Text(error),
-        ] else
+        ] else if (ride.active)
           Text(live == null ? l.noLiveLocation : l.driverLocation),
+        const SizedBox(height: 12),
+        if (ride.isDriver && ride.status == 'CONFIRMED')
+          PrimaryButton(
+            label: l.rideStart,
+            isLoading: _changing,
+            onPressed: () => _transition('START', l.rideStartHint),
+          ),
+        if (ride.isDriver && ride.status == 'ONGOING')
+          PrimaryButton(
+            label: l.rideComplete,
+            isLoading: _changing,
+            onPressed: () => _transition('COMPLETE', l.rideCompleteHint),
+          ),
+        if (ride.status == 'CONFIRMED')
+          OutlinedButton.icon(
+            onPressed: _changing
+                ? null
+                : () => _transition('CANCEL', l.rideCancelBookingHint),
+            icon: const Icon(Icons.cancel_outlined),
+            label: Text(l.rideCancelBooking),
+          ),
         if (_loadingError) Text(l.marketplaceLoadError),
       ],
     );
@@ -300,31 +362,37 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
                   },
                 ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _draft,
-                  maxLength: 1000,
-                  maxLines: 3,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    hintText: l.writeChatMessage,
-                    counterText: '',
+        if (_ride?.active != true)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(l.rideReadOnlyChat),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _draft,
+                    maxLength: 1000,
+                    maxLines: 3,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      hintText: l.writeChatMessage,
+                      counterText: '',
+                    ),
                   ),
                 ),
-              ),
-              IconButton.filled(
-                tooltip: l.sendChatMessage,
-                onPressed: _sending ? null : _send,
-                icon: const Icon(Icons.send),
-              ),
-            ],
+                IconButton.filled(
+                  tooltip: l.sendChatMessage,
+                  onPressed: _sending ? null : _send,
+                  icon: const Icon(Icons.send),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

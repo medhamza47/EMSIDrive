@@ -87,12 +87,19 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text(l10n.noRideRequests), findsOneWidget);
       expect(adapter.requests.last.queryParameters['kind'], 'REQUEST');
+      await tester.tap(find.text(l10n.rideMyListings));
+      await tester.pumpAndSettle();
+      expect(adapter.requests.last.queryParameters['mine'], isTrue);
 
       await tester.tap(find.text(l10n.myAcceptedRides));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text(l10n.noAcceptedRides), findsOneWidget);
       expect(adapter.requests.last.path, '/marketplace/trips');
+      await tester.tap(find.text(l10n.rideHistory));
+      await tester.pumpAndSettle();
+      expect(adapter.requests.last.queryParameters['history'], isTrue);
+      expect(find.text(l10n.rideNoHistory), findsOneWidget);
 
       await tester.tap(find.text(l10n.rideOffers));
       await tester.pumpAndSettle();

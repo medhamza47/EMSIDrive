@@ -12,11 +12,13 @@ class RideSummaryCard extends StatelessWidget {
     required this.author,
     required this.onTap,
     this.seats,
+    this.status,
     super.key,
   });
   final RidePath path;
   final String author;
   final int? seats;
+  final String? status;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,8 @@ class RideSummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 14,
             children: [
+              if (status != null)
+                Text(status!, style: theme.textTheme.labelLarge),
               Row(
                 children: [
                   Icon(

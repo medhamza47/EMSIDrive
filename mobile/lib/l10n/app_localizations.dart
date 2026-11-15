@@ -2169,6 +2169,186 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aperçu de l’itinéraire'**
   String get mapRouteLabel;
+
+  /// No description provided for @rideMyListings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes annonces'**
+  String get rideMyListings;
+
+  /// No description provided for @rideActiveTrips.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours et à venir'**
+  String get rideActiveTrips;
+
+  /// No description provided for @rideHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get rideHistory;
+
+  /// No description provided for @rideNoHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun trajet terminé ou annulé.'**
+  String get rideNoHistory;
+
+  /// No description provided for @rideEditListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l’annonce'**
+  String get rideEditListing;
+
+  /// No description provided for @rideSaveListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get rideSaveListing;
+
+  /// No description provided for @rideCancelListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler l’annonce'**
+  String get rideCancelListing;
+
+  /// No description provided for @rideCancelBooking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler cette réservation'**
+  String get rideCancelBooking;
+
+  /// No description provided for @rideStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer le trajet'**
+  String get rideStart;
+
+  /// No description provided for @rideComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer le trajet'**
+  String get rideComplete;
+
+  /// No description provided for @rideActionFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action impossible. Le trajet a peut-être changé. Actualisez puis réessayez.'**
+  String get rideActionFailed;
+
+  /// No description provided for @rideConfirmAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer l’action'**
+  String get rideConfirmAction;
+
+  /// No description provided for @rideCancelListingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’annonce sera fermée et toutes ses réservations actives seront annulées. Les participants seront prévenus.'**
+  String get rideCancelListingHint;
+
+  /// No description provided for @rideCancelBookingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réservation sera annulée et l’autre participant sera prévenu.'**
+  String get rideCancelBookingHint;
+
+  /// No description provided for @rideStartHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet commencera pour tous les passagers confirmés. Les nouvelles réservations seront fermées.'**
+  String get rideStartHint;
+
+  /// No description provided for @rideCompleteHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet sera terminé pour tous les passagers et le partage de position sera arrêté.'**
+  String get rideCompleteHint;
+
+  /// No description provided for @rideConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get rideConfirm;
+
+  /// No description provided for @rideKeep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get rideKeep;
+
+  /// No description provided for @rideReadOnlyChat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce trajet est clos. Les messages restent consultables.'**
+  String get rideReadOnlyChat;
+
+  /// No description provided for @rideEditLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'La modification est disponible avant toute réservation. Pour changer un trajet déjà réservé, annulez l’annonce et prévenez les participants.'**
+  String get rideEditLocked;
+
+  /// No description provided for @rideStatusOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get rideStatusOpen;
+
+  /// No description provided for @rideStatusFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complet'**
+  String get rideStatusFull;
+
+  /// No description provided for @rideStatusMatched.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé'**
+  String get rideStatusMatched;
+
+  /// No description provided for @rideStatusOngoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'En route'**
+  String get rideStatusOngoing;
+
+  /// No description provided for @rideStatusCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get rideStatusCompleted;
+
+  /// No description provided for @rideStatusCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get rideStatusCancelled;
+
+  /// No description provided for @rideStatusExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiré'**
+  String get rideStatusExpired;
+
+  /// No description provided for @rideNoticeCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet a été annulé'**
+  String get rideNoticeCancelled;
+
+  /// No description provided for @rideNoticeStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur a démarré le trajet'**
+  String get rideNoticeStarted;
+
+  /// No description provided for @rideNoticeCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet est terminé'**
+  String get rideNoticeCompleted;
 }
 
 class _AppLocalizationsDelegate
