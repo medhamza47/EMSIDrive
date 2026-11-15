@@ -6,6 +6,7 @@ abstract final class AppRoutes {
   // Authentication (outside the bottom navigation shell).
   static const String login = '/login';
   static const String register = '/register';
+  static const String session = '/session';
 
   // Shell (bottom navigation) destinations.
   static const String home = '/home';
@@ -33,7 +34,7 @@ abstract final class AppRoutes {
 
   /// Initial location shown when the app starts.
   ///
-  /// The app boots on the login screen until session restore is implemented.
+  /// Standalone router default. The application starts through [session].
   static const String initial = login;
 }
 

@@ -2349,6 +2349,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le trajet est terminé'**
   String get rideNoticeCompleted;
+
+  /// No description provided for @sessionRestoring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restauration de votre session…'**
+  String get sessionRestoring;
+
+  /// No description provided for @sessionRestoreUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.'**
+  String get sessionRestoreUnavailable;
+
+  /// No description provided for @sessionRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get sessionRetry;
+
+  /// No description provided for @sessionUseAnotherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte'**
+  String get sessionUseAnotherAccount;
 }
 
 class _AppLocalizationsDelegate

@@ -57,11 +57,19 @@ class AuthRepository {
     Future<AuthResponseDto> Function() request,
   ) async {
     try {
+      final previousSession = _tokenStorage.session;
       final domain = (await request()).toDomain();
+      if (_tokenStorage.session != previousSession) {
+        throw const UnauthorizedFailure(message: 'Session changed');
+      }
       await _tokenStorage.saveTokens(
         accessToken: domain.accessToken,
         refreshToken: domain.refreshToken,
       );
+      if (_tokenStorage.session != previousSession + 1 ||
+          _tokenStorage.signedIn != true) {
+        throw const UnauthorizedFailure(message: 'Session changed');
+      }
       return domain;
     } on AppFailure {
       rethrow;

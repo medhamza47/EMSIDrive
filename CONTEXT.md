@@ -491,8 +491,20 @@ nouvel essai après 401 et rejette les réponses d’une session déjà déconne
 - Les validateurs de formulaire reprennent les contraintes Bean Validation du
   back-end (email, mot de passe 8–72, nom 120, téléphone optionnel) ; le serveur
   reste l'autorité finale.
-- La restauration de session au démarrage et la garde de redirection ne sont
-  **pas encore implémentées** : l'app démarre sur `/login`.
+- Le routeur de l’application démarre sur `/session`. `SessionController` vérifie
+  les jetons du stockage sécurisé avec `/me` avant d’autoriser les routes privées.
+  Un refus du jeton d’accès déclenche le renouvellement partagé dans
+  `AuthenticatedApi`. Un refus définitif du renouvellement efface la session et
+  redirige vers `/login`. Une panne réseau conserve les jetons et propose une
+  reprise explicite. La déconnexion attend la suppression du stockage sécurisé.
+- `createAppRouter` accepte un contrôleur de session pour activer ces gardes.
+  Le fournisseur de production l’injecte systématiquement. Les tests de navigation
+  isolée peuvent construire un routeur sans garde, tandis que les tests de session
+  utilisent le véritable fournisseur de l’application.
+- Une rotation conserve l’identité de session. Une connexion, une déconnexion ou
+  la destruction du stockage en mémoire invalide les réponses encore en vol.
+  Une ancienne connexion ou un ancien renouvellement ne peut pas remplacer les
+  jetons d’un autre compte.
 
 ### Variables d'environnement de sécurité
 

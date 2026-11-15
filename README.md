@@ -25,8 +25,7 @@ notifications d’acceptation apparaissent dans l’application, avec un indicat
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
 Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
 utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
-La restauration de session au lancement, les notifications système et le
-back-office restent à réaliser.
+Les notifications système et le back-office restent à réaliser.
 
 ## Modifications intégrées le 8 novembre 2026
 
@@ -167,6 +166,28 @@ flutter build apk --debug --dart-define=API_BASE_URL=http://localhost:8080
 Le fichier est généré dans `mobile/build/app/outputs/flutter-apk/app-debug.apk` depuis
 la racine du dépôt. Une mise à jour avec le même identifiant d’application et la même
 signature conserve les données locales de l’application.
+
+### Connexion persistante
+
+Au démarrage, l’app vérifie les jetons conservés dans le stockage sécurisé en
+appelant `/api/v1/me`. Une session valide ouvre directement l’accueil. Un jeton
+d’accès expiré est renouvelé via `/api/v1/auth/refresh`, avec la même logique de
+renouvellement utilisée par le planning, le profil et les trajets. Les données
+enregistrées par les versions précédentes restent compatibles.
+
+Une réponse refusant définitivement les jetons efface la session et ramène à la
+connexion. Une panne réseau ou une erreur serveur temporaire conserve les jetons
+et affiche un écran de reprise avec **Réessayer** et **Utiliser un autre compte**.
+Les écrans privés sont protégés pendant la vérification et après déconnexion.
+Une destination privée demandée pendant la vérification est reprise si la session
+est valide. Se déconnecter efface les deux jetons avant le retour à la connexion.
+
+Le mot de passe n’est pas conservé. Le renouvellement des jetons ne change pas
+l’identité du compte et les réponses tardives d’un ancien compte sont ignorées.
+Les tests couvrent le redémarrage, les jetons expirés, le renouvellement partagé,
+la reprise réseau, les routes privées et les changements de compte concurrents.
+La suite mobile complète passe avec 183 tests. La restauration a également été
+vérifiée sur le Pixel 5 après fermeture complète et relance de l’application.
 
 ### Gestion des annonces et cycle de vie des trajets
 

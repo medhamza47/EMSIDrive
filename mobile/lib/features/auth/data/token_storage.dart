@@ -14,22 +14,32 @@ class TokenStorage extends ChangeNotifier {
   Future<void> _writes = Future<void>.value();
   int _session = 0;
   int get session => _session;
+  bool? _signedIn;
+  bool? get signedIn => _signedIn;
 
   /// Reads the stored access token, `null` when the user is signed out.
-  Future<String?> readAccessToken() =>
-      _storage.read(key: StorageKeys.accessToken);
+  Future<String?> readAccessToken() async {
+    await _writes;
+    return _storage.read(key: StorageKeys.accessToken);
+  }
 
   /// Reads the stored refresh token, `null` when the user is signed out.
-  Future<String?> readRefreshToken() =>
-      _storage.read(key: StorageKeys.refreshToken);
+  Future<String?> readRefreshToken() async {
+    await _writes;
+    return _storage.read(key: StorageKeys.refreshToken);
+  }
 
   /// Stores both tokens atomically from the caller's point of view.
   Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
   }) async {
-    _session++;
-    await _serialize(() => _writeTokens(accessToken, refreshToken));
+    final session = ++_session;
+    await _serialize(() async {
+      if (session == _session) await _writeTokens(accessToken, refreshToken);
+    });
+    if (session != _session) return;
+    _signedIn = true;
     notifyListeners();
   }
 
@@ -42,7 +52,7 @@ class TokenStorage extends ChangeNotifier {
     await _serialize(() async {
       if (session != _session) return;
       await _writeTokens(accessToken, refreshToken);
-      saved = true;
+      saved = session == _session;
     });
     return saved;
   }
@@ -59,12 +69,25 @@ class TokenStorage extends ChangeNotifier {
   }
 
   /// Removes both tokens, used when signing out or when a token is rejected.
-  Future<void> clear() {
-    _session++;
-    notifyListeners();
-    return _serialize(() async {
+  Future<void> clear() async {
+    final session = ++_session;
+    _signedIn = false;
+    await _serialize(() async {
       await _storage.delete(key: StorageKeys.accessToken);
       await _storage.delete(key: StorageKeys.refreshToken);
     });
+    if (session == _session) notifyListeners();
+  }
+
+  /// A rejected response from an older account must not sign out the new one.
+  Future<void> invalidate(int expectedSession) {
+    if (_session != expectedSession) return Future<void>.value();
+    return clear();
+  }
+
+  @override
+  void dispose() {
+    _session++;
+    super.dispose();
   }
 }

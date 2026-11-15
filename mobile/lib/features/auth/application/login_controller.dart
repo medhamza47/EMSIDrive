@@ -26,9 +26,9 @@ class LoginController extends _$LoginController {
       final session = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
-      state = AuthSucceeded(session);
+      if (ref.mounted) state = AuthSucceeded(session);
     } on AppFailure catch (failure) {
-      state = AuthFailed(failure);
+      if (ref.mounted) state = AuthFailed(failure);
     }
   }
 

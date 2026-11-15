@@ -31,9 +31,9 @@ class RegisterController extends _$RegisterController {
         fullName: fullName,
         phoneNumber: phoneNumber,
       );
-      state = AuthSucceeded(session);
+      if (ref.mounted) state = AuthSucceeded(session);
     } on AppFailure catch (failure) {
-      state = AuthFailed(failure);
+      if (ref.mounted) state = AuthFailed(failure);
     }
   }
 

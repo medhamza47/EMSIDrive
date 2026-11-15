@@ -734,5 +734,9 @@
   "rideStatusExpired": "Expiré",
   "rideNoticeCancelled": "Le trajet a été annulé",
   "rideNoticeStarted": "Le conducteur a démarré le trajet",
-  "rideNoticeCompleted": "Le trajet est terminé"
+  "rideNoticeCompleted": "Le trajet est terminé",
+  "sessionRestoring": "Restauration de votre session…",
+  "sessionRestoreUnavailable": "Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.",
+  "sessionRetry": "Réessayer",
+  "sessionUseAnotherAccount": "Utiliser un autre compte"
 }

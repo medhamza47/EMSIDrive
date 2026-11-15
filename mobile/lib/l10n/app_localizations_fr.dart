@@ -1276,4 +1276,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rideNoticeCompleted => 'Le trajet est terminé';
+
+  @override
+  String get sessionRestoring => 'Restauration de votre session…';
+
+  @override
+  String get sessionRestoreUnavailable =>
+      'Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.';
+
+  @override
+  String get sessionRetry => 'Réessayer';
+
+  @override
+  String get sessionUseAnotherAccount => 'Utiliser un autre compte';
 }
