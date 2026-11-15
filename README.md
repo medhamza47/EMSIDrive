@@ -7,7 +7,7 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 
 | Partie | Disponible |
 | --- | --- |
-| Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
+| Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
 | Planning et IA | Import réel de photos JPEG/PNG et de PDF avec Groq, correction des cours détectés, confirmation puis enregistrement. Le planning affiche les sept jours et propose des offres compatibles avec les horaires et le campus. |
@@ -80,6 +80,7 @@ Le fonctionnement détaillé, les limites et le contrat API sont documentés dan
 | --- | --- |
 | [`V21__schedule_validity_and_campus.sql`](./backend/src/main/resources/db/migration/V21__schedule_validity_and_campus.sql) | Dates de validité, révision du planning, campus par cours et unicité du planning actif par compte. Les anciens imports non confirmés sont désactivés et doivent être confirmés dans le nouveau parcours. |
 | [`V22__profile_travel_preferences.sql`](./backend/src/main/resources/db/migration/V22__profile_travel_preferences.sql) | Préférences de campus et de véhicule, avec contraintes sur les valeurs autorisées. |
+| [`V24__create_biometric_devices_table.sql`](./backend/src/main/resources/db/migration/V24__create_biometric_devices_table.sql) | Téléphones liés pour la connexion par empreinte : seul le hash SHA-256 de la clé d’appareil est stocké, avec date de dernière utilisation et de révocation. |
 
 Flyway applique ces migrations au démarrage du backend.
 
@@ -180,7 +181,9 @@ connexion. Une panne réseau ou une erreur serveur temporaire conserve les jeton
 et affiche un écran de reprise avec **Réessayer** et **Utiliser un autre compte**.
 Les écrans privés sont protégés pendant la vérification et après déconnexion.
 Une destination privée demandée pendant la vérification est reprise si la session
-est valide. Se déconnecter efface les deux jetons avant le retour à la connexion.
+est valide. Se déconnecter révoque le refresh token sur le serveur
+(`POST /api/v1/auth/logout`), puis efface les deux jetons avant le retour à la
+connexion. Hors ligne, la déconnexion locale a lieu quand même.
 
 Le mot de passe n’est pas conservé. Le renouvellement des jetons ne change pas
 l’identité du compte et les réponses tardives d’un ancien compte sont ignorées.
@@ -188,6 +191,54 @@ Les tests couvrent le redémarrage, les jetons expirés, le renouvellement parta
 la reprise réseau, les routes privées et les changements de compte concurrents.
 La suite mobile complète passe avec 183 tests. La restauration a également été
 vérifiée sur le Pixel 5 après fermeture complète et relance de l’application.
+
+### Connexion par empreinte
+
+Après une connexion par mot de passe, l’app propose **Activer l’empreinte ?**. On
+peut aussi l’activer ou la désactiver dans **Profil → Sécurité**. L’activation
+demande une empreinte, puis le serveur lie le téléphone et lui remet une clé
+d’appareil aléatoire, conservée dans le stockage sécurisé.
+
+| Situation | Écran |
+| --- | --- |
+| Session encore ouverte | L’accueil s’ouvre directement, sans empreinte. |
+| Après **Se déconnecter**, téléphone lié | **Bon retour, Prénom** avec **Se connecter avec l’empreinte**, **Utiliser le mot de passe** et **Changer de compte**. |
+| Lancement de l’app déconnectée, téléphone lié | Même écran ; la demande d’empreinte s’ouvre d’elle-même. |
+| Téléphone non lié | Formulaire email et mot de passe habituel. |
+
+L’empreinte est vérifiée par le téléphone uniquement : elle n’est jamais envoyée au
+serveur et le mot de passe n’est jamais enregistré. Après la vérification, l’app
+présente la clé d’appareil ; le serveur répond par une nouvelle session et une
+nouvelle clé. Une clé déjà remplacée qui revient est considérée comme copiée et
+le téléphone est délié. **Changer de compte** et la désactivation dans le profil
+demandent une confirmation, puis révoquent le lien sur le serveur. Une connexion
+par mot de passe avec un autre compte retire le lien de l’ancien compte.
+
+La fenêtre d’empreinte est dessinée par Android ou iOS ; l’app en fixe seulement
+les textes (titre, sous-titre et bouton **Utiliser le mot de passe**). Android gère
+lui-même les essais refusés dans cette fenêtre et ne prévient l’app qu’à la fin ;
+après une annulation, l’écran affiche donc un rappel neutre plutôt qu’une erreur.
+Trop d’essais refusés bloquent le capteur : Android demande alors le code du téléphone.
+
+| Action API | Route |
+| --- | --- |
+| Lier le téléphone (session requise) | `POST /api/v1/me/biometric-devices` |
+| Se connecter avec la clé d’appareil | `POST /api/v1/auth/biometric/login` |
+| Délier le téléphone | `POST /api/v1/auth/biometric/revoke` |
+| Révoquer la session | `POST /api/v1/auth/logout` |
+
+Sur l’émulateur, définir un code (`adb shell locksettings set-pin 1234`), ajouter une
+empreinte dans **Réglages → Sécurité → Déverrouillage**, puis simuler le doigt avec
+`adb emu finger touch 1` (un autre numéro simule un doigt inconnu).
+
+### Accueil
+
+Les cartes **Trouver un trajet** et **Proposer un trajet** sont plus compactes pour
+garder **Prochains trajets** visible sur les petits écrans. Elles se réduisent à 97 %
+sous le doigt, sans rebond. Les blocs apparaissent l’un après l’autre (30 ms d’écart),
+l’onglet **Trajets** et l’état vide utilisent une icône de voiture et les horaires
+utilisent des chiffres à chasse fixe. Le texte secondaire des cartes atteint un
+contraste de 7,5:1. Le réglage système de réduction des animations est respecté.
 
 ### Gestion des annonces et cycle de vie des trajets
 
@@ -324,6 +375,8 @@ Sur la carte, le bouton de confirmation reste visible pendant le choix du point.
 | [`mobile/lib/features/rides/`](./mobile/lib/features/rides) | Formulaire, listes et fiches de trajet, carte, chat et suivi. |
 | [`mobile/lib/features/notifications/`](./mobile/lib/features/notifications) | Notifications d’acceptation et indicateur de non-lu. |
 | [`mobile/lib/features/profile/`](./mobile/lib/features/profile) | Profil réel, formulaire de modification et chargement des données du compte connecté. |
+| [`mobile/lib/features/auth/`](./mobile/lib/features/auth) | Connexion, session, liaison du téléphone et connexion par empreinte (`biometric_link_service.dart`, `widgets/biometric_quick_login.dart`). |
+| [`backend/src/main/java/ma/emsi/emsidrive/auth/`](./backend/src/main/java/ma/emsi/emsidrive/auth) | JWT, déconnexion révoquée et clés d’appareil (`BiometricDeviceService`). |
 | [`mobile/lib/features/schedule/`](./mobile/lib/features/schedule) | Planning par journée, import, vérification des cours et accès aux suggestions. |
 | [`backend/src/main/java/ma/emsi/emsidrive/schedule/`](./backend/src/main/java/ma/emsi/emsidrive/schedule) | Analyse Groq, lecture des documents, mesure des cellules et persistance du planning. |
 | [`mobile/assets/maps/marrakech.geojson`](./mobile/assets/maps/marrakech.geojson) | Périmètre utilisé pour valider les points dans l’app et dans l’API. |
@@ -339,7 +392,18 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 | Parcours à deux comptes | `mvn -Dtest=RideMarketplaceIntegrationTest test` depuis `backend/`. Le test couvre les deux types d’annonce, les accès privés, les notifications, le chat et la position. |
 | Mobile | `flutter analyze` puis `flutter test` depuis `mobile/`. Les tests couvrent aussi la confirmation des cours, les champs incertains et les réponses vides. |
 
-### Dernière validation de ces modifications
+### Dernière validation : connexion par empreinte
+
+Vérifications effectuées le **15 novembre 2026** :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `mvn test` | **116 tests backend réussis**, dont 8 tests d’intégration PostgreSQL pour la liaison, la rotation de clé, la détection de réutilisation, la révocation et la déconnexion. |
+| `flutter analyze` | Aucun problème signalé. |
+| `flutter test` | **203 tests Flutter réussis**, dont 24 pour l’empreinte (liaison, connexion, annulation, capteur bloqué, lien révoqué, panne réseau, confirmations, changement de compte). |
+| Émulateur Android 17 | Liaison depuis le profil, déconnexion, écran **Bon retour**, connexion par empreinte, doigt inconnu, blocage après plusieurs essais et textes français de la fenêtre système. |
+
+### Validation précédente
 
 Vérifications effectuées le **8 novembre 2026** :
 

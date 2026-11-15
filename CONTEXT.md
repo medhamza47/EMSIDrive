@@ -68,7 +68,7 @@ EMSIDrive/
 │       │   ├── EmsiDriveApplication.java
 │       │   ├── config/           # Sécurité, OpenAPI, CORS
 │       │   ├── common/           # web/ (health), exception/ (contrat d'erreur)
-│       │   ├── auth/             # Inscription, connexion, refresh token
+│       │   ├── auth/             # Inscription, connexion, refresh token, déconnexion, clés d'appareil (empreinte)
 │       │   ├── user/             # Étudiants, profils
 │       │   ├── vehicle/          # Véhicules des conducteurs
 │       │   ├── ride/             # Trajets proposés
@@ -199,6 +199,7 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
 | `EMAIL_DOMAIN_NOT_ALLOWED` | 400 | Inscription hors domaines étudiants |
 | `INVALID_CREDENTIALS` | 401 | Email ou mot de passe incorrect |
 | `INVALID_REFRESH_TOKEN` | 401 | Refresh token inconnu, expiré ou révoqué |
+| `INVALID_DEVICE_KEY` | 401 | Téléphone non lié, lien révoqué ou clé d'appareil déjà remplacée (le lien est alors révoqué) |
 | `UNAUTHORIZED` | 401 | Requête sans jeton valide sur une route protégée |
 | `ACCOUNT_DISABLED` | 403 | Compte désactivé |
 | `USER_NOT_FOUND` | 404 | Utilisateur du jeton absent en base |
@@ -331,6 +332,21 @@ elles passent par des tokens partagés entre mobile et admin web.
   - admin web : `src/styles/`
   - documentation : `docs/design/`
 - Typographie, rayons et espacements suivent la même source unique.
+- Icônes : une seule famille par écran (contour). La cloche et l’onglet **Trajets**
+  (voiture) suivent cette règle.
+- Texte secondaire : contraste d’au moins 4,5:1 (WCAG AA) ; les cartes de l’accueil
+  visent 7:1.
+
+### Mouvement
+
+- Entrées en *ease-out* ; les listes et blocs arrivent décalés de 30 ms.
+- Cartes cliquables réduites à 0,97 sous le doigt, retour 20 % plus rapide que
+  l’appui, sans rebond ; le reflet d’appui reprend la couleur du texte de la carte.
+- Pas de rebond sur l’interface courante. Le badge d’empreinte
+  (`BiometricIndicator`) réserve ses mouvements aux états : pulsations limitées en
+  attente, ondes pendant la lecture, coche en cas de réussite, secousse en cas d’échec.
+- Le réglage système « réduire les animations » coupe ces mouvements ; seules les
+  couleurs et les icônes changent.
 
 ### Organisation mobile et profils persistants
 
@@ -473,6 +489,10 @@ nouvel essai après 401 et rejette les réponses d’une session déjà déconne
 - Authentification par **JWT** (access token court + refresh token).
 - Deux rôles seulement : `STUDENT` (inscription publique) et `ADMIN` (créé côté serveur). Toute autre valeur est refusée par la contrainte `chk_users_role`.
 - Les refresh tokens sont **persistés côté serveur** (seul le hash SHA-256 est stocké) et **rotatifs** : chaque `/auth/refresh` révoque le token présenté et en émet un nouveau.
+- `POST /auth/logout` révoque le refresh token présenté. La réponse est toujours `204`, même pour un jeton inconnu ou déjà révoqué, pour ne rien révéler.
+- **Connexion par empreinte** : `POST /me/biometric-devices` (session requise) lie le téléphone et renvoie une clé d'appareil de 32 octets aléatoires, affichée une seule fois. La table `biometric_devices` (V24) ne garde que son hash SHA-256.
+- `POST /auth/biometric/login` compare la clé en temps constant, verrouille la ligne (`PESSIMISTIC_WRITE`), remplace la clé et émet une session. Une clé déjà remplacée qui revient révoque le téléphone : la révocation est conservée malgré l'erreur (`noRollbackFor`).
+- `POST /auth/biometric/revoke` délie le téléphone si la clé correspond et répond `204` dans tous les cas. L'empreinte elle-même ne quitte jamais l'appareil.
 - L'inscription est limitée aux domaines étudiants, configurables via `app.security.student-email-domains`.
 - Mots de passe hachés (BCrypt), jamais journalisés.
 - Secrets et identifiants **hors du dépôt** : variables d'environnement ou `.env` ignoré par Git.
@@ -505,6 +525,19 @@ nouvel essai après 401 et rejette les réponses d’une session déjà déconne
   la destruction du stockage en mémoire invalide les réponses encore en vol.
   Une ancienne connexion ou un ancien renouvellement ne peut pas remplacer les
   jetons d’un autre compte.
+- La déconnexion appelle `/auth/logout` avec un délai court, puis efface les jetons
+  même hors ligne. Une session ouverte rouvre l’accueil sans empreinte.
+- Le lien d’empreinte (`emsidrive.biometric_device_id`, `…_device_key`, `…_email`,
+  `…_name`) survit à la déconnexion. La clé remplacée par le serveur est enregistrée
+  **avant** la nouvelle session. Un `401` efface le lien ; une panne réseau le conserve.
+- `local_auth` est appelé en mode biométrie seule ; le repli est le mot de passe de
+  l’app, pas le code du téléphone. `BiometricAuth` est l’unique point d’accès au
+  plugin et se remplace par un faux capteur dans les tests. Android impose
+  `FlutterFragmentActivity`, la permission `USE_BIOMETRIC` et un thème de lancement
+  AppCompat ; iOS impose `NSFaceIDUsageDescription`.
+- La fenêtre d’empreinte est dessinée par le système : seuls ses textes sont
+  personnalisés (`BiometricPromptTexts`). Les essais refusés y sont gérés par Android
+  et l’app reçoit seulement « annulé ». Délier le téléphone demande une confirmation.
 
 ### Variables d'environnement de sécurité
 
