@@ -57,6 +57,56 @@ void main() {
   });
 
   group('Navigation shell', () {
+    testWidgets('switches ride categories and refreshes their contents', (
+      tester,
+    ) async {
+      FlutterSecureStorage.setMockInitialValues({
+        StorageKeys.accessToken: 'test-token',
+      });
+      final adapter = FakeHttpAdapter((options) async {
+        return ResponseBody.fromString(
+          '[]',
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      await pumpEmsiDriveApp(
+        tester,
+        initialLocation: AppRoutes.rides,
+        overrides: [
+          dioClientProvider.overrideWithValue(dioWithAdapter(adapter)),
+        ],
+      );
+      final l10n = l10nOf();
+
+      expect(find.text(l10n.noRideOffers), findsOneWidget);
+      await tester.tap(find.text(l10n.rideRequests));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text(l10n.noRideRequests), findsOneWidget);
+      expect(adapter.requests.last.queryParameters['kind'], 'REQUEST');
+
+      await tester.tap(find.text(l10n.myAcceptedRides));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text(l10n.noAcceptedRides), findsOneWidget);
+      expect(adapter.requests.last.path, '/marketplace/trips');
+
+      await tester.tap(find.text(l10n.rideOffers));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text(l10n.noRideOffers), findsOneWidget);
+      expect(adapter.requests.last.queryParameters['kind'], 'OFFER');
+
+      final requestCount = adapter.requests.length;
+      await tester.tap(find.text(l10n.refreshListings));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(adapter.requests.length, requestCount + 1);
+    });
+
     testWidgets('starts on the home tab with four destinations', (
       tester,
     ) async {

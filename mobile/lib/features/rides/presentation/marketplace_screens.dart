@@ -33,7 +33,12 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
     return _tab == 2 ? api.trips() : api.listings(ListingKind.values[_tab]);
   }
 
-  void _reload() => setState(() => _items = _load());
+  void _reload() {
+    final items = _load();
+    setState(() {
+      _items = items;
+    });
+  }
 
   Future<void> _open(String location) async {
     await context.push(location);
@@ -147,7 +152,10 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
       final l = AppLocalizations.of(context);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.acceptRideError)));
-      setState(() => _listing = _load());
+      final refreshedListing = _load();
+      setState(() {
+        _listing = refreshedListing;
+      });
     } finally {
       if (mounted) setState(() => _accepting = false);
     }
