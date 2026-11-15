@@ -203,10 +203,9 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         appBar: AppBar(
           title: Text(ride?.partner ?? l.acceptedRideTitle),
           bottom: TabBar(
-            labelColor: Theme.of(context).colorScheme.onPrimary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onPrimary
-                .withValues(alpha: .75),
-            indicatorColor: Theme.of(context).colorScheme.onPrimary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: l.navRides, icon: const Icon(Icons.route)),
               Tab(text: l.rideChat, icon: const Icon(Icons.chat_outlined)),

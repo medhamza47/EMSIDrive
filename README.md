@@ -170,6 +170,33 @@ signature conserve les données locales de l’application.
 
 ### Compte de test local
 
+#### Validation à deux comptes du 15 novembre 2026
+
+Le test `RideMarketplaceIntegrationTest` passe sur une base PostgreSQL isolée.
+Un essai supplémentaire sur l’API locale a vérifié la publication d’une offre,
+son acceptation et sa répétition sans double réservation, les rôles des deux
+participants, les notifications, les messages dans les deux sens, puis
+l’acceptation d’une demande par le conducteur. Le partage de position a été
+vérifié avec une coordonnée de test envoyée à l’API puis supprimée. La réception
+d’une position issue du capteur GPS Android reste à vérifier sur deux appareils.
+
+Deux comptes de démonstration existent dans le volume PostgreSQL local, avec
+le mot de passe `EmsiDemo2026!` pour chacun.
+
+| Rôle | Email |
+| --- | --- |
+| Conducteur | `conducteur.demo@emsi-edu.ma` |
+| Passager | `passager.demo@emsi-edu.ma` |
+
+Leurs trajets et messages d’essai portent la mention `DEMO`. Ces comptes ne sont
+pas créés automatiquement dans une nouvelle base.
+
+Sur ce PC, Jenkins occupe le port 8080. Démarrer EMSIDrive avec
+`./scripts/start-backend.ps1 -Port 8081` et compiler l’app pour l’émulateur avec
+`--dart-define=API_BASE_URL=http://10.0.2.2:8081`.
+
+#### Compte de test initial
+
 Un compte a été créé et sa connexion vérifiée dans la base locale utilisée pour les essais :
 
 | Champ | Valeur |
