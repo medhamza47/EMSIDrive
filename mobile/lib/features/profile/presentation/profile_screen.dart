@@ -12,7 +12,9 @@ import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/form_section.dart';
 import '../application/profile_controller.dart';
 import 'profile_edit_screen.dart';
+import '../../auth/application/biometric_settings_controller.dart';
 import '../../auth/data/auth_repository_provider.dart';
+import '../../auth/presentation/biometric_offer_host.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -147,10 +149,77 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ],
               ),
             ),
+        const _BiometricSetting(),
         OutlineButton(
           label: l.signOutLabel,
           icon: Icons.logout,
           onPressed: _signingOut ? null : _signOut,
+        ),
+      ],
+    );
+  }
+}
+
+/// Switch turning the fingerprint unlock of the saved session on or off.
+class _BiometricSetting extends ConsumerStatefulWidget {
+  const _BiometricSetting();
+
+  @override
+  ConsumerState<_BiometricSetting> createState() => _BiometricSettingState();
+}
+
+class _BiometricSettingState extends ConsumerState<_BiometricSetting> {
+  bool _saving = false;
+
+  Future<void> _toggle(bool enabled) async {
+    final l = AppLocalizations.of(context);
+    if (!enabled &&
+        !await confirmBiometricUnlink(
+          context,
+          title: l.biometricDisableTitle,
+          body: l.biometricDisableBody,
+          confirm: l.biometricDisableConfirm,
+        )) {
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _saving = true);
+    final result = await ref
+        .read(biometricSettingsProvider.notifier)
+        .setEnabled(enabled, prompt: l.biometricEnablePrompt);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    final message = biometricResultMessage(l, result, enabling: enabled);
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final settings = ref.watch(biometricSettingsProvider).value;
+    if (settings == null) return const SizedBox.shrink();
+    return FormSection(
+      title: l.biometricSecurityTitle,
+      icon: Icons.lock_outline,
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary: const Icon(Icons.fingerprint),
+          title: Text(l.biometricSettingTitle),
+          subtitle: Text(
+            settings.available
+                ? l.biometricSettingSubtitle
+                : l.biometricSettingUnavailable,
+          ),
+          value: settings.enabled,
+          // Turning it off stays possible even if the sensor disappeared.
+          onChanged: _saving || (!settings.available && !settings.enabled)
+              ? null
+              : _toggle,
         ),
       ],
     );

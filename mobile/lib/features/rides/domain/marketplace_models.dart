@@ -36,6 +36,11 @@ class RideListing {
       canAccept = json['can_accept'] as bool,
       seats = json['seats'] as int,
       notes = json['notes'] as String?,
+      status = json['status'] as String? ?? 'OPEN',
+      revision = json['revision'] as String? ?? '',
+      canEdit = json['can_edit'] as bool? ?? false,
+      canCancel = json['can_cancel'] as bool? ?? false,
+      vehicle = json['vehicle_preference'] as String? ?? 'ANY',
       path = RidePath.fromJson(json);
 
   final String id;
@@ -45,6 +50,11 @@ class RideListing {
   final bool canAccept;
   final int seats;
   final String? notes;
+  final String status;
+  final String revision;
+  final bool canEdit;
+  final bool canCancel;
+  final String vehicle;
   final RidePath path;
 }
 
@@ -53,6 +63,7 @@ class AcceptedRide {
     : id = json['id'] as String,
       partner = json['partner'] as String,
       isDriver = json['is_driver'] as bool,
+      status = json['status'] as String? ?? 'CONFIRMED',
       path = RidePath.fromJson(json),
       live = json['live_latitude'] == null
           ? null
@@ -64,6 +75,8 @@ class AcceptedRide {
   final String id;
   final String partner;
   final bool isDriver;
+  final String status;
+  bool get active => status == 'CONFIRMED' || status == 'ONGOING';
   final RidePath path;
   final LatLng? live;
 }
@@ -84,12 +97,14 @@ class RideNotice {
     : id = json['id'] as String,
       bookingId = json['booking_id'] as String,
       isRequest = json['title'] == 'REQUEST_ACCEPTED',
+      title = json['title'] as String,
       accepter = json['body'] as String,
       seen = json['seen'] as bool;
 
   final String id;
   final String bookingId;
   final bool isRequest;
+  final String title;
   final String accepter;
   final bool seen;
 }

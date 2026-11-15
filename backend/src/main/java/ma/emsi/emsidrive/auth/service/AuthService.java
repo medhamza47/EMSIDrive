@@ -110,7 +110,22 @@ public class AuthService {
         return issueTokens(user);
     }
 
-    private AuthResponse issueTokens(User user) {
+    /**
+     * Ends the session of this refresh token on the server. Idempotent and silent: an
+     * unknown, expired or already revoked token simply has nothing left to revoke.
+     */
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        refreshTokenRepository.findByTokenHash(TokenHasher.sha256Hex(rawRefreshToken))
+                .filter(token -> token.getRevokedAt() == null)
+                .ifPresent(token -> {
+                    token.setRevokedAt(Instant.now());
+                    refreshTokenRepository.save(token);
+                });
+    }
+
+    /** Issues a fresh token pair; shared with the fingerprint login. */
+    AuthResponse issueTokens(User user) {
         String accessToken = jwtService.createAccessToken(user.getId(), user.getEmail(), user.getRole());
         String refreshToken = jwtService.createRefreshToken(user.getId());
 

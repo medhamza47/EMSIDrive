@@ -56,12 +56,15 @@ class NotificationsScreen extends ConsumerWidget {
                     : Icons.notifications_active,
               ),
               trailing: const Icon(Icons.chevron_right),
-              child: FlowCopy(
-                notice.isRequest
-                    ? l.requestAcceptedNotice(notice.accepter)
-                    : l.offerAcceptedNotice(notice.accepter),
-                l.openAcceptedRide,
-              ),
+              child: FlowCopy(switch (notice.title) {
+                'TRIP_CANCELLED' => l.rideNoticeCancelled,
+                'TRIP_STARTED' => l.rideNoticeStarted,
+                'TRIP_COMPLETED' => l.rideNoticeCompleted,
+                _ =>
+                  notice.isRequest
+                      ? l.requestAcceptedNotice(notice.accepter)
+                      : l.offerAcceptedNotice(notice.accepter),
+              }, l.openAcceptedRide),
             ),
       ],
     );

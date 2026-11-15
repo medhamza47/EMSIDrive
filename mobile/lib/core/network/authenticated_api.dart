@@ -18,22 +18,42 @@ class AuthenticatedApi {
   final Dio _dio;
   final TokenStorage _tokens;
   Future<String?>? _refreshing;
+  int? _refreshSession;
 
   Future<String?> _refresh(int session) async {
     final token = await _tokens.readRefreshToken();
-    if (token == null || _tokens.session != session) return null;
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/auth/refresh',
-      data: {'refreshToken': token},
-    );
-    final access = response.data!['accessToken'] as String;
-    return await _tokens.rotate(
-          session,
-          accessToken: access,
-          refreshToken: response.data!['refreshToken'] as String,
-        )
-        ? access
-        : null;
+    if (_tokens.session != session) return null;
+    if (token == null || token.isEmpty) {
+      await _tokens.invalidate(session);
+      return null;
+    }
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/auth/refresh',
+        data: {'refreshToken': token},
+      );
+      final access = response.data?['accessToken'] as String?;
+      final refresh = response.data?['refreshToken'] as String?;
+      if (access == null ||
+          access.isEmpty ||
+          refresh == null ||
+          refresh.isEmpty) {
+        throw const FormatException('Invalid token response');
+      }
+      return await _tokens.rotate(
+            session,
+            accessToken: access,
+            refreshToken: refresh,
+          )
+          ? access
+          : null;
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401 ||
+          error.response?.statusCode == 403) {
+        await _tokens.invalidate(session);
+      }
+      rethrow;
+    }
   }
 
   Future<T?> request<T>(
@@ -52,6 +72,11 @@ class AuthenticatedApi {
       }
     }
 
+    if (token == null &&
+        _tokens.signedIn == true &&
+        _tokens.session == session) {
+      await _tokens.invalidate(session);
+    }
     checkSession();
     Future<T?> send(String access) async {
       checkSession();
@@ -82,7 +107,11 @@ class AuthenticatedApi {
       }
       var replacement = await _tokens.readAccessToken();
       if (replacement == token) {
-        final operation = _refreshing ??= _refresh(session);
+        final operation = _refreshSession == session && _refreshing != null
+            ? _refreshing!
+            : _refresh(session);
+        _refreshSession = session;
+        _refreshing = operation;
         try {
           replacement = await operation;
         } finally {
@@ -90,7 +119,14 @@ class AuthenticatedApi {
         }
       }
       if (replacement == null || _tokens.session != session) rethrow;
-      return send(replacement);
+      try {
+        return await send(replacement);
+      } on DioException catch (retryError) {
+        if (retryError.response?.statusCode == 401) {
+          await _tokens.invalidate(session);
+        }
+        rethrow;
+      }
     }
   }
 }

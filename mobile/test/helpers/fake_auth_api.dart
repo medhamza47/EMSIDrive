@@ -86,6 +86,26 @@ class FakeAuthApi implements AuthApi {
     return _answer();
   }
 
+  /// Refresh tokens sent to `logout`, in call order.
+  final List<String> logoutRequests = <String>[];
+
+  @override
+  Future<void> logout(String refreshToken) async {
+    logoutRequests.add(refreshToken);
+  }
+
+  @override
+  Future<({AuthResponseDto session, String deviceKey})> biometricLogin({
+    required String deviceId,
+    required String deviceKey,
+  }) async => (session: await _answer(), deviceKey: 'rotated-$deviceKey');
+
+  @override
+  Future<void> biometricRevoke({
+    required String deviceId,
+    required String deviceKey,
+  }) async {}
+
   Future<AuthResponseDto> _answer() {
     final pendingCall = pending;
     if (pendingCall != null) {

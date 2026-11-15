@@ -1,11 +1,18 @@
 # Starts the EMSIDrive backend the way the mobile app expects to find it:
-# PostgreSQL container up, Spring Boot API listening on 8080, /health answering.
+# PostgreSQL container up, Spring Boot API on the selected port (default 8080).
 #
 # Usage:  powershell -ExecutionPolicy Bypass -File scripts\start-backend.ps1
+# Use -Port 8081 when another service occupies port 8080.
 #
 # Idempotent: safe to run when the stack is already up.
 
+param(
+    [ValidateRange(1, 65535)]
+    [int]$Port = 8080
+)
+
 $ErrorActionPreference = 'Stop'
+$apiBaseUrl = "http://localhost:$Port"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $backendDir = Join-Path $repoRoot 'backend'
@@ -13,16 +20,20 @@ $javaHome = 'C:\Program Files\Android\Android Studio\jbr'
 
 function Test-ApiUp {
     try {
-        $response = Invoke-WebRequest -Uri 'http://localhost:8080/health' -UseBasicParsing -TimeoutSec 3
-        return $response.StatusCode -eq 200
+        $response = Invoke-RestMethod -Uri "$apiBaseUrl/health" -TimeoutSec 3
+        return $response.status -eq 'UP' -and $response.application -eq 'emsidrive-api'
     } catch {
         return $false
     }
 }
 
 if (Test-ApiUp) {
-    Write-Host 'API already running on http://localhost:8080' -ForegroundColor Green
+    Write-Host "API already running on $apiBaseUrl" -ForegroundColor Green
     exit 0
+}
+
+if (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue) {
+    throw "Port $Port is occupied by another service. Run this script with -Port and an available port, and use the same port in the mobile API_BASE_URL."
 }
 
 Write-Host 'Starting PostgreSQL container...' -ForegroundColor Cyan
@@ -43,6 +54,7 @@ try {
         throw "JAVA_HOME not found at $javaHome - update `$javaHome in this script."
     }
     $env:JAVA_HOME = $javaHome
+    $env:SERVER_PORT = "$Port"
 
     Write-Host 'Starting Spring Boot API (profile dev)...' -ForegroundColor Cyan
     $logPath = Join-Path $env:TEMP 'emsidrive-api.log'
@@ -57,7 +69,7 @@ try {
 
     for ($i = 0; $i -lt 120; $i++) {
         if (Test-ApiUp) {
-            Write-Host 'API is UP on http://localhost:8080' -ForegroundColor Green
+            Write-Host "API is UP on $apiBaseUrl" -ForegroundColor Green
             exit 0
         }
         Start-Sleep -Seconds 1

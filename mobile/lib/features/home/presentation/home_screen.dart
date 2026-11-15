@@ -30,6 +30,17 @@ const double _tripCardRadius = 18;
 /// Gap between the blocks of the page, taken from the mockup (14 px).
 const double _blockGap = 14;
 
+/// Grouping by proximity: a section title sits further from what precedes
+/// it than from the content it introduces.
+const double _sectionGapBefore = 26;
+const double _sectionGapAfter = 8;
+
+/// Entry motion: each block eases out over [_entryItemMs], the next one
+/// starting [_entryStaggerMs] later.
+const int _entryItemMs = 280;
+const int _entryStaggerMs = 30;
+const int _entryMaxBlocks = 8;
+
 /// Accueil tab matching the second mockup of `EMSIDrive_maquettes_mobile.html`.
 ///
 /// Shows a greeting, the two ride actions and the next trips of the student.
@@ -46,7 +57,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _entryController = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 620),
+    duration: const Duration(
+      milliseconds: _entryItemMs + _entryStaggerMs * (_entryMaxBlocks - 1),
+    ),
     value: 1,
   );
 
@@ -121,8 +134,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           SkeletonLoader(width: 46, height: 46, radius: AppRadius.pill),
         ],
       ),
-      const SkeletonLoader(height: 104, radius: _actionCardRadius),
-      const SkeletonLoader(height: 104, radius: _actionCardRadius),
+      const SkeletonLoader(height: 92, radius: _actionCardRadius),
+      const SkeletonLoader(height: 92, radius: _actionCardRadius),
       const SkeletonLoader.line(width: 148, radius: AppRadius.xs),
       const SkeletonLoader(height: 74, radius: _tripCardRadius),
       const SkeletonLoader(height: 74, radius: _tripCardRadius),
@@ -165,7 +178,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         EmptyState(
           title: l10n.homeNoUpcomingTripsTitle,
           message: l10n.homeNoUpcomingTripsMessage,
-          icon: Icons.route_outlined,
+          icon: Icons.directions_car_outlined,
         )
       else
         ...overview.upcomingTrips.map(
@@ -221,7 +234,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final children = <Widget>[];
     for (var index = 0; index < blocks.length; index++) {
       if (index > 0) {
-        children.add(const SizedBox(height: _blockGap));
+        final gap = blocks[index] is SectionTitle
+            ? _sectionGapBefore
+            : blocks[index - 1] is SectionTitle
+            ? _sectionGapAfter
+            : _blockGap;
+        children.add(SizedBox(height: gap));
       }
       children.add(
         _EntryTransition(
@@ -234,10 +252,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Animation<double> _entryAnimation(int index) {
-    final start = (index * 0.08).clamp(0.0, 0.55);
+    final total = _entryController.duration!.inMilliseconds;
+    final startMs = _entryStaggerMs * index.clamp(0, _entryMaxBlocks - 1);
     return CurvedAnimation(
       parent: _entryController,
-      curve: Interval(start, 1, curve: Curves.easeOutCubic),
+      // Ease-out: blocks arrive fast and settle softly.
+      curve: Interval(
+        startMs / total,
+        (startMs + _entryItemMs) / total,
+        curve: Curves.easeOutCubic,
+      ),
     );
   }
 
@@ -290,38 +314,84 @@ class _HomeActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(_actionCardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.42,
-                  color: foreground,
+    return _PressScale(
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(_actionCardRadius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          // A light tint of the card's own text colour: the default grey
+          // highlight turned the dark card muddy while pressed.
+          highlightColor: foreground.withValues(alpha: 0.08),
+          splashColor: foreground.withValues(alpha: 0.12),
+          child: Padding(
+            // Compact enough to keep "Prochains trajets" visible on small phones.
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.42,
+                    color: foreground,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.35,
-                  color: foreground.withValues(alpha: 0.9),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    // Full strength: 7.5:1 on both cards (WCAG AAA), where the
+                    // previous 90 % opacity gave 6:1 on the light card.
+                    color: foreground,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Shrinks its child to 97 % while a finger is down, like a physical button.
+///
+/// Follows the pointer directly (no tween while held), returns 20 % faster
+/// than it presses in, never bounces, and is skipped with reduce motion.
+class _PressScale extends StatefulWidget {
+  const _PressScale({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _pressed = false;
+
+  void _set(bool pressed) {
+    if (_pressed != pressed) setState(() => _pressed = pressed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return Listener(
+      onPointerDown: (_) => _set(true),
+      onPointerUp: (_) => _set(false),
+      onPointerCancel: (_) => _set(false),
+      child: AnimatedScale(
+        scale: _pressed && !reduceMotion ? 0.97 : 1,
+        duration: Duration(milliseconds: _pressed ? 100 : 80),
+        curve: Curves.easeOut,
+        child: widget.child,
       ),
     );
   }
@@ -343,34 +413,42 @@ class _UpcomingTripCard extends StatelessWidget {
         : l10n.homeTripWithDriver(trip.timeLabel, driver);
     final isConfirmed = trip.status == TripStatus.confirmed;
 
-    return AppCard(
-      onTap: () => context.push(AppRoutes.acceptedRide(trip.id)),
-      radius: _tripCardRadius,
-      padding: const EdgeInsets.all(14),
-      crossAxisAlignment: CrossAxisAlignment.center,
-      trailing: AppBadge(
-        label: isConfirmed ? l10n.tripStatusConfirmed : l10n.tripStatusPending,
-        tone: isConfirmed ? AppBadgeTone.accent : AppBadgeTone.warning,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            l10n.homeTripRoute(trip.origin, trip.destination),
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+    return _PressScale(
+      child: AppCard(
+        onTap: () => context.push(AppRoutes.acceptedRide(trip.id)),
+        radius: _tripCardRadius,
+        padding: const EdgeInsets.all(14),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        trailing: AppBadge(
+          label: trip.status == TripStatus.ongoing
+              ? l10n.rideStatusOngoing
+              : isConfirmed
+              ? l10n.tripStatusConfirmed
+              : l10n.tripStatusPending,
+          tone: isConfirmed ? AppBadgeTone.accent : AppBadgeTone.warning,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              l10n.homeTripRoute(trip.origin, trip.destination),
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 13,
-              color: theme.colorScheme.onSurfaceVariant,
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+                // Fixed-width digits so "08:15" and "11:45" line up.
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

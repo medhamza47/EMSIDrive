@@ -11,6 +11,9 @@ import '../data/marketplace_api.dart';
 import '../domain/marketplace_models.dart';
 import 'marketplace_map.dart';
 import 'ride_summary_card.dart';
+import 'ride_lifecycle.dart';
+import 'ride_request_screen.dart';
+import '../../home/application/home_controller.dart';
 
 String rideDeparture(DateTime date) =>
     DateFormat.MMMEd('fr').add_Hm().format(date);
@@ -27,13 +30,22 @@ class MarketplaceBoard extends ConsumerStatefulWidget {
 class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
   late int _tab = widget.initialTab;
   late Future<List<Object>> _items = _load();
+  bool _mine = false;
+  bool _history = false;
 
   Future<List<Object>> _load() {
     final api = ref.read(marketplaceApiProvider);
-    return _tab == 2 ? api.trips() : api.listings(ListingKind.values[_tab]);
+    return _tab == 2
+        ? api.trips(history: _history)
+        : api.listings(ListingKind.values[_tab], mine: _mine);
   }
 
-  void _reload() => setState(() => _items = _load());
+  void _reload() {
+    final items = _load();
+    setState(() {
+      _items = items;
+    });
+  }
 
   Future<void> _open(String location) async {
     await context.push(location);
@@ -61,6 +73,30 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
           },
         ),
         if (_tab < 2)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilterChip(
+              label: Text(l.rideMyListings),
+              selected: _mine,
+              onSelected: (value) {
+                _mine = value;
+                _reload();
+              },
+            ),
+          )
+        else
+          SegmentedButton<bool>(
+            segments: [
+              ButtonSegment(value: false, label: Text(l.rideActiveTrips)),
+              ButtonSegment(value: true, label: Text(l.rideHistory)),
+            ],
+            selected: {_history},
+            onSelectionChanged: (value) {
+              _history = value.single;
+              _reload();
+            },
+          ),
+        if (_tab < 2)
           PrimaryButton(
             label: _tab == 0 ? l.requestTitle : l.offerTitle,
             icon: Icons.add,
@@ -87,7 +123,7 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
               return Text(switch (_tab) {
                 0 => l.noRideRequests,
                 1 => l.noRideOffers,
-                _ => l.noAcceptedRides,
+                _ => _history ? l.rideNoHistory : l.noAcceptedRides,
               });
             }
 
@@ -100,12 +136,14 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
                       path: item.path,
                       author: item.author,
                       seats: item.seats,
+                      status: rideStatusLabel(l, item.status),
                       onTap: () =>
                           _open(AppRoutes.listing(item.kind.name, item.id)),
                     ),
                     AcceptedRide() => RideSummaryCard(
                       path: item.path,
                       author: item.partner,
+                      status: rideStatusLabel(l, item.status),
                       onTap: () => _open(AppRoutes.acceptedRide(item.id)),
                     ),
                     _ => const SizedBox.shrink(),
@@ -137,6 +175,48 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
   Future<RideListing> _load() =>
       ref.read(marketplaceApiProvider).listing(widget.kind, widget.id);
 
+  Future<void> _editListing(RideListing listing) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => RideRequestScreen(
+          isOffer: listing.kind == ListingKind.offer,
+          editing: listing,
+        ),
+      ),
+    );
+    if (!mounted) return;
+    final listingFuture = _load();
+    setState(() {
+      _listing = listingFuture;
+    });
+  }
+
+  Future<void> _cancelListing(RideListing listing) async {
+    final l = AppLocalizations.of(context);
+    if (!await confirmRideAction(context, l.rideCancelListingHint) ||
+        !mounted) {
+      return;
+    }
+    setState(() => _accepting = true);
+    try {
+      await ref.read(marketplaceApiProvider).cancelListing(listing);
+      ref.invalidate(homeControllerProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.rideActionFailed)));
+      }
+    } finally {
+      if (mounted) {
+        final listingFuture = _load();
+        setState(() {
+          _accepting = false;
+          _listing = listingFuture;
+        });
+      }
+    }
+  }
+
   Future<void> _accept(RideListing listing) async {
     setState(() => _accepting = true);
     try {
@@ -147,7 +227,10 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
       final l = AppLocalizations.of(context);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.acceptRideError)));
-      setState(() => _listing = _load());
+      final refreshedListing = _load();
+      setState(() {
+        _listing = refreshedListing;
+      });
     } finally {
       if (mounted) setState(() => _accepting = false);
     }
@@ -170,6 +253,7 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
             else if (listing == null)
               const LinearProgressIndicator()
             else ...[
+              Text(rideStatusLabel(l, listing.status)),
               AppCard(
                 leading: Avatar(name: listing.author),
                 child: FlowCopy(listing.author, l.seatsValue(listing.seats)),
@@ -180,7 +264,7 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
               ),
               if (listing.notes case final notes? when notes.isNotEmpty)
                 Text(notes),
-              Text(l.approximatePickup),
+              if (!listing.own) Text(l.approximatePickup),
               MarketplaceMap(path: listing.path, previewOnOpen: true),
               if (listing.canAccept)
                 PrimaryButton(
@@ -190,6 +274,20 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                 )
               else
                 Text(listing.own ? l.ownRideListing : l.rideUnavailable),
+              if (listing.own && listing.canEdit)
+                OutlinedButton.icon(
+                  onPressed: _accepting ? null : () => _editListing(listing),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(l.rideEditListing),
+                ),
+              if (listing.own && !listing.canEdit && listing.canCancel)
+                Text(l.rideEditLocked),
+              if (listing.own && listing.canCancel)
+                OutlinedButton.icon(
+                  onPressed: _accepting ? null : () => _cancelListing(listing),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: Text(l.rideCancelListing),
+                ),
             ],
           ],
         );

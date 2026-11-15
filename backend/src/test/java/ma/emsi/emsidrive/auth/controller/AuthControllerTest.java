@@ -44,6 +44,9 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private ma.emsi.emsidrive.auth.service.BiometricDeviceService biometricDeviceService;
+
     private static AuthResponse sampleAuthResponse() {
         return AuthResponse.bearer(
                 "access-token",

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Emsidrive Mobile</string>
+	<string>EMSIDrive</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Déverrouiller votre session EMSIDrive avec Face ID.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Photographier votre emploi du temps pour en extraire les cours.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

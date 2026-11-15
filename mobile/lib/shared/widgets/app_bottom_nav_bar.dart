@@ -29,8 +29,8 @@ class AppBottomNavBar extends StatelessWidget {
           selectedIcon: Icons.home_rounded,
         ),
         AppTab.rides: (
-          icon: Icons.route_outlined,
-          selectedIcon: Icons.route_rounded,
+          icon: Icons.directions_car_outlined,
+          selectedIcon: Icons.directions_car_rounded,
         ),
         AppTab.planning: (
           icon: Icons.calendar_month_outlined,

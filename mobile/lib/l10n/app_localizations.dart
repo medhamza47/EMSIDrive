@@ -2169,6 +2169,396 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aperçu de l’itinéraire'**
   String get mapRouteLabel;
+
+  /// No description provided for @rideMyListings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes annonces'**
+  String get rideMyListings;
+
+  /// No description provided for @rideActiveTrips.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours et à venir'**
+  String get rideActiveTrips;
+
+  /// No description provided for @rideHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get rideHistory;
+
+  /// No description provided for @rideNoHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun trajet terminé ou annulé.'**
+  String get rideNoHistory;
+
+  /// No description provided for @rideEditListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l’annonce'**
+  String get rideEditListing;
+
+  /// No description provided for @rideSaveListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get rideSaveListing;
+
+  /// No description provided for @rideCancelListing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler l’annonce'**
+  String get rideCancelListing;
+
+  /// No description provided for @rideCancelBooking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler cette réservation'**
+  String get rideCancelBooking;
+
+  /// No description provided for @rideStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer le trajet'**
+  String get rideStart;
+
+  /// No description provided for @rideComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer le trajet'**
+  String get rideComplete;
+
+  /// No description provided for @rideActionFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action impossible. Le trajet a peut-être changé. Actualisez puis réessayez.'**
+  String get rideActionFailed;
+
+  /// No description provided for @rideConfirmAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer l’action'**
+  String get rideConfirmAction;
+
+  /// No description provided for @rideCancelListingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’annonce sera fermée et toutes ses réservations actives seront annulées. Les participants seront prévenus.'**
+  String get rideCancelListingHint;
+
+  /// No description provided for @rideCancelBookingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réservation sera annulée et l’autre participant sera prévenu.'**
+  String get rideCancelBookingHint;
+
+  /// No description provided for @rideStartHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet commencera pour tous les passagers confirmés. Les nouvelles réservations seront fermées.'**
+  String get rideStartHint;
+
+  /// No description provided for @rideCompleteHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet sera terminé pour tous les passagers et le partage de position sera arrêté.'**
+  String get rideCompleteHint;
+
+  /// No description provided for @rideConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get rideConfirm;
+
+  /// No description provided for @rideKeep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get rideKeep;
+
+  /// No description provided for @rideReadOnlyChat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce trajet est clos. Les messages restent consultables.'**
+  String get rideReadOnlyChat;
+
+  /// No description provided for @rideEditLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'La modification est disponible avant toute réservation. Pour changer un trajet déjà réservé, annulez l’annonce et prévenez les participants.'**
+  String get rideEditLocked;
+
+  /// No description provided for @rideStatusOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get rideStatusOpen;
+
+  /// No description provided for @rideStatusFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complet'**
+  String get rideStatusFull;
+
+  /// No description provided for @rideStatusMatched.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé'**
+  String get rideStatusMatched;
+
+  /// No description provided for @rideStatusOngoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'En route'**
+  String get rideStatusOngoing;
+
+  /// No description provided for @rideStatusCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get rideStatusCompleted;
+
+  /// No description provided for @rideStatusCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get rideStatusCancelled;
+
+  /// No description provided for @rideStatusExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiré'**
+  String get rideStatusExpired;
+
+  /// No description provided for @rideNoticeCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet a été annulé'**
+  String get rideNoticeCancelled;
+
+  /// No description provided for @rideNoticeStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur a démarré le trajet'**
+  String get rideNoticeStarted;
+
+  /// No description provided for @rideNoticeCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le trajet est terminé'**
+  String get rideNoticeCompleted;
+
+  /// No description provided for @sessionRestoring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restauration de votre session…'**
+  String get sessionRestoring;
+
+  /// No description provided for @sessionRestoreUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.'**
+  String get sessionRestoreUnavailable;
+
+  /// No description provided for @sessionRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get sessionRetry;
+
+  /// No description provided for @sessionUseAnotherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte'**
+  String get sessionUseAnotherAccount;
+
+  /// No description provided for @biometricScanning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez le capteur d’empreinte…'**
+  String get biometricScanning;
+
+  /// No description provided for @biometricUnlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empreinte reconnue'**
+  String get biometricUnlocked;
+
+  /// No description provided for @biometricUsePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser le mot de passe'**
+  String get biometricUsePassword;
+
+  /// No description provided for @biometricEnableReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre empreinte pour activer la connexion rapide'**
+  String get biometricEnableReason;
+
+  /// No description provided for @biometricLockedOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessayez plus tard ou utilisez votre mot de passe.'**
+  String get biometricLockedOut;
+
+  /// No description provided for @biometricUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune empreinte n’est disponible sur cet appareil. Utilisez votre mot de passe.'**
+  String get biometricUnavailable;
+
+  /// No description provided for @biometricFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empreinte non reconnue. Réessayez.'**
+  String get biometricFailed;
+
+  /// No description provided for @biometricSecurityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get biometricSecurityTitle;
+
+  /// No description provided for @biometricSettingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par empreinte'**
+  String get biometricSettingTitle;
+
+  /// No description provided for @biometricSettingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous connecter avec votre empreinte au lieu de l’email et du mot de passe.'**
+  String get biometricSettingSubtitle;
+
+  /// No description provided for @biometricSettingUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrez une empreinte dans les réglages du téléphone pour activer cette option.'**
+  String get biometricSettingUnavailable;
+
+  /// No description provided for @biometricOfferTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer l’empreinte ?'**
+  String get biometricOfferTitle;
+
+  /// No description provided for @biometricOfferBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous ensuite d’une simple empreinte, même après une déconnexion. Votre mot de passe n’est jamais enregistré sur le téléphone.'**
+  String get biometricOfferBody;
+
+  /// No description provided for @biometricUnlinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce téléphone n’est plus lié à votre compte. Connectez-vous avec votre mot de passe.'**
+  String get biometricUnlinked;
+
+  /// No description provided for @biometricNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au serveur impossible. Vérifiez votre réseau et réessayez.'**
+  String get biometricNetworkError;
+
+  /// No description provided for @biometricWelcomeBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon retour, {name}'**
+  String biometricWelcomeBack(String name);
+
+  /// No description provided for @biometricSignInButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec l’empreinte'**
+  String get biometricSignInButton;
+
+  /// No description provided for @biometricSignInReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez votre identité pour vous connecter à EMSIDrive'**
+  String get biometricSignInReason;
+
+  /// No description provided for @biometricSwitchAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de compte'**
+  String get biometricSwitchAccount;
+
+  /// No description provided for @biometricPromptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion à EMSIDrive'**
+  String get biometricPromptTitle;
+
+  /// No description provided for @biometricCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get biometricCancel;
+
+  /// No description provided for @biometricPromptHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification de votre identité'**
+  String get biometricPromptHint;
+
+  /// No description provided for @biometricCancelledHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empreinte non reconnue ? Réessayez ou utilisez votre mot de passe.'**
+  String get biometricCancelledHint;
+
+  /// No description provided for @biometricDisableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver la connexion par empreinte ?'**
+  String get biometricDisableTitle;
+
+  /// No description provided for @biometricDisableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous devrez saisir votre email et votre mot de passe pour vous reconnecter. Vous pourrez la réactiver depuis le Profil.'**
+  String get biometricDisableBody;
+
+  /// No description provided for @biometricDisableConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get biometricDisableConfirm;
+
+  /// No description provided for @biometricSwitchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de compte ?'**
+  String get biometricSwitchTitle;
+
+  /// No description provided for @biometricSwitchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce téléphone ne sera plus lié à {email}. La connexion par empreinte devra être réactivée.'**
+  String biometricSwitchBody(String email);
+
+  /// No description provided for @biometricOfferAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get biometricOfferAccept;
+
+  /// No description provided for @biometricOfferLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get biometricOfferLater;
+
+  /// No description provided for @biometricEnabledMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par empreinte activée.'**
+  String get biometricEnabledMessage;
 }
 
 class _AppLocalizationsDelegate
