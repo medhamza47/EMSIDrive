@@ -14,6 +14,8 @@ import '../../../shared/widgets/widgets.dart';
 import '../data/schedule_repository.dart';
 import '../domain/schedule_models.dart';
 import '../application/saved_timetable_provider.dart';
+import '../application/import_job_provider.dart';
+import 'import_job_card.dart';
 import 'schedule_error.dart';
 
 class ScheduleImportScreen extends ConsumerStatefulWidget {
@@ -24,12 +26,12 @@ class ScheduleImportScreen extends ConsumerStatefulWidget {
 
 class _ImportState extends ConsumerState<ScheduleImportScreen> {
   final _group = TextEditingController();
-  final _cancel = CancelToken();
+  CancelToken _cancel = CancelToken();
   Timetable? _current;
   Uint8List? _bytes;
   String? _filename;
   Object? _error;
-  bool _loading = true, _busy = false, _loaded = false;
+  bool _loading = true, _busy = false, _loaded = false, _analyzing = false;
   ScheduleRepository get _repository => ref.read(scheduleRepositoryProvider);
   @override
   void initState() {
@@ -119,23 +121,32 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
   }
 
   Future<void> _analyze() async {
+    _cancel = CancelToken();
     setState(() {
+      _analyzing = true;
       _busy = true;
       _error = null;
     });
     try {
-      final draft = await _repository.analyze(
+      await _repository.startImport(
         _bytes!,
         _filename!,
         _group.text.trim(),
         _current?.revision ?? 0,
         _cancel,
       );
-      if (mounted) await _edit(draft);
+      if (mounted) {
+        ref.invalidate(scheduleImportJobProvider);
+      }
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && !_cancel.isCancelled) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _analyzing = false;
+        });
+      }
     }
   }
 
@@ -177,11 +188,61 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final enabled = !_loading && !_busy && _loaded;
+    final pending =
+        ref.watch(scheduleImportJobProvider).asData?.value?.pending ?? false;
+    final enabled = !_loading && !_busy && _loaded && !pending;
     return FlowPage(
       title: l.scheduleTitle,
       children: [
-        Text(l.timetableImportHint),
+        const ImportJobCard(),
+        Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  size: 36,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
+                Text(
+                  l.timetableHero,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                Text(l.timetableImportHint),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    Chip(
+                      avatar: const Icon(Icons.upload_file, size: 18),
+                      label: Text(l.timetableStepImport),
+                    ),
+                    Chip(
+                      avatar: const Icon(Icons.event_available, size: 18),
+                      label: Text(l.timetableStepReview),
+                    ),
+                    Chip(
+                      avatar: const Icon(Icons.directions_car, size: 18),
+                      label: Text(l.timetableStepRide),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_analyzing && _busy) ...[
+          const LinearProgressIndicator(),
+          Text(l.importUploading),
+          TextButton.icon(
+            onPressed: () => _cancel.cancel(),
+            icon: const Icon(Icons.close),
+            label: Text(l.timetableCancel),
+          ),
+        ],
         if (_loading) const LinearProgressIndicator(),
         if (_error != null) ...[
           Text(
@@ -308,10 +369,15 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
   DateTime? _from, _until;
   Object? _error;
   bool _loading = true, _saving = false, _confirmed = false;
+  bool _suggestedDates = false;
+  bool _initialized = false;
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -322,10 +388,23 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
       if (mounted) {
         setState(() {
           _draft = draft;
-          _slots = [...?draft?.slots];
-          _name.text = draft?.name ?? '';
-          _from = draft?.validFrom;
-          _until = draft?.validUntil;
+          _slots = [...?draft?.slots]..sort(CourseSlot.compare);
+          _name.text = (draft?.name.isNotEmpty ?? false)
+              ? draft!.name
+              : AppLocalizations.of(context).scheduleTitle;
+          final now = DateTime.now();
+          _suggestedDates =
+              draft != null &&
+              draft.validFrom == null &&
+              draft.validUntil == null;
+          _from =
+              draft?.validFrom ??
+              (_suggestedDates ? DateTime(now.year, now.month, now.day) : null);
+          _until =
+              draft?.validUntil ??
+              (_suggestedDates
+                  ? DateTime(_from!.year, _from!.month, _from!.day + 6)
+                  : null);
         });
       }
     } catch (e) {
@@ -345,12 +424,36 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
       _name.text.trim().isNotEmpty &&
       _slots.isNotEmpty &&
       _slots.length <= 80 &&
-      _slots.every((s) => s.complete && !s.needsReview) &&
+      _slots.every((s) => s.complete) &&
       !Timetable.overlaps(_slots) &&
       _from != null &&
       _until != null &&
       !_until!.isBefore(_from!) &&
       !_until!.isAfter(DateTime(_from!.year + 1, _from!.month, _from!.day));
+
+  List<String> _validationIssues(AppLocalizations l) => [
+    if (_name.text.trim().isEmpty) l.timetableMissingName,
+    if (_slots.isEmpty) l.timetableNoSessions,
+    if (_slots.length > 80) l.timetableTooManySessions,
+    if (_slots.any((s) => !s.complete))
+      l.timetableMissingTimes(_slots.where((s) => !s.complete).length),
+    if (Timetable.overlaps(_slots)) l.timetableOverlap,
+    if (_from == null ||
+        _until == null ||
+        _until!.isBefore(_from!) ||
+        _until!.isAfter(DateTime(_from!.year + 1, _from!.month, _from!.day)))
+      l.timetableInvalidDates,
+  ];
+  void _useWeekPeriod() {
+    final now = DateTime.now();
+    setState(() {
+      _from = DateTime(now.year, now.month, now.day);
+      _until = DateTime(now.year, now.month, now.day + 6);
+      _suggestedDates = true;
+      _confirmed = false;
+    });
+  }
+
   Future<void> _date(bool start) async {
     final now = DateTime.now();
     final selected = await showDatePicker(
@@ -366,6 +469,7 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
         } else {
           _until = selected;
         }
+        _suggestedDates = false;
         _confirmed = false;
       });
     }
@@ -384,11 +488,13 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
       } else {
         _slots[index] = slot;
       }
+      _slots.sort(CourseSlot.compare);
       _confirmed = false;
     });
   }
 
-  Future<void> _save() async {
+  Future<void> _save({bool reserve = false}) async {
+    if (!_valid || !_confirmed || _saving) return;
     setState(() {
       _saving = true;
       _error = null;
@@ -404,14 +510,18 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
               validFrom: _from,
               validUntil: _until,
               revision: _draft!.revision,
+              analysisJobId: _draft!.analysisJobId,
             ),
           );
       ref.invalidate(savedTimetableProvider);
+      ref.invalidate(scheduleImportJobProvider);
       if (mounted) {
-        if (context.canPop()) {
+        if (reserve) {
+          context.go(AppRoutes.suggestions);
+        } else if (context.canPop()) {
           context.pop();
         } else {
-          context.go(AppRoutes.scheduleImport);
+          context.go(AppRoutes.planning);
         }
       }
     } catch (e) {
@@ -439,7 +549,30 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
             child: Text(l.scheduleImportTitle),
           ),
         if (_draft != null) ...[
-          Text(l.timetableReview),
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 10,
+                children: [
+                  Text(
+                    l.presenceDigitalTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  for (final day in Timetable(
+                    name: '',
+                    source: _draft!.source,
+                    slots: _slots,
+                  ).attendance)
+                    Text(
+                      '${timetableDays(l)[day.weekday - 1]} · ${l.presenceArrival(day.arrival)} · ${l.presenceLeaving(day.leaving)}',
+                    ),
+                ],
+              ),
+            ),
+          ),
           for (final warning in _draft!.warnings) Text(warning),
           if (_draft!.preview != null)
             OutlinedButton(
@@ -465,6 +598,12 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
             decoration: InputDecoration(labelText: l.timetableName),
             onChanged: (_) => setState(() => _confirmed = false),
           ),
+          if (_suggestedDates) Text(l.timetableSuggestedDates),
+          TextButton.icon(
+            onPressed: _saving ? null : _useWeekPeriod,
+            icon: const Icon(Icons.date_range),
+            label: Text(l.timetableUseWeekPeriod),
+          ),
           OutlinedButton(
             onPressed: _saving ? null : () => _date(true),
             child: Text(
@@ -479,15 +618,22 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
           ),
           for (final (index, slot) in _slots.indexed)
             Card(
+              color: !slot.complete
+                  ? Theme.of(context).colorScheme.errorContainer
+                  : Theme.of(context).colorScheme.secondaryContainer,
               child: ListTile(
                 leading: Icon(
-                  slot.needsReview || !slot.complete
+                  (slot.needsReview && !_confirmed) || !slot.complete
                       ? Icons.warning_amber
                       : Icons.event_available,
                 ),
-                title: Text(slot.label ?? l.timetableUnknown),
+                title: Text(
+                  slot.weekday == null
+                      ? l.timetableUnknown
+                      : timetableDays(l)[slot.weekday! - 1],
+                ),
                 subtitle: Text(
-                  '${slot.weekday == null ? l.timetableUnknown : timetableDays(l)[slot.weekday! - 1]} · ${slot.startTime ?? "?"}–${slot.endTime ?? "?"}\n${slot.campus ?? l.timetableUnknown} · ${slot.location ?? ""}${slot.needsReview || !slot.complete ? "\n${l.timetableNeedsReview}" : ""}',
+                  '${slot.startTime ?? "?"}–${slot.endTime ?? "?"}${(slot.needsReview && !_confirmed) || !slot.complete ? "\n${l.timetableNeedsReview}" : ""}',
                 ),
                 onTap: _saving ? null : () => _edit(index),
                 trailing: IconButton(
@@ -509,12 +655,11 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
             icon: const Icon(Icons.add),
             label: Text(l.timetableAddCourse),
           ),
-          if (Timetable.overlaps(_slots))
+          for (final issue in _validationIssues(l))
             Text(
-              l.timetableOverlap,
+              issue,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
-          if (!_valid) Text(l.timetableIncomplete),
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(l.timetableConfirm),
@@ -524,9 +669,15 @@ class _SlotsState extends ConsumerState<ScheduleSlotsScreen> {
                 : (value) => setState(() => _confirmed = value!),
           ),
           PrimaryButton(
-            label: l.timetableSave,
+            label: l.timetableSaveAndRide,
             isLoading: _saving,
-            onPressed: _valid && _confirmed && !_saving ? _save : null,
+            onPressed: _valid && _confirmed && !_saving
+                ? () => _save(reserve: true)
+                : null,
+          ),
+          TextButton(
+            onPressed: _valid && _confirmed && !_saving ? () => _save() : null,
+            child: Text(l.timetableSave),
           ),
         ],
       ],
@@ -553,15 +704,12 @@ class _SlotDialog extends StatefulWidget {
 
 class _SlotDialogState extends State<_SlotDialog> {
   final _form = GlobalKey<FormState>();
-  late final _label = TextEditingController(text: widget.slot.label);
-  late final _location = TextEditingController(text: widget.slot.location);
   late final _start = TextEditingController(text: widget.slot.startTime);
   late final _end = TextEditingController(text: widget.slot.endTime);
   late int? _day = widget.slot.weekday;
-  late String? _campus = widget.slot.campus;
   @override
   void dispose() {
-    for (final c in [_label, _location, _start, _end]) {
+    for (final c in [_start, _end]) {
       c.dispose();
     }
     super.dispose();
@@ -580,13 +728,6 @@ class _SlotDialogState extends State<_SlotDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _label,
-                maxLength: 120,
-                decoration: InputDecoration(labelText: l.timetableSubject),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? l.timetableRequired : null,
-              ),
               DropdownButtonFormField<int>(
                 initialValue: _day,
                 decoration: InputDecoration(labelText: l.timetableDay),
@@ -594,7 +735,7 @@ class _SlotDialogState extends State<_SlotDialog> {
                   for (final (i, day) in timetableDays(l).indexed)
                     DropdownMenuItem(value: i + 1, child: Text(day)),
                 ],
-                onChanged: (v) => _day = v,
+                onChanged: (v) => setState(() => _day = v),
                 validator: (v) => v == null ? l.timetableRequired : null,
               ),
               TextFormField(
@@ -615,21 +756,14 @@ class _SlotDialogState extends State<_SlotDialog> {
                         ? l.timetableTimeInvalid
                         : null),
               ),
-              DropdownButtonFormField<String>(
-                initialValue: _campus,
-                decoration: InputDecoration(labelText: l.timetableCampus),
-                items: const [
-                  DropdownMenuItem(value: 'TARGA', child: Text('Targa')),
-                  DropdownMenuItem(value: 'CENTRE', child: Text('Centre')),
-                ],
-                onChanged: (v) => _campus = v,
-                validator: (v) => v == null ? l.timetableRequired : null,
-              ),
-              TextFormField(
-                controller: _location,
-                maxLength: 160,
-                decoration: InputDecoration(labelText: l.timetableRoom),
-              ),
+              if (_day == DateTime.friday)
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    _start.text = '15:00';
+                  }),
+                  icon: const Icon(Icons.schedule),
+                  label: Text(l.fridayStartAt15),
+                ),
             ],
           ),
         ),
@@ -645,12 +779,9 @@ class _SlotDialogState extends State<_SlotDialog> {
               Navigator.pop(
                 context,
                 CourseSlot(
-                  label: _label.text.trim(),
-                  location: _location.text.trim(),
                   weekday: _day,
                   startTime: _start.text,
                   endTime: _end.text,
-                  campus: _campus,
                 ),
               );
             }

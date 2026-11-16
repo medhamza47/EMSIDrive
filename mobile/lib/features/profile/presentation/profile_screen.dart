@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
+import '../../../core/theme/theme_mode_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/flow_page.dart';
@@ -13,6 +14,10 @@ import '../../../shared/widgets/form_section.dart';
 import '../application/profile_controller.dart';
 import 'profile_edit_screen.dart';
 import '../../auth/data/auth_repository_provider.dart';
+import '../../schedule/application/saved_timetable_provider.dart';
+import '../../schedule/domain/schedule_models.dart';
+import '../../schedule/presentation/schedule_error.dart';
+import '../../schedule/presentation/import_job_card.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -45,6 +50,56 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return FlowPage(
       title: l.navProfile,
       children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                Text(
+                  l.appearanceTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SegmentedButton<ThemeMode>(
+                  segments: [
+                    ButtonSegment(
+                      value: ThemeMode.light,
+                      icon: const Icon(Icons.light_mode_outlined),
+                      label: Text(l.appearanceLight),
+                    ),
+                    ButtonSegment(
+                      value: ThemeMode.dark,
+                      icon: const Icon(Icons.dark_mode_outlined),
+                      label: Text(l.appearanceDark),
+                    ),
+                    ButtonSegment(
+                      value: ThemeMode.system,
+                      icon: const Icon(Icons.phone_android),
+                      label: Text(l.appearanceSystem),
+                    ),
+                  ],
+                  selected: {ref.watch(themeModeProvider)},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (selection) async {
+                    try {
+                      await ref
+                          .read(themeModeProvider.notifier)
+                          .choose(selection.single);
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l.appearanceSaveError)),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        const ImportJobCard(),
         ref
             .watch(profileControllerProvider)
             .when(
@@ -147,6 +202,78 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ],
               ),
             ),
+        Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                const Icon(Icons.calendar_month_rounded, size: 36),
+                Text(
+                  l.scheduleTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                Text(l.timetableProfileHint),
+                ref
+                    .watch(savedTimetableProvider)
+                    .when(
+                      loading: () => const LinearProgressIndicator(),
+                      error: (error, _) => Column(
+                        children: [
+                          Text(scheduleError(context, error)),
+                          TextButton(
+                            onPressed: () =>
+                                ref.invalidate(savedTimetableProvider),
+                            child: Text(l.retryLabel),
+                          ),
+                        ],
+                      ),
+                      data: (timetable) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
+                        children: [
+                          if (timetable != null) ...[
+                            Text(
+                              timetable.name,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            if (timetable.validFrom != null &&
+                                timetable.validUntil != null)
+                              Text(
+                                '${Timetable.date(timetable.validFrom!)} — ${Timetable.date(timetable.validUntil!)}',
+                              ),
+                            TextButton.icon(
+                              onPressed: () => context.push(AppRoutes.planning),
+                              icon: const Icon(Icons.calendar_view_week),
+                              label: Text(l.navPlanning),
+                            ),
+                            FilledButton.icon(
+                              onPressed: () =>
+                                  context.push(AppRoutes.suggestions),
+                              icon: const Icon(Icons.directions_car),
+                              label: Text(l.searchSharedTrips),
+                            ),
+                          ] else
+                            Text(l.planningEmptyHint),
+                          OutlinedButton.icon(
+                            onPressed: () =>
+                                context.push(AppRoutes.scheduleImport),
+                            icon: const Icon(Icons.edit_calendar_outlined),
+                            label: Text(
+                              timetable == null
+                                  ? l.planningImport
+                                  : l.planningManage,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+              ],
+            ),
+          ),
+        ),
         OutlineButton(
           label: l.signOutLabel,
           icon: Icons.logout,

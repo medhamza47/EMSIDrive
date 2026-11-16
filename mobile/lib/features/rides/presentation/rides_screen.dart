@@ -20,10 +20,22 @@ class RidesScreen extends StatelessWidget {
       children: [
         Text(l.ridesIntro),
         MarketplaceBoard(initialTab: initialTab),
-        ExpansionTile(title:Text(l.ridesTools),tilePadding:EdgeInsets.zero,children:[
-          ListTile(leading:const Icon(Icons.local_gas_station_outlined),title:Text(l.fuelTitle),onTap:()=>context.push(AppRoutes.fuelSplit)),
-          ListTile(leading:const Icon(Icons.star_outline),title:Text(l.reviewTitle),onTap:()=>context.push(AppRoutes.rideReview)),
-        ]),
+        ExpansionTile(
+          title: Text(l.ridesTools),
+          tilePadding: EdgeInsets.zero,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.local_gas_station_outlined),
+              title: Text(l.fuelTitle),
+              onTap: () => context.push(AppRoutes.fuelSplit),
+            ),
+            ListTile(
+              leading: const Icon(Icons.star_outline),
+              title: Text(l.reviewTitle),
+              onTap: () => context.push(AppRoutes.rideReview),
+            ),
+          ],
+        ),
       ],
     );
   }

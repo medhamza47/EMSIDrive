@@ -2,22 +2,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/flow_page.dart';
-import '../../../shared/widgets/widgets.dart';
+import '../../auth/data/session_id_provider.dart';
+import '../../notifications/data/ride_notices_provider.dart';
+import '../application/active_rides_provider.dart';
+import '../application/driver_tracking_provider.dart';
 import '../data/marketplace_api.dart';
+import '../data/road_route_repository.dart';
 import '../domain/marketplace_models.dart';
+import '../domain/marrakech_trip.dart';
 import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
+import 'trip_status.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
-
   final String id;
-
   @override
   ConsumerState<AcceptedRideScreen> createState() => _AcceptedRideScreenState();
 }
@@ -25,57 +29,208 @@ class AcceptedRideScreen extends ConsumerStatefulWidget {
 class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
     with WidgetsBindingObserver {
   late final MarketplaceApi _api = ref.read(marketplaceApiProvider);
+  late final int _session = ref.read(sessionIdProvider);
   final _draft = TextEditingController();
   final _messages = <RideMessage>[];
   AcceptedRide? _ride;
-  Timer? _refreshTimer;
-  Timer? _locationTimer;
-  Future<void>? _publishing;
-  bool _polling = false;
-  bool _loadingError = false;
-  bool _sending = false;
-  bool _starting = false;
-  bool _sharing = false;
-  bool _foreground = true;
-  String? _locationError;
+  Timer? _timer;
+  bool _polling = false,
+      _loadingError = false,
+      _sending = false,
+      _changing = false,
+      _foreground = true;
+  RoadRoute? _approach;
+  DateTime? _routedAt;
+  LatLng? _routedPoint;
+  RideStage? _routedStage;
+  int _routeVersion = 0;
+  bool _routing = false, _routeError = false;
+
+  bool get _current => mounted && ref.read(sessionIdProvider) == _session;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _refresh();
-    _refreshTimer = Timer.periodic(
-      const Duration(seconds: 4),
-      (_) => _refresh(),
-    );
+    _timer = Timer.periodic(const Duration(seconds: 4), (_) => _refresh());
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
-    if (!_foreground && _sharing) unawaited(_stopSharing());
-    if (_foreground) unawaited(_refresh());
+    if (_foreground) {
+      setState(() {});
+      unawaited(_refresh());
+    }
   }
 
   Future<void> _refresh() async {
-    if (_polling || !_foreground) return;
+    if (_polling || !_foreground || !_current) return;
     _polling = true;
     try {
-      final after = _messages.isEmpty ? 0 : _messages.last.id;
-      final (ride, messages) = await (
-        _api.trip(widget.id),
-        _api.messages(widget.id, after),
-      ).wait;
-      if (!mounted) return;
+      final ride = await _api.trip(widget.id);
+      if (!mounted || !_current) return;
+      final changed = _ride != null && _ride!.stage != ride.stage;
       setState(() {
         _ride = ride;
         _loadingError = false;
-        _messages.addAll(messages);
       });
+      if (changed) {
+        final l = AppLocalizations.of(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(tripStageLabel(l, ride.stage))));
+        ref.invalidate(activeRidesProvider);
+        ref.invalidate(rideNoticesProvider);
+      }
+      unawaited(_updateApproach(ride));
+      try {
+        final messages = await _api.messages(
+          widget.id,
+          _messages.isEmpty ? 0 : _messages.last.id,
+        );
+        if (!_current) return;
+        final known = _messages.map((m) => m.id).toSet();
+        setState(
+          () => _messages.addAll(messages.where((m) => !known.contains(m.id))),
+        );
+      } catch (_) {
+        /* Chat failure must not hide a fresh driver location. */
+      }
     } catch (_) {
-      if (mounted) setState(() => _loadingError = true);
+      if (_current) {
+        setState(() {
+          _loadingError = true;
+          _approach = null;
+        });
+      }
     } finally {
       _polling = false;
+    }
+  }
+
+  Future<void> _updateApproach(AcceptedRide ride) async {
+    final point = ride.freshLocation(DateTime.now());
+    if (point == null ||
+        ![
+          RideStage.confirmed,
+          RideStage.enRoute,
+          RideStage.inProgress,
+        ].contains(ride.stage)) {
+      _routeVersion++;
+      if (_current) {
+        setState(() {
+          _approach = null;
+          _routing = false;
+          _routedStage = null;
+        });
+      }
+      return;
+    }
+    if (_routedStage != ride.stage) {
+      _routeVersion++;
+      _approach = null;
+      _routing = false;
+    }
+    if (_routing) return;
+    final elapsed = _routedAt == null
+        ? 999
+        : DateTime.now().difference(_routedAt!).inSeconds;
+    final moved = _routedPoint == null
+        ? 999
+        : const Distance().as(LengthUnit.Meter, _routedPoint!, point);
+    if (_routedStage == ride.stage &&
+        elapsed < 20 &&
+        (elapsed < 8 || moved < 100)) {
+      return;
+    }
+    final version = ++_routeVersion;
+    _routedStage = ride.stage;
+    _routedPoint = point;
+    _routedAt = DateTime.now();
+    setState(() {
+      _routing = true;
+      _routeError = false;
+    });
+    try {
+      final target = ride.stage == RideStage.inProgress
+          ? ride.path.destination
+          : ride.path.origin;
+      final route = await ref
+          .read(roadRouteRepositoryProvider)
+          .between(point, target);
+      if (_current &&
+          version == _routeVersion &&
+          _ride?.freshLocation(DateTime.now()) != null &&
+          !_loadingError) {
+        setState(() => _approach = route);
+      }
+    } catch (_) {
+      if (_current && version == _routeVersion) {
+        setState(() {
+          _approach = null;
+          _routeError = true;
+        });
+      }
+    } finally {
+      if (_current && version == _routeVersion) {
+        setState(() => _routing = false);
+      }
+    }
+  }
+
+  Future<void> _transition(RideStage stage) async {
+    if (_changing || !_current) return;
+    final l = AppLocalizations.of(context);
+    if (stage == RideStage.cancelled) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          title: Text(l.tripCancelQuestion),
+          content: Text(l.tripCancelHint),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, false),
+              child: Text(l.timetableCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialog, true),
+              child: Text(l.tripCancelAction),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !_current) return;
+    }
+    setState(() => _changing = true);
+    try {
+      if (stage == RideStage.enRoute) {
+        await ref
+            .read(driverTrackingProvider.notifier)
+            .start(
+              widget.id,
+              l.tripGpsNotificationTitle,
+              l.tripGpsNotificationBody,
+            );
+      }
+      final ride = await _api.transition(widget.id, stage);
+      if (!_current) return;
+      setState(() {
+        _ride = ride;
+        _approach = null;
+      });
+      _routeVersion++;
+      ref.invalidate(activeRidesProvider);
+      ref.invalidate(rideNoticesProvider);
+      unawaited(_updateApproach(ride));
+    } catch (_) {
+      if (mounted && _current) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l.tripUpdateError)));
+      }
+    } finally {
+      if (_current) setState(() => _changing = false);
     }
   }
 
@@ -85,130 +240,137 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
     setState(() => _sending = true);
     try {
       await _api.send(widget.id, body);
-      if (!mounted) return;
+      if (!_current) return;
       if (_draft.text.trim() == body) _draft.clear();
       await _refresh();
     } catch (_) {
-      if (mounted) {
-        final l = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l.sendChatError)));
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  Future<void> _startSharing() async {
-    final l = AppLocalizations.of(context);
-    setState(() {
-      _starting = true;
-      _locationError = null;
-    });
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) {
-        if (mounted) setState(() => _locationError = l.locationDisabled);
-        return;
-      }
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (mounted) setState(() => _locationError = l.locationDenied);
-        return;
-      }
-      if (!mounted || !_foreground) return;
-      setState(() => _sharing = true);
-      _publishLocation();
-      _locationTimer = Timer.periodic(
-        const Duration(seconds: 5),
-        (_) => _publishLocation(),
-      );
-    } catch (_) {
-      if (mounted) setState(() => _locationError = l.liveSharingError);
-    } finally {
-      if (mounted) setState(() => _starting = false);
-    }
-  }
-
-  void _publishLocation() {
-    if (!_sharing || !_foreground || _publishing != null) return;
-    final operation = _updateLocation();
-    _publishing = operation;
-    unawaited(operation.whenComplete(() => _publishing = null));
-  }
-
-  Future<void> _updateLocation() async {
-    final l = AppLocalizations.of(context);
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 8),
-        ),
-      );
-      if (!mounted || !_sharing || !_foreground) return;
-      await _api.location(
-        widget.id,
-        LatLng(position.latitude, position.longitude),
-      );
-      if (mounted && _locationError != null) {
-        setState(() => _locationError = null);
-      }
-    } catch (_) {
-      if (mounted && _sharing) {
-        setState(() => _locationError = l.liveSharingError);
-      }
-    }
-  }
-
-  Future<void> _stopSharing({bool disposing = false}) async {
-    _locationTimer?.cancel();
-    _sharing = false;
-    if (!disposing && mounted) setState(() => _starting = true);
-    final api = _api;
-    final id = widget.id;
-    await _publishing;
-    try {
-      await api.location(id, null);
-    } catch (_) {
-      if (!disposing && mounted) {
-        setState(
-          () => _locationError = AppLocalizations.of(context).liveSharingError,
+      if (mounted && _current) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).sendChatError)),
         );
       }
     } finally {
-      if (!disposing && mounted) setState(() => _starting = false);
+      if (_current) setState(() => _sending = false);
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _refreshTimer?.cancel();
-    if (_sharing) unawaited(_stopSharing(disposing: true));
+    _timer?.cancel();
+    _routeVersion++;
     _draft.dispose();
     super.dispose();
   }
 
+  Future<void> _call(AcceptedRide ride) async {
+    final uri = ride.callUri;
+    final l = AppLocalizations.of(context);
+    if (uri == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.tripPhoneMissing)));
+      return;
+    }
+    final whatsapp = ride.whatsappUri;
+    final selected = await showModalBottomSheet<Uri>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                l.tripContactChoice,
+                style: Theme.of(sheet).textTheme.titleLarge,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.phone_outlined),
+              title: Text(l.tripPhoneCall),
+              subtitle: Text(l.tripPhoneCallHint),
+              onTap: () => Navigator.pop(sheet, uri),
+            ),
+            ListTile(
+              leading: const Icon(Icons.chat_outlined),
+              title: Text(l.tripWhatsApp),
+              subtitle: Text(
+                whatsapp == null
+                    ? l.tripInternationalPhone
+                    : l.tripWhatsAppHint,
+              ),
+              enabled: whatsapp != null,
+              onTap: whatsapp == null
+                  ? null
+                  : () => Navigator.pop(sheet, whatsapp),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+    if (selected == null ||
+        !mounted ||
+        !_current ||
+        _ride?.stage.active != true) {
+      return;
+    }
+    try {
+      if (selected.scheme == 'https') {
+        try {
+          if (await launchUrl(
+            selected,
+            mode: LaunchMode.externalNonBrowserApplication,
+          )) {
+            return;
+          }
+        } catch (_) {
+          /* Fall back to WhatsApp's official web link. */
+        }
+      }
+      if (await launchUrl(selected, mode: LaunchMode.externalApplication)) {
+        return;
+      }
+    } catch (_) {
+      /* Show the same actionable error if no dialer is available. */
+    }
+    if (mounted && _current) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            selected.scheme == 'tel' ? l.tripCallFailed : l.tripWhatsAppFailed,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final ride = _ride;
+    ref.watch(sessionIdProvider);
+    final l = AppLocalizations.of(context),
+        colors = Theme.of(context).colorScheme;
+    final ride = _current ? _ride : null;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(ride?.partner ?? l.acceptedRideTitle),
+          actions: [
+            if (ride != null && ride.stage.active)
+              IconButton(
+                tooltip: l.tripCall,
+                onPressed: () => _call(ride),
+                icon: const Icon(Icons.call),
+              ),
+          ],
           bottom: TabBar(
-            labelColor: Theme.of(context).colorScheme.onPrimary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onPrimary
-                .withValues(alpha: .75),
-            indicatorColor: Theme.of(context).colorScheme.onPrimary,
+            labelColor: colors.primary,
+            unselectedLabelColor: colors.onSurfaceVariant,
+            indicatorColor: colors.primary,
             tabs: [
-              Tab(text: l.navRides, icon: const Icon(Icons.route)),
+              Tab(text: l.tripFollow, icon: const Icon(Icons.near_me_outlined)),
               Tab(text: l.rideChat, icon: const Icon(Icons.chat_outlined)),
             ],
           ),
@@ -219,7 +381,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
                   child: _loadingError
                       ? TextButton(
                           onPressed: _refresh,
-                          child: Text(l.marketplaceLoadError),
+                          child: Text(l.retryLabel),
                         )
                       : const CircularProgressIndicator(),
                 )
@@ -232,39 +394,245 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
   }
 
   Widget _mapTab(BuildContext context, AcceptedRide ride) {
-    final l = AppLocalizations.of(context);
-    final live = _loadingError ? null : ride.live;
+    final l = AppLocalizations.of(context),
+        colors = Theme.of(context).colorScheme;
+    final live = _loadingError ? null : ride.freshLocation(DateTime.now());
+    final tracking = ref.watch(driverTrackingProvider);
+    final sharing = tracking.tripId == ride.id;
+    final approach = live == null ? null : _approach;
+    final statusColor = tripStageColor(colors, ride.stage);
+    final minutes = approach == null
+        ? null
+        : (approach.durationSeconds / 60).ceil().clamp(1, 999);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        AppBadge(label: ride.isDriver ? l.youDrive : l.youRide),
-        const SizedBox(height: 8),
-        FlowCopy(ride.path.title, rideDeparture(ride.path.departure)),
-        const SizedBox(height: 12),
-        MarketplaceMap(path: ride.path, live: live),
-        if (ride.isDriver) ...[
-          Text(l.locationSharingHint),
-          const SizedBox(height: 8),
-          PrimaryButton(
-            label: _sharing ? l.stopLiveSharing : l.startLiveSharing,
-            icon: Icons.my_location,
-            isLoading: _starting,
-            onPressed: _sharing ? _stopSharing : _startSharing,
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: statusColor.withValues(alpha: .12),
+            borderRadius: BorderRadius.circular(20),
           ),
-          if (_locationError case final error?) Text(error),
-        ] else
-          Text(live == null ? l.noLiveLocation : l.driverLocation),
-        if (_loadingError) Text(l.marketplaceLoadError),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 8,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    ride.stage == RideStage.completed
+                        ? Icons.check_circle
+                        : Icons.directions_car,
+                    color: statusColor,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      tripStageLabel(l, ride.stage),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (minutes != null) ...[
+                Text(
+                  l.tripEtaMinutes(minutes),
+                  style: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  ride.stage == RideStage.inProgress
+                      ? l.tripEtaDestination
+                      : l.tripEtaPickup,
+                ),
+                Text(
+                  l.tripEtaAt(
+                    DateFormat.Hm().format(
+                      _routedAt!.add(
+                        Duration(seconds: approach!.durationSeconds.round()),
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  l.tripEtaEstimate,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ] else if (ride.stage == RideStage.enRoute ||
+                  ride.stage == RideStage.inProgress)
+                Text(
+                  _routeError
+                      ? l.tripEtaUnavailable
+                      : live == null
+                      ? l.tripWaitingGps
+                      : l.tripCalculatingEta,
+                ),
+              if (_routing) const LinearProgressIndicator(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        if (ride.stage != RideStage.cancelled)
+          Row(
+            children: [
+              for (final stage in RideStage.values.where(
+                (s) => s != RideStage.cancelled,
+              ))
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Container(
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: stage.index <= ride.stage.index
+                            ? statusColor
+                            : colors.outlineVariant,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        const SizedBox(height: 14),
+        MarketplaceMap(
+          path: ride.path,
+          live: live,
+          approachRoute: approach,
+          trackingMode: true,
+          pickupPhase:
+              ride.stage != RideStage.inProgress &&
+              ride.stage != RideStage.completed,
+        ),
+        const SizedBox(height: 8),
+        if (ride.stage.active)
+          Row(
+            children: [
+              Icon(
+                live == null ? Icons.location_off_outlined : Icons.gps_fixed,
+                size: 16,
+                color: live == null ? colors.onSurfaceVariant : colors.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  live == null ? l.tripWaitingGps : l.tripGpsFresh,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        const SizedBox(height: 14),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Text(
+                  rideDeparture(ride.path.departure),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.trip_origin, color: colors.primary),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(ride.path.originLabel)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.flag, color: colors.error),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(ride.path.destinationLabel)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_loadingError)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              l.tripConnectionLost,
+              style: TextStyle(color: colors.error),
+            ),
+          ),
+        if (ride.isDriver && ride.stage.active) ...[
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _changing ? null : () => _transition(ride.stage.next!),
+            icon: const Icon(Icons.arrow_forward),
+            label: Text(switch (ride.stage) {
+              RideStage.confirmed => l.tripStartDriving,
+              RideStage.enRoute => l.tripMarkArrived,
+              RideStage.arrived => l.tripStartJourney,
+              _ => l.tripFinishJourney,
+            }),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: tracking.busy
+                ? null
+                : () async {
+                    final controller = ref.read(
+                      driverTrackingProvider.notifier,
+                    );
+                    if (sharing) {
+                      await controller.stop();
+                    } else {
+                      await controller.start(
+                        ride.id,
+                        l.tripGpsNotificationTitle,
+                        l.tripGpsNotificationBody,
+                      );
+                    }
+                  },
+            icon: Icon(
+              sharing ? Icons.location_off_outlined : Icons.my_location,
+            ),
+            label: Text(sharing ? l.stopLiveSharing : l.startLiveSharing),
+          ),
+          Text(
+            l.tripSharingDisclosure,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          if (tracking.error != null)
+            Text(switch (tracking.error) {
+              'denied' => l.locationDenied,
+              'disabled' => l.locationDisabled,
+              _ => l.liveSharingError,
+            }, style: TextStyle(color: colors.error)),
+        ],
+        if ([
+          RideStage.confirmed,
+          RideStage.enRoute,
+          RideStage.arrived,
+        ].contains(ride.stage))
+          TextButton(
+            onPressed: _changing
+                ? null
+                : () => _transition(RideStage.cancelled),
+            child: Text(
+              l.tripCancelAction,
+              style: TextStyle(color: colors.error),
+            ),
+          ),
       ],
     );
   }
 
   Widget _chatTab(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context),
+        colors = Theme.of(context).colorScheme;
     return Column(
       children: [
-        if (_loadingError) Text(l.marketplaceLoadError),
+        if (_loadingError) Text(l.tripConnectionLost),
         Expanded(
           child: _messages.isEmpty
               ? Center(child: Text(l.noChatMessages))

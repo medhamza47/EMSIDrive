@@ -22,11 +22,14 @@ String scheduleError(BuildContext context, Object error) {
     'SCHEDULE_AMBIGUOUS' => l.timetableAmbiguous,
     'SCHEDULE_NOT_TIMETABLE' => l.timetableNotDetected,
     'SCHEDULE_AI_RATE_LIMIT' ||
+    'SCHEDULE_IMPORT_RUNNING' ||
     'SCHEDULE_ANALYSIS_BUSY' => l.timetableRateLimit,
+    'SCHEDULE_TRAVEL_REQUIRED' => l.matchPointRequired,
+    'SCHEDULE_DEMO_NO_DAY' => l.demoNoUpcomingDay,
     'SCHEDULE_AI_UNAVAILABLE' ||
-    'SCHEDULE_AI_NOT_CONFIGURED' ||
     'SCHEDULE_AI_TIMEOUT' ||
     'SCHEDULE_AI_INVALID' => l.timetableAiError,
+    'SCHEDULE_AI_NOT_CONFIGURED' => l.timetableGeminiSetup,
     'SCHEDULE_CHANGED' => l.timetableChanged,
     'SCHEDULE_NOT_FOUND' => l.timetableNotSaved,
     'SCHEDULE_OVERLAP' => l.timetableOverlap,

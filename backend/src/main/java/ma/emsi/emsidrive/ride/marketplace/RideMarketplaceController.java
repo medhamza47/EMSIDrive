@@ -33,6 +33,14 @@ public class RideMarketplaceController {
             @NotNull @DecimalMin("-180") @DecimalMax("180") java.math.BigDecimal longitude) {}
 
     public record MessageInput(@NotBlank @Size(max = 1000) String body) {}
+    public enum TripState { CONFIRMED, EN_ROUTE, ARRIVED, IN_PROGRESS, COMPLETED, CANCELLED }
+    public record StateInput(@NotNull TripState state) {}
+    public record LiveLocation(
+            @NotNull @DecimalMin("-90") @DecimalMax("90") java.math.BigDecimal latitude,
+            @NotNull @DecimalMin("-180") @DecimalMax("180") java.math.BigDecimal longitude,
+            @NotNull java.time.Instant capturedAt,
+            @NotNull @DecimalMin("0") @DecimalMax("150") Double accuracy,
+            @DecimalMin("0") @DecimalMax("360") Double heading) {}
 
     @GetMapping("/listings")
     public List<Map<String, Object>> listings(
@@ -82,8 +90,14 @@ public class RideMarketplaceController {
 
     @PutMapping("/trips/{id}/location")
     public void location(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id,
-            @Valid @RequestBody Point point) {
+            @Valid @RequestBody LiveLocation point) {
         service.location(user.id(), id, point);
+    }
+
+    @PutMapping("/trips/{id}/state")
+    public Map<String, Object> state(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id,
+            @Valid @RequestBody StateInput input) {
+        return service.transition(user.id(), id, input.state());
     }
 
     @DeleteMapping("/trips/{id}/location")

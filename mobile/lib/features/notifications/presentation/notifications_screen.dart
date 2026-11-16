@@ -9,6 +9,7 @@ import '../../../shared/widgets/widgets.dart';
 import '../../rides/data/marketplace_api.dart';
 import '../../rides/domain/marketplace_models.dart';
 import '../data/ride_notices_provider.dart';
+import '../../rides/presentation/trip_status.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -56,12 +57,7 @@ class NotificationsScreen extends ConsumerWidget {
                     : Icons.notifications_active,
               ),
               trailing: const Icon(Icons.chevron_right),
-              child: FlowCopy(
-                notice.isRequest
-                    ? l.requestAcceptedNotice(notice.accepter)
-                    : l.offerAcceptedNotice(notice.accepter),
-                l.openAcceptedRide,
-              ),
+              child: FlowCopy(rideNoticeLabel(l, notice), l.openAcceptedRide),
             ),
       ],
     );

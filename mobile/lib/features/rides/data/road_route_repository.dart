@@ -1,7 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../domain/marrakech_trip.dart';
+
+final roadRouteRepositoryProvider = Provider<RoadRouteRepository>((ref) {
+  final repository = RoadRouteRepository();
+  ref.onDispose(repository.close);
+  return repository;
+});
 
 class RoadRouteRepository {
   RoadRouteRepository()

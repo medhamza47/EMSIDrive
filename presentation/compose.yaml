@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: emsidrive
+      POSTGRES_USER: emsidrive
+      POSTGRES_PASSWORD: emsidrive
+    ports:
+      - "127.0.0.1:${PRESENTATION_DB_PORT:-15433}:5432"
+    volumes:
+      - presentation-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emsidrive -d emsidrive"]
+      interval: 2s
+      timeout: 3s
+      retries: 45
+volumes:
+  presentation-data:

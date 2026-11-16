@@ -9,14 +9,14 @@ import static org.assertj.core.api.Assertions.*;
 
 /** A visual regression fixture: wide cells with their text only in the first half. */
 class MergedTimetableFixtureTest {
-    private void text(PDPageContentStream c, float x, float y, String value) throws Exception {
+    private static void text(PDPageContentStream c, float x, float y, String value) throws Exception {
         c.beginText(); c.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 10);
         c.newLineAtOffset(x,y); c.showText(value); c.endText();
     }
-    private void line(PDPageContentStream c, float x1, float y1, float x2, float y2) throws Exception {
+    private static void line(PDPageContentStream c, float x1, float y1, float x2, float y2) throws Exception {
         c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
     }
-    @Test void createsMergedAndSeparateCellsWithUnambiguousBorders() throws Exception {
+    static Path createFixture() throws Exception {
         var target = Path.of("target/timetable-merged.pdf");
         try (var pdf = new PDDocument()) {
             var page = new PDPage(new PDRectangle(760,500)); pdf.addPage(page);
@@ -42,6 +42,9 @@ class MergedTimetableFixtureTest {
             }
             Files.createDirectories(target.getParent()); pdf.save(target.toFile());
         }
-        assertThat(Files.size(target)).isPositive();
+        return target;
+    }
+    @Test void createsMergedAndSeparateCellsWithUnambiguousBorders() throws Exception {
+        assertThat(Files.size(createFixture())).isPositive();
     }
 }

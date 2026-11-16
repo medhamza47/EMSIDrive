@@ -8,198 +8,237 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/flow_page.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../application/saved_timetable_provider.dart';
+import 'import_job_card.dart';
 import 'schedule_error.dart';
 import 'schedule_screens.dart';
 
-class PlanningScreen extends ConsumerStatefulWidget {
+class PlanningScreen extends ConsumerWidget {
   const PlanningScreen({super.key});
-  @override
-  ConsumerState<PlanningScreen> createState() => _PlanningState();
-}
 
-class _PlanningState extends ConsumerState<PlanningScreen> {
-  int _day = DateTime.now().weekday;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context), theme = Theme.of(context);
-    final schedule = ref.watch(savedTimetableProvider);
+    final colors = theme.colorScheme;
+    final travel = ref.watch(scheduleTravelPreferencesProvider).asData?.value;
     return FlowPage(
       title: l.navPlanning,
       children: [
-        Text(l.planningIntro, style: theme.textTheme.bodyMedium),
-        schedule.when(
-          loading: () => const LinearProgressIndicator(),
-          error: (error, _) => Column(
-            children: [
-              Text(scheduleError(context, error)),
-              TextButton(
-                onPressed: () => ref.invalidate(savedTimetableProvider),
-                child: Text(l.retryLabel),
-              ),
-            ],
-          ),
-          data: (timetable) {
-            if (timetable == null) {
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      Icon(
-                        Icons.calendar_month_rounded,
-                        size: 44,
-                        color: theme.colorScheme.primary,
-                      ),
-                      Text(
-                        l.planningEmptyTitle,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      Text(l.planningEmptyHint, textAlign: TextAlign.center),
-                      PrimaryButton(
-                        label: l.planningImport,
-                        icon: Icons.upload_file_outlined,
-                        onPressed: () => context.push(AppRoutes.scheduleImport),
-                      ),
-                    ],
+        const ImportJobCard(),
+        ref
+            .watch(savedTimetableProvider)
+            .when(
+              loading: () => const LinearProgressIndicator(),
+              error: (error, _) => Column(
+                children: [
+                  Text(scheduleError(context, error)),
+                  TextButton(
+                    onPressed: () => ref.invalidate(savedTimetableProvider),
+                    child: Text(l.retryLabel),
                   ),
-                ),
-              );
-            }
-            final slots =
-                timetable.slots.where((s) => s.weekday == _day).toList()
-                  ..sort((a, b) => a.startTime!.compareTo(b.startTime!));
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: FlowCopy(
-                        timetable.name,
-                        '${l.timetableFrom} ${timetable.validFrom == null ? '—' : DateFormat('dd/MM/yyyy').format(timetable.validFrom!)}',
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: l.timetableEdit,
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: () => context.push(
-                        AppRoutes.scheduleSlots,
-                        extra: timetable,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 4,
-                  children: [
-                    for (final (index, day) in timetableDays(l).indexed)
-                      Expanded(
-                        child: Semantics(
-                          selected: _day == index + 1,
-                          child: TextButton(
-                            onPressed: () => setState(() => _day = index + 1),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 48),
-                              backgroundColor: _day == index + 1
-                                  ? theme.colorScheme.primaryContainer
-                                  : theme.colorScheme.surfaceContainerLow,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Tooltip(
-                              message: day,
-                              child: Text(
-                                day.substring(0, 3),
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: _day == index + 1
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
+                ],
+              ),
+              data: (timetable) {
+                if (timetable == null) {
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: Column(
+                        spacing: 18,
+                        children: [
+                          Icon(
+                            Icons.calendar_month_rounded,
+                            size: 56,
+                            color: colors.primary,
                           ),
+                          Text(
+                            l.planningEmptyTitle,
+                            style: theme.textTheme.titleLarge,
+                          ),
+                          PrimaryButton(
+                            label: l.planningImport,
+                            icon: Icons.upload_file_outlined,
+                            onPressed: () =>
+                                context.push(AppRoutes.scheduleImport),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                final windows = {
+                  for (final day in timetable.attendance) day.weekday: day,
+                };
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 14,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: LinearGradient(
+                          colors: [
+                            colors.primaryContainer,
+                            colors.secondaryContainer,
+                          ],
                         ),
                       ),
-                  ],
-                ),
-                Text(
-                  timetableDays(l)[_day - 1],
-                  style: theme.textTheme.titleMedium,
-                ),
-                if (slots.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(l.planningFreeDay, textAlign: TextAlign.center),
-                  ),
-                for (final slot in slots)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer
-                                  .withValues(alpha: .5),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${slot.startTime}\n${slot.endTime}',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
+                          Icon(
+                            Icons.event_available_rounded,
+                            color: colors.onPrimaryContainer,
+                            size: 36,
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 6,
+                              spacing: 4,
                               children: [
                                 Text(
-                                  slot.label!,
-                                  style: theme.textTheme.titleMedium,
+                                  timetable.name,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    color: colors.onPrimaryContainer,
+                                  ),
                                 ),
-                                Text(
-                                  [
-                                    slot.campus == 'TARGA'
+                                if (travel != null)
+                                  Text(
+                                    travel.campus == 'TARGA'
                                         ? l.campusTarga
                                         : l.campusCentre,
-                                    if (slot.location?.isNotEmpty ?? false)
-                                      slot.location!,
-                                  ].join(' · '),
-                                  style: theme.textTheme.bodyMedium,
-                                ),
+                                    style: TextStyle(
+                                      color: colors.onPrimaryContainer,
+                                    ),
+                                  ),
+                                if (timetable.validFrom != null &&
+                                    timetable.validUntil != null)
+                                  Text(
+                                    '${DateFormat('dd/MM').format(timetable.validFrom!)} – ${DateFormat('dd/MM').format(timetable.validUntil!)}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colors.onPrimaryContainer,
+                                    ),
+                                  ),
                               ],
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: l.timetableEdit,
+                            onPressed: () => context.push(
+                              AppRoutes.scheduleSlots,
+                              extra: timetable,
+                            ),
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: colors.onPrimaryContainer,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                PrimaryButton(
-                  label: l.searchSharedTrips,
-                  icon: Icons.route_outlined,
-                  onPressed: () => context.push(AppRoutes.suggestions),
-                ),
-                TextButton.icon(
-                  onPressed: () => context.push(AppRoutes.scheduleImport),
-                  icon: const Icon(Icons.settings_outlined),
-                  label: Text(l.planningManage),
-                ),
-              ],
-            );
-          },
-        ),
+                    PrimaryButton(
+                      label: l.planningReserve,
+                      icon: Icons.directions_car_rounded,
+                      onPressed: () => context.push(AppRoutes.suggestions),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l.timetableDay,
+                            style: theme.textTheme.labelLarge,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 80,
+                          child: Text(
+                            l.planningArrival,
+                            style: theme.textTheme.labelLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 80,
+                          child: Text(
+                            l.planningLeaving,
+                            style: theme.textTheme.labelLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                    for (final (index, label) in timetableDays(l).indexed)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: windows.containsKey(index + 1)
+                              ? colors.surfaceContainerLow
+                              : colors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: DateTime.now().weekday == index + 1
+                                ? colors.primary
+                                : colors.outlineVariant,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: windows.containsKey(index + 1)
+                                      ? colors.onSurface
+                                      : colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            if (windows[index + 1] case final day?) ...[
+                              SizedBox(
+                                width: 80,
+                                child: Text(
+                                  day.arrival,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: colors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 80,
+                                child: Text(
+                                  day.leaving,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.titleMedium,
+                                ),
+                              ),
+                            ] else
+                              SizedBox(
+                                width: 160,
+                                child: Text(
+                                  l.planningFreeDay,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.scheduleImport),
+                      icon: const Icon(Icons.upload_file_outlined),
+                      label: Text(l.planningReplace),
+                    ),
+                  ],
+                );
+              },
+            ),
       ],
     );
   }

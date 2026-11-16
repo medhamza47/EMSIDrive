@@ -17,7 +17,12 @@ class HttpHomeRepository implements HomeRepository {
       final profile = await _profiles.loadProfile();
       final trips = await _rides.trips();
       final upcoming =
-          trips.where((t) => t.path.departure.isAfter(DateTime.now())).toList()
+          trips
+              .where(
+                (t) =>
+                    t.stage.active && t.path.departure.isAfter(DateTime.now()),
+              )
+              .toList()
             ..sort((a, b) => a.path.departure.compareTo(b.path.departure));
       return HomeOverview(
         displayName: profile.fullName,

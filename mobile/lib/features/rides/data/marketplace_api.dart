@@ -100,13 +100,37 @@ class MarketplaceApi {
     await _request<Object>('POST', '/trips/$id/messages', data: {'body': body});
   }
 
-  Future<void> location(String id, LatLng? point) async {
+  Future<void> location(
+    String id,
+    LatLng? point, {
+    DateTime? capturedAt,
+    double accuracy = 0,
+    double? heading,
+  }) async {
     await _request<Object>(
       point == null ? 'DELETE' : 'PUT',
       '/trips/$id/location',
-      data: point == null ? null : _point(point),
+      data: point == null
+          ? null
+          : {
+              ..._point(point),
+              'capturedAt': (capturedAt ?? DateTime.now())
+                  .toUtc()
+                  .toIso8601String(),
+              'accuracy': accuracy,
+              'heading': ?heading,
+            },
     );
   }
+
+  Future<AcceptedRide> transition(String id, RideStage stage) async =>
+      AcceptedRide.fromJson(
+        (await _request<Map<String, dynamic>>(
+          'PUT',
+          '/trips/$id/state',
+          data: {'state': stage.wire},
+        ))!,
+      );
 
   Future<List<RideNotice>> notices() async => [
     for (final item in await _list('/notifications')) RideNotice.fromJson(item),

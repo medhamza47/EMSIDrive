@@ -1,5 +1,7 @@
 # EMSIDrive
 
+Windows + Android team presentation: [ready-to-run package and source setup](presentation/TEAM-SETUP.md).
+
 Application de covoiturage pour les étudiants de l’EMSI Marrakech. Chaque trajet relie
 l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 
@@ -10,7 +12,7 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
-| Planning et IA | Import réel de photos JPEG/PNG et de PDF avec Groq, correction des cours détectés, confirmation puis enregistrement. Le planning affiche les sept jours et propose des offres compatibles avec les horaires et le campus. |
+| Planning et Gemini | Import JPEG/PNG/PDF en arrière-plan avec modèles de secours, reprise depuis Planning ou Profil, puis validation des horaires de présence. Recherche d’offres réservables selon le campus, les horaires et la proximité du point choisi. Aucun OCR local à installer. |
 | Carte de Marrakech | Choix du sens **Vers l’EMSI** ou **Depuis l’EMSI**, puis du campus **Targa** ou **Centre**. Pour l’autre extrémité, l’étudiant place un repère sur la carte ou utilise **Ma position**. L’aperçu routier affiche le tracé, la distance et la durée estimée. |
 | Annonces | **Trajets** sépare les **Demandes**, les **Offres** et **Mes trajets**. La publication et l’acceptation passent par l’API. La fiche d’une annonce affiche le tracé avant l’acceptation. |
 | Acceptation | L’API réserve la place et crée, dans la même transaction, une notification pour l’auteur de l’annonce. Les deux participants retrouvent le trajet dans **Mes trajets** et peuvent s’écrire dans un chat privé. |
@@ -29,6 +31,9 @@ La restauration de session au lancement, les notifications système et le
 back-office restent à réaliser.
 
 ## Modifications intégrées le 8 novembre 2026
+
+Cette section décrit la version historique avec Groq. Le parcours actuel utilise Gemini
+décrit dans « Analyser un emploi du temps » et dans `backend/SCHEDULE.md`.
 
 Cette mise à jour regroupe le travail sur l’analyse des emplois du temps, la refonte
 mobile et la conservation des données de chaque utilisateur.
@@ -179,30 +184,53 @@ Un compte a été créé et sa connexion vérifiée dans la base locale utilisé
 
 Ce compte sert aux essais locaux. Il est conservé dans le volume PostgreSQL, mais n’est
 pas créé automatiquement sur une base neuve : dans ce cas, le créer depuis l’inscription.
-La configuration Groq utilise uniquement la clé personnelle renseignée dans
-`backend/.env.local` ou `GROQ_API_KEY` ; aucune clé API réelle n’est publiée dans ce README.
+L’analyse nécessite une clé Gemini côté serveur ; une offre gratuite avec quotas est disponible.
 
 ### Analyser un emploi du temps
 
-Dans `backend/`, copier `.env.example` vers `.env.local` et renseigner `GROQ_API_KEY`.
-Ce fichier est ignoré par Git et chargé au démarrage de l’API ; ne jamais mettre la clé
-dans Flutter. `GROQ_MODEL` sélectionne le modèle de vision (par défaut `qwen/qwen3.8-27b`).
-Redémarrer l’API après un changement de configuration.
+Créer une clé sur [Google AI Studio](https://aistudio.google.com/api-keys), puis
+ajouter dans `backend/.env.local` (ignoré par Git) :
 
-Dans **Planning → Ajouter mon emploi du temps**, sélectionner une photo JPEG/PNG ou un PDF de 1 à 3
-pages (8 Mo maximum). Recadrer le tableau et indiquer le groupe s’il y en a plusieurs.
-L’analyse Groq renvoie de vrais cours éditables. Vérifier les champs incertains, les
-horaires, le campus, puis choisir les dates de validité et confirmer l’enregistrement.
-La saisie manuelle fonctionne sans IA. Les photos ne sont pas conservées par l’API.
+```properties
+GEMINI_API_KEY=votre_cle
+GEMINI_MODEL=gemini-3.8-flash
+GEMINI_FALLBACK_MODELS=gemini-3.5-flash-lite,gemini-3.1-flash-lite
+GEMINI_ATTEMPT_SECONDS=20
+# Secours Groq optionnel, après le premier modèle Gemini :
+GROQ_API_KEY=votre_cle_groq
+GROQ_MODEL=qwen/qwen3.8-27b
+```
+
+Redémarrer le backend après configuration. Aucune clé dans Flutter ; aucune installation
+Tesseract ni modèle local. Les offres gratuites sont soumises aux quotas des fournisseurs.
+
+Dans **Planning → Ajouter mon emploi du temps**, sélectionner une photo JPEG/PNG ou un PDF
+de 1 à 3 pages (8 Mo maximum). Recadrer le tableau sur son groupe et préciser celui-ci
+si nécessaire. Après l’envoi, l’analyse continue en arrière-plan ; l’utilisateur peut
+changer d’écran ou fermer l’application. Le résultat reste accessible dans Planning
+et Profil. Le serveur passe au modèle de secours sur quota, délai ou résultat invalide.
+Vérifier les horaires de présence et la période, puis confirmer l’enregistrement.
+Le document est transmis à Google ou à Groq en secours et retenu temporairement en base pendant le travail,
+puis supprimé à la fin ; les imports expirent après 24 h. La saisie manuelle reste disponible.
 
 Les suggestions utilisent uniquement les offres publiées et disponibles des 7 prochains
-jours, le campus et le premier/dernier cours de chaque journée. La durée du trajet est
-une estimation fournie par l’étudiant ; vérifier le lieu de rendez-vous et l’itinéraire
-dans la fiche de l’offre. Aucun conducteur, score de compatibilité ou créneau fictif
-n’est ajouté. Les quotas du fournisseur peuvent interrompre l’analyse ; les erreurs
+jours, le campus choisi, les premiers/derniers horaires et le rayon autour du point
+personnel choisi sur la carte. Le rayon utilise une distance à vol d’oiseau, pas la
+distance routière. Le point et le rayon sont conservés dans le compte. La durée du trajet est
+calculée automatiquement via OSRM, modifiable dans les filtres si nécessaire. La carte
+affiche les points de rendez-vous approximatifs des conducteurs compatibles ; toucher
+une voiture affiche son trajet. La fiche de l’offre permet ensuite de réserver.
+En debug avec backend `dev`, « Ajouter 3 trajets de test » crée trois offres fictives
+signalées TEST et adaptées à la prochaine présence. Leur réservation fonctionne comme
+une offre réelle ; l’action est idempotente et ne réinitialise pas les réservations.
+Cet endpoint est absent des profils de production.
+Une clé manquante, un quota atteint ou une réponse inexploitable produit une erreur ; les erreurs
 sont affichées sans remplacer l’emploi du temps déjà enregistré.
 
 Voir le [contrat et les limites de l’analyse](./backend/SCHEDULE.md).
+
+Dans **Profil → Apparence**, choisir Clair, Sombre ou Auto. Le choix est mémorisé sur
+le téléphone. Les jours du planning et de son éditeur sont affichés dans l’ordre.
 
 ### Personnaliser son profil
 
@@ -238,7 +266,7 @@ Sur la carte, le bouton de confirmation reste visible pendant le choix du point.
 | [`mobile/lib/features/notifications/`](./mobile/lib/features/notifications) | Notifications d’acceptation et indicateur de non-lu. |
 | [`mobile/lib/features/profile/`](./mobile/lib/features/profile) | Profil réel, formulaire de modification et chargement des données du compte connecté. |
 | [`mobile/lib/features/schedule/`](./mobile/lib/features/schedule) | Planning par journée, import, vérification des cours et accès aux suggestions. |
-| [`backend/src/main/java/ma/emsi/emsidrive/schedule/`](./backend/src/main/java/ma/emsi/emsidrive/schedule) | Analyse Groq, lecture des documents, mesure des cellules et persistance du planning. |
+| [`backend/src/main/java/ma/emsi/emsidrive/schedule/`](./backend/src/main/java/ma/emsi/emsidrive/schedule) | Analyse Gemini, lecture des documents, mesure des cellules et persistance du planning. |
 | [`mobile/assets/maps/marrakech.geojson`](./mobile/assets/maps/marrakech.geojson) | Périmètre utilisé pour valider les points dans l’app et dans l’API. |
 
 Créer une branche de travail depuis `develop`, faire des commits ciblés et ouvrir une

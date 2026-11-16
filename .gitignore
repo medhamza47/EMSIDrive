@@ -35,3 +35,6 @@ Thumbs.db
 .env
 .env.local
 *.log
+
+# Private presentation bundles (include the team's local AI configuration).
+handoff/
