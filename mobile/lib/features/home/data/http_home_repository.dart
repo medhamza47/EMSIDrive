@@ -20,7 +20,9 @@ class HttpHomeRepository implements HomeRepository {
           trips
               .where(
                 (t) =>
-                    t.stage.active && t.path.departure.isAfter(DateTime.now()),
+                    t.active &&
+                    (t.status == 'ONGOING' ||
+                        t.path.departure.isAfter(DateTime.now())),
               )
               .toList()
             ..sort((a, b) => a.path.departure.compareTo(b.path.departure));
@@ -36,6 +38,9 @@ class HttpHomeRepository implements HomeRepository {
                   .add_Hm()
                   .format(trip.path.departure),
               driverName: trip.partner,
+              status: trip.status == 'ONGOING'
+                  ? TripStatus.ongoing
+                  : TripStatus.confirmed,
             ),
         ],
       );

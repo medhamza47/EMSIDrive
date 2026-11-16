@@ -32,10 +32,13 @@ class MarketplaceApi {
     return rows!.cast<Map<String, dynamic>>();
   }
 
-  Future<List<RideListing>> listings(ListingKind kind) async => [
+  Future<List<RideListing>> listings(
+    ListingKind kind, {
+    bool mine = false,
+  }) async => [
     for (final item in await _list(
       '/listings',
-      query: {'kind': kind.name.toUpperCase()},
+      query: {'kind': kind.name.toUpperCase(), if (mine) 'mine': true},
     ))
       RideListing.fromJson(item, kind),
   ];
@@ -56,21 +59,56 @@ class MarketplaceApi {
     required int seats,
     required String vehicle,
     required String notes,
+    RideListing? editing,
   }) async {
-    await _request<Map<String, dynamic>>(
-      'POST',
-      '/listings',
-      data: {
-        'kind': kind.name.toUpperCase(),
-        'campus': trip.campus.name.toUpperCase(),
-        'toCampus': trip.direction == CampusDirection.toCampus,
-        'point': _point(trip.cityPoint),
-        'departure': departure.toUtc().toIso8601String(),
-        'seats': seats,
-        'vehicle': vehicle,
-        'notes': notes,
-      },
+    await _request<Object>(
+      editing == null ? 'POST' : 'PUT',
+      editing == null
+          ? '/listings'
+          : '/listings/${kind.name.toUpperCase()}/${editing.id}',
+      data: editing == null
+          ? _listingInput(kind, trip, departure, seats, vehicle, notes)
+          : {
+              'revision': editing.revision,
+              'listing': _listingInput(
+                kind,
+                trip,
+                departure,
+                seats,
+                vehicle,
+                notes,
+              ),
+            },
     );
+  }
+
+  Map<String, dynamic> _listingInput(
+    ListingKind kind,
+    MarrakechTrip trip,
+    DateTime departure,
+    int seats,
+    String vehicle,
+    String notes,
+  ) => {
+    'kind': kind.name.toUpperCase(),
+    'campus': trip.campus.name.toUpperCase(),
+    'toCampus': trip.direction == CampusDirection.toCampus,
+    'point': _point(trip.cityPoint),
+    'departure': departure.toUtc().toIso8601String(),
+    'seats': seats,
+    'vehicle': vehicle,
+    'notes': notes,
+  };
+
+  Future<void> cancelListing(RideListing listing) async {
+    await _request<Object>(
+      'POST',
+      '/listings/${listing.kind.name.toUpperCase()}/${listing.id}/cancel',
+    );
+  }
+
+  Future<void> performAction(String id, String action) async {
+    await _request<Object>('POST', '/trips/$id/actions/$action');
   }
 
   Future<String> accept(RideListing listing) async =>
@@ -80,8 +118,12 @@ class MarketplaceApi {
           ))!['id']
           as String;
 
-  Future<List<AcceptedRide>> trips() async => [
-    for (final item in await _list('/trips')) AcceptedRide.fromJson(item),
+  Future<List<AcceptedRide>> trips({bool history = false}) async => [
+    for (final item in await _list(
+      '/trips',
+      query: {if (history) 'history': true},
+    ))
+      AcceptedRide.fromJson(item),
   ];
 
   Future<AcceptedRide> trip(String id) async => AcceptedRide.fromJson(

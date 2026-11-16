@@ -16,7 +16,10 @@ class BoardApi implements MarketplaceApi {
   bool failRequests = false;
   String stage = 'CONFIRMED';
   @override
-  Future<List<RideListing>> listings(ListingKind kind) async {
+  Future<List<RideListing>> listings(
+    ListingKind kind, {
+    bool mine = false,
+  }) async {
     calls.add(kind.name);
     if (failRequests && kind == ListingKind.request) {
       throw StateError('offline');
@@ -34,7 +37,7 @@ class BoardApi implements MarketplaceApi {
   }
 
   @override
-  Future<List<AcceptedRide>> trips() async {
+  Future<List<AcceptedRide>> trips({bool history = false}) async {
     calls.add('mine');
     return [AcceptedRide.fromJson(fixture(DateTime.now(), stage: stage))];
   }

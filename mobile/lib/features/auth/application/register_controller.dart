@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/errors/app_failure.dart';
 import '../data/auth_repository_provider.dart';
 import 'auth_submission_state.dart';
+import 'biometric_settings_controller.dart';
 
 part 'register_controller.g.dart';
 
@@ -31,9 +32,12 @@ class RegisterController extends _$RegisterController {
         fullName: fullName,
         phoneNumber: phoneNumber,
       );
-      state = AuthSucceeded(session);
+      if (ref.mounted) {
+        ref.read(biometricOfferProvider.notifier).request(session.user.email);
+        state = AuthSucceeded(session);
+      }
     } on AppFailure catch (failure) {
-      state = AuthFailed(failure);
+      if (ref.mounted) state = AuthFailed(failure);
     }
   }
 

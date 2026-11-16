@@ -189,18 +189,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeSearchRideSubtitle => 'Votre campus, en bonne compagnie.';
 
   @override
-  String get homeHeroTitle => 'On y va ?';
-
-  @override
-  String get homePlanTitle => 'Mon planning';
-
-  @override
-  String get homePlanSubtitle => 'Mes horaires, mes trajets.';
-
-  @override
-  String get homeSeeAll => 'Tout voir';
-
-  @override
   String get homeOfferRideTitle => 'Proposer un trajet';
 
   @override
@@ -1189,6 +1177,236 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mapRouteLabel => 'Aperçu de l’itinéraire';
+
+  @override
+  String get rideMyListings => 'Mes annonces';
+
+  @override
+  String get rideActiveTrips => 'En cours et à venir';
+
+  @override
+  String get rideHistory => 'Historique';
+
+  @override
+  String get rideNoHistory => 'Aucun trajet terminé ou annulé.';
+
+  @override
+  String get rideEditListing => 'Modifier l’annonce';
+
+  @override
+  String get rideSaveListing => 'Enregistrer les modifications';
+
+  @override
+  String get rideCancelListing => 'Annuler l’annonce';
+
+  @override
+  String get rideCancelBooking => 'Annuler cette réservation';
+
+  @override
+  String get rideStart => 'Démarrer le trajet';
+
+  @override
+  String get rideComplete => 'Terminer le trajet';
+
+  @override
+  String get rideActionFailed =>
+      'Action impossible. Le trajet a peut-être changé. Actualisez puis réessayez.';
+
+  @override
+  String get rideConfirmAction => 'Confirmer l’action';
+
+  @override
+  String get rideCancelListingHint =>
+      'L’annonce sera fermée et toutes ses réservations actives seront annulées. Les participants seront prévenus.';
+
+  @override
+  String get rideCancelBookingHint =>
+      'Cette réservation sera annulée et l’autre participant sera prévenu.';
+
+  @override
+  String get rideStartHint =>
+      'Le trajet commencera pour tous les passagers confirmés. Les nouvelles réservations seront fermées.';
+
+  @override
+  String get rideCompleteHint =>
+      'Le trajet sera terminé pour tous les passagers et le partage de position sera arrêté.';
+
+  @override
+  String get rideConfirm => 'Confirmer';
+
+  @override
+  String get rideKeep => 'Retour';
+
+  @override
+  String get rideReadOnlyChat =>
+      'Ce trajet est clos. Les messages restent consultables.';
+
+  @override
+  String get rideEditLocked =>
+      'La modification est disponible avant toute réservation. Pour changer un trajet déjà réservé, annulez l’annonce et prévenez les participants.';
+
+  @override
+  String get rideStatusOpen => 'Disponible';
+
+  @override
+  String get rideStatusFull => 'Complet';
+
+  @override
+  String get rideStatusMatched => 'Réservé';
+
+  @override
+  String get rideStatusOngoing => 'En route';
+
+  @override
+  String get rideStatusCompleted => 'Terminé';
+
+  @override
+  String get rideStatusCancelled => 'Annulé';
+
+  @override
+  String get rideStatusExpired => 'Expiré';
+
+  @override
+  String get rideNoticeCancelled => 'Le trajet a été annulé';
+
+  @override
+  String get rideNoticeStarted => 'Le conducteur a démarré le trajet';
+
+  @override
+  String get rideNoticeCompleted => 'Le trajet est terminé';
+
+  @override
+  String get sessionRestoring => 'Restauration de votre session…';
+
+  @override
+  String get sessionRestoreUnavailable =>
+      'Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.';
+
+  @override
+  String get sessionRetry => 'Réessayer';
+
+  @override
+  String get sessionUseAnotherAccount => 'Utiliser un autre compte';
+
+  @override
+  String get biometricScanning => 'Touchez le capteur d’empreinte…';
+
+  @override
+  String get biometricUnlocked => 'Empreinte reconnue';
+
+  @override
+  String get biometricUsePassword => 'Utiliser le mot de passe';
+
+  @override
+  String get biometricEnableReason =>
+      'Confirmez votre empreinte pour activer la connexion rapide';
+
+  @override
+  String get biometricLockedOut =>
+      'Trop de tentatives. Réessayez plus tard ou utilisez votre mot de passe.';
+
+  @override
+  String get biometricUnavailable =>
+      'Aucune empreinte n’est disponible sur cet appareil. Utilisez votre mot de passe.';
+
+  @override
+  String get biometricFailed => 'Empreinte non reconnue. Réessayez.';
+
+  @override
+  String get biometricSecurityTitle => 'Sécurité';
+
+  @override
+  String get biometricSettingTitle => 'Connexion par empreinte';
+
+  @override
+  String get biometricSettingSubtitle =>
+      'Vous connecter avec votre empreinte au lieu de l’email et du mot de passe.';
+
+  @override
+  String get biometricSettingUnavailable =>
+      'Enregistrez une empreinte dans les réglages du téléphone pour activer cette option.';
+
+  @override
+  String get biometricOfferTitle => 'Activer l’empreinte ?';
+
+  @override
+  String get biometricOfferBody =>
+      'Connectez-vous ensuite d’une simple empreinte, même après une déconnexion. Votre mot de passe n’est jamais enregistré sur le téléphone.';
+
+  @override
+  String get biometricUnlinked =>
+      'Ce téléphone n’est plus lié à votre compte. Connectez-vous avec votre mot de passe.';
+
+  @override
+  String get biometricNetworkError =>
+      'Connexion au serveur impossible. Vérifiez votre réseau et réessayez.';
+
+  @override
+  String biometricWelcomeBack(String name) {
+    return 'Bon retour, $name';
+  }
+
+  @override
+  String get biometricSignInButton => 'Se connecter avec l’empreinte';
+
+  @override
+  String get biometricSignInReason =>
+      'Confirmez votre identité pour vous connecter à EMSIDrive';
+
+  @override
+  String get biometricSwitchAccount => 'Changer de compte';
+
+  @override
+  String get biometricPromptTitle => 'Connexion à EMSIDrive';
+
+  @override
+  String get biometricCancel => 'Annuler';
+
+  @override
+  String get biometricPromptHint => 'Vérification de votre identité';
+
+  @override
+  String get biometricCancelledHint =>
+      'Empreinte non reconnue ? Réessayez ou utilisez votre mot de passe.';
+
+  @override
+  String get biometricDisableTitle => 'Désactiver la connexion par empreinte ?';
+
+  @override
+  String get biometricDisableBody =>
+      'Vous devrez saisir votre email et votre mot de passe pour vous reconnecter. Vous pourrez la réactiver depuis le Profil.';
+
+  @override
+  String get biometricDisableConfirm => 'Désactiver';
+
+  @override
+  String get biometricSwitchTitle => 'Changer de compte ?';
+
+  @override
+  String biometricSwitchBody(String email) {
+    return 'Ce téléphone ne sera plus lié à $email. La connexion par empreinte devra être réactivée.';
+  }
+
+  @override
+  String get biometricOfferAccept => 'Activer';
+
+  @override
+  String get biometricOfferLater => 'Plus tard';
+
+  @override
+  String get biometricEnabledMessage => 'Connexion par empreinte activée.';
+
+  @override
+  String get homeHeroTitle => 'On y va ?';
+
+  @override
+  String get homePlanTitle => 'Mon planning';
+
+  @override
+  String get homePlanSubtitle => 'Mes horaires, mes trajets.';
+
+  @override
+  String get homeSeeAll => 'Tout voir';
 
   @override
   String get timetableHero => 'Vos horaires, votre prochain trajet';

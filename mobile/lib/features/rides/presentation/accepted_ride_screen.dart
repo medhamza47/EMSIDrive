@@ -18,6 +18,7 @@ import '../domain/marrakech_trip.dart';
 import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
 import 'trip_status.dart';
+import '../../home/application/home_controller.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
@@ -71,7 +72,9 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
     try {
       final ride = await _api.trip(widget.id);
       if (!mounted || !_current) return;
-      final changed = _ride != null && _ride!.stage != ride.stage;
+      final changed =
+          _ride != null &&
+          (_ride!.stage != ride.stage || _ride!.status != ride.status);
       setState(() {
         _ride = ride;
         _loadingError = false;
@@ -81,6 +84,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(tripStageLabel(l, ride.stage))));
+        ref.invalidate(homeControllerProvider);
         ref.invalidate(activeRidesProvider);
         ref.invalidate(rideNoticesProvider);
       }
@@ -221,6 +225,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         _approach = null;
       });
       _routeVersion++;
+      ref.invalidate(homeControllerProvider);
       ref.invalidate(activeRidesProvider);
       ref.invalidate(rideNoticesProvider);
       unawaited(_updateApproach(ride));
@@ -235,6 +240,7 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
   }
 
   Future<void> _send() async {
+    if (_ride?.active != true) return;
     final body = _draft.text.trim();
     if (body.isEmpty || _sending) return;
     setState(() => _sending = true);
@@ -669,31 +675,37 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
                   },
                 ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _draft,
-                  maxLength: 1000,
-                  maxLines: 3,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    hintText: l.writeChatMessage,
-                    counterText: '',
+        if (_ride?.active != true)
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(l.rideReadOnlyChat),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _draft,
+                    maxLength: 1000,
+                    maxLines: 3,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      hintText: l.writeChatMessage,
+                      counterText: '',
+                    ),
                   ),
                 ),
-              ),
-              IconButton.filled(
-                tooltip: l.sendChatMessage,
-                onPressed: _sending ? null : _send,
-                icon: const Icon(Icons.send),
-              ),
-            ],
+                IconButton.filled(
+                  tooltip: l.sendChatMessage,
+                  onPressed: _sending ? null : _send,
+                  icon: const Icon(Icons.send),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

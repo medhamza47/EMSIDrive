@@ -230,10 +230,6 @@
     "description": "Title of the home action leading to the ride search"
   },
   "homeSearchRideSubtitle": "Votre campus, en bonne compagnie.",
-  "homeHeroTitle": "On y va ?",
-  "homePlanTitle": "Mon planning",
-  "homePlanSubtitle": "Mes horaires, mes trajets.",
-  "homeSeeAll": "Tout voir",
   "@homeSearchRideSubtitle": {
     "description": "Subtitle of the home action leading to the ride search"
   },
@@ -709,6 +705,89 @@
   "mapCampusSummary": "Campus du trajet",
   "mapCoordinatesDetails": "Voir les coordonnées",
   "mapRouteLabel": "Aperçu de l’itinéraire",
+  "rideMyListings": "Mes annonces",
+  "rideActiveTrips": "En cours et à venir",
+  "rideHistory": "Historique",
+  "rideNoHistory": "Aucun trajet terminé ou annulé.",
+  "rideEditListing": "Modifier l’annonce",
+  "rideSaveListing": "Enregistrer les modifications",
+  "rideCancelListing": "Annuler l’annonce",
+  "rideCancelBooking": "Annuler cette réservation",
+  "rideStart": "Démarrer le trajet",
+  "rideComplete": "Terminer le trajet",
+  "rideActionFailed": "Action impossible. Le trajet a peut-être changé. Actualisez puis réessayez.",
+  "rideConfirmAction": "Confirmer l’action",
+  "rideCancelListingHint": "L’annonce sera fermée et toutes ses réservations actives seront annulées. Les participants seront prévenus.",
+  "rideCancelBookingHint": "Cette réservation sera annulée et l’autre participant sera prévenu.",
+  "rideStartHint": "Le trajet commencera pour tous les passagers confirmés. Les nouvelles réservations seront fermées.",
+  "rideCompleteHint": "Le trajet sera terminé pour tous les passagers et le partage de position sera arrêté.",
+  "rideConfirm": "Confirmer",
+  "rideKeep": "Retour",
+  "rideReadOnlyChat": "Ce trajet est clos. Les messages restent consultables.",
+  "rideEditLocked": "La modification est disponible avant toute réservation. Pour changer un trajet déjà réservé, annulez l’annonce et prévenez les participants.",
+  "rideStatusOpen": "Disponible",
+  "rideStatusFull": "Complet",
+  "rideStatusMatched": "Réservé",
+  "rideStatusOngoing": "En route",
+  "rideStatusCompleted": "Terminé",
+  "rideStatusCancelled": "Annulé",
+  "rideStatusExpired": "Expiré",
+  "rideNoticeCancelled": "Le trajet a été annulé",
+  "rideNoticeStarted": "Le conducteur a démarré le trajet",
+  "rideNoticeCompleted": "Le trajet est terminé",
+  "sessionRestoring": "Restauration de votre session…",
+  "sessionRestoreUnavailable": "Impossible de vérifier votre session. Vérifiez votre connexion et réessayez. Vos identifiants enregistrés sont conservés.",
+  "sessionRetry": "Réessayer",
+  "sessionUseAnotherAccount": "Utiliser un autre compte",
+  "biometricScanning": "Touchez le capteur d’empreinte…",
+  "biometricUnlocked": "Empreinte reconnue",
+  "biometricUsePassword": "Utiliser le mot de passe",
+  "biometricEnableReason": "Confirmez votre empreinte pour activer la connexion rapide",
+  "biometricLockedOut": "Trop de tentatives. Réessayez plus tard ou utilisez votre mot de passe.",
+  "biometricUnavailable": "Aucune empreinte n’est disponible sur cet appareil. Utilisez votre mot de passe.",
+  "biometricFailed": "Empreinte non reconnue. Réessayez.",
+  "biometricSecurityTitle": "Sécurité",
+  "biometricSettingTitle": "Connexion par empreinte",
+  "biometricSettingSubtitle": "Vous connecter avec votre empreinte au lieu de l’email et du mot de passe.",
+  "biometricSettingUnavailable": "Enregistrez une empreinte dans les réglages du téléphone pour activer cette option.",
+  "biometricOfferTitle": "Activer l’empreinte ?",
+  "biometricOfferBody": "Connectez-vous ensuite d’une simple empreinte, même après une déconnexion. Votre mot de passe n’est jamais enregistré sur le téléphone.",
+  "biometricUnlinked": "Ce téléphone n’est plus lié à votre compte. Connectez-vous avec votre mot de passe.",
+  "biometricNetworkError": "Connexion au serveur impossible. Vérifiez votre réseau et réessayez.",
+  "biometricWelcomeBack": "Bon retour, {name}",
+  "@biometricWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "biometricSignInButton": "Se connecter avec l’empreinte",
+  "biometricSignInReason": "Confirmez votre identité pour vous connecter à EMSIDrive",
+  "biometricSwitchAccount": "Changer de compte",
+  "biometricPromptTitle": "Connexion à EMSIDrive",
+  "biometricCancel": "Annuler",
+  "biometricPromptHint": "Vérification de votre identité",
+  "biometricCancelledHint": "Empreinte non reconnue ? Réessayez ou utilisez votre mot de passe.",
+  "biometricDisableTitle": "Désactiver la connexion par empreinte ?",
+  "biometricDisableBody": "Vous devrez saisir votre email et votre mot de passe pour vous reconnecter. Vous pourrez la réactiver depuis le Profil.",
+  "biometricDisableConfirm": "Désactiver",
+  "biometricSwitchTitle": "Changer de compte ?",
+  "biometricSwitchBody": "Ce téléphone ne sera plus lié à {email}. La connexion par empreinte devra être réactivée.",
+  "@biometricSwitchBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "biometricOfferAccept": "Activer",
+  "biometricOfferLater": "Plus tard",
+  "biometricEnabledMessage": "Connexion par empreinte activée.",
+  "homeHeroTitle": "On y va ?",
+  "homePlanTitle": "Mon planning",
+  "homePlanSubtitle": "Mes horaires, mes trajets.",
+  "homeSeeAll": "Tout voir",
   "timetableHero": "Vos horaires, votre prochain trajet",
   "timetableStepImport": "1. Importer",
   "timetableStepReview": "2. Vérifier",
@@ -729,22 +808,46 @@
   "presenceDigitalTitle": "Mes horaires de présence",
   "presenceDigitalHint": "Pour vos trajets, nous retenons l’arrivée avant la première séance et le départ après la dernière, sans matière ni enseignant.",
   "presenceArrival": "Arrivée avant {time}",
-  "@presenceArrival": { "placeholders": { "time": { "type": "String" } } },
+  "@presenceArrival": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "presenceLeaving": "Départ après {time}",
-  "@presenceLeaving": { "placeholders": { "time": { "type": "String" } } },
+  "@presenceLeaving": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "matchJourneyTitle": "Près de chez vous, aux bons horaires",
   "matchJourneyHint": "Choisissez votre campus et votre point habituel. Nous cherchons des conducteurs ayant publié une offre réservable, près de ce point et compatible avec votre planning.",
   "matchChoosePoint": "Choisir mon point sur la carte",
   "matchPointSelected": "Point choisi · modifier sur la carte",
   "matchPointRequired": "Choisissez votre point de départ pour rechercher des conducteurs proches.",
   "matchRadius": "Rayon de recherche : {meters} m",
-  "@matchRadius": { "placeholders": { "meters": { "type": "int" } } },
+  "@matchRadius": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "matchSearch": "Actualiser les trajets",
   "matchBothDirections": "Aller et retour",
   "matchOutbound": "Vers l’EMSI",
   "matchReturn": "Depuis l’EMSI",
   "matchDistance": "À environ {meters} m",
-  "@matchDistance": { "placeholders": { "meters": { "type": "int" } } },
+  "@matchDistance": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "matchCreateRequest": "Publier une demande de trajet",
   "timetableSuggestedDates": "Période proposée : les 7 prochains jours. Modifiez les dates ci-dessous si votre emploi du temps s’applique plus longtemps.",
   "timetableUseWeekPeriod": "Utiliser les 7 prochains jours",
@@ -752,7 +855,13 @@
   "timetableNoSessions": "Ajoutez au moins une séance avant d’enregistrer.",
   "timetableTooManySessions": "Conservez au maximum 80 séances.",
   "timetableMissingTimes": "Complétez le jour et les horaires de {count} séance(s) pour activer l’enregistrement.",
-  "@timetableMissingTimes": { "placeholders": { "count": { "type": "int" } } },
+  "@timetableMissingTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "timetableInvalidDates": "Choisissez une période de validité ordonnée, d’un an maximum.",
   "timetableProfileHint": "Consulter ou modifier mes horaires.",
   "appearanceTitle": "Apparence",
@@ -773,9 +882,21 @@
   "matchAddDemoRides": "Ajouter 3 trajets de test",
   "matchDemoLabel": "Trajet de test · conducteur fictif",
   "matchOfferCount": "{count} trajet(s) disponible(s)",
-  "@matchOfferCount": { "placeholders": { "count": { "type": "int" } } },
+  "@matchOfferCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "matchRouteFallback": "Itinéraire indisponible. Durée utilisée : {minutes} min, modifiable dans les filtres.",
-  "@matchRouteFallback": { "placeholders": { "minutes": { "type": "int" } } },
+  "@matchRouteFallback": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "demoNoUpcomingDay": "Aucun horaire à venir cette semaine. Vérifiez les dates de votre planning.",
   "tripReserved": "Réservation confirmée",
   "tripDriverComing": "Conducteur en route",
@@ -786,12 +907,30 @@
   "tripBookingConfirmed": "Votre trajet est confirmé",
   "tripFollow": "Suivre le trajet",
   "tripNewMessage": "Nouveau message de {name}",
-  "@tripNewMessage": { "placeholders": { "name": { "type": "String" } } },
+  "@tripNewMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripRecenter": "Recentrer la carte",
   "tripEtaMinutes": "Environ {minutes} min",
-  "@tripEtaMinutes": { "placeholders": { "minutes": { "type": "int" } } },
+  "@tripEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "tripEtaAt": "Arrivée estimée à {time}",
-  "@tripEtaAt": { "placeholders": { "time": { "type": "String" } } },
+  "@tripEtaAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "tripEtaPickup": "jusqu’au point de rendez-vous",
   "tripEtaDestination": "jusqu’à votre destination",
   "tripEtaEstimate": "Estimation routière, hors trafic en direct.",

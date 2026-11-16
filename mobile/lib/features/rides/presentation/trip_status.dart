@@ -22,6 +22,9 @@ String rideNoticeLabel(AppLocalizations l, RideNotice notice) =>
       'RIDE_IN_PROGRESS' => l.tripInProgress,
       'RIDE_COMPLETED' => l.tripCompleted,
       'RIDE_CANCELLED' => l.tripCancelled,
+      'TRIP_CANCELLED' => l.rideNoticeCancelled,
+      'TRIP_STARTED' => l.rideNoticeStarted,
+      'TRIP_COMPLETED' => l.rideNoticeCompleted,
       'RIDE_MESSAGE' => l.tripNewMessage(notice.accepter),
       _ => l.acceptedRideTitle,
     };

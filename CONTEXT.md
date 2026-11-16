@@ -68,7 +68,7 @@ EMSIDrive/
 │       │   ├── EmsiDriveApplication.java
 │       │   ├── config/           # Sécurité, OpenAPI, CORS
 │       │   ├── common/           # web/ (health), exception/ (contrat d'erreur)
-│       │   ├── auth/             # Inscription, connexion, refresh token
+│       │   ├── auth/             # Inscription, connexion, refresh token, déconnexion, clés d'appareil (empreinte)
 │       │   ├── user/             # Étudiants, profils
 │       │   ├── vehicle/          # Véhicules des conducteurs
 │       │   ├── ride/             # Trajets proposés
@@ -199,6 +199,7 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
 | `EMAIL_DOMAIN_NOT_ALLOWED` | 400 | Inscription hors domaines étudiants |
 | `INVALID_CREDENTIALS` | 401 | Email ou mot de passe incorrect |
 | `INVALID_REFRESH_TOKEN` | 401 | Refresh token inconnu, expiré ou révoqué |
+| `INVALID_DEVICE_KEY` | 401 | Téléphone non lié, lien révoqué ou clé d'appareil déjà remplacée (le lien est alors révoqué) |
 | `UNAUTHORIZED` | 401 | Requête sans jeton valide sur une route protégée |
 | `ACCOUNT_DISABLED` | 403 | Compte désactivé |
 | `USER_NOT_FOUND` | 404 | Utilisateur du jeton absent en base |
@@ -331,6 +332,21 @@ elles passent par des tokens partagés entre mobile et admin web.
   - admin web : `src/styles/`
   - documentation : `docs/design/`
 - Typographie, rayons et espacements suivent la même source unique.
+- Icônes : une seule famille par écran (contour). La cloche et l’onglet **Trajets**
+  (voiture) suivent cette règle.
+- Texte secondaire : contraste d’au moins 4,5:1 (WCAG AA) ; les cartes de l’accueil
+  visent 7:1.
+
+### Mouvement
+
+- Entrées en *ease-out* ; les listes et blocs arrivent décalés de 30 ms.
+- Cartes cliquables réduites à 0,97 sous le doigt, retour 20 % plus rapide que
+  l’appui, sans rebond ; le reflet d’appui reprend la couleur du texte de la carte.
+- Pas de rebond sur l’interface courante. Le badge d’empreinte
+  (`BiometricIndicator`) réserve ses mouvements aux états : pulsations limitées en
+  attente, ondes pendant la lecture, coche en cas de réussite, secousse en cas d’échec.
+- Le réglage système « réduire les animations » coupe ces mouvements ; seules les
+  couleurs et les icônes changent.
 
 ### Organisation mobile et profils persistants
 
@@ -589,6 +605,10 @@ Le choix est local au téléphone et persiste dans le stockage sécurisé sous
 - Authentification par **JWT** (access token court + refresh token).
 - Deux rôles seulement : `STUDENT` (inscription publique) et `ADMIN` (créé côté serveur). Toute autre valeur est refusée par la contrainte `chk_users_role`.
 - Les refresh tokens sont **persistés côté serveur** (seul le hash SHA-256 est stocké) et **rotatifs** : chaque `/auth/refresh` révoque le token présenté et en émet un nouveau.
+- `POST /auth/logout` révoque le refresh token présenté. La réponse est toujours `204`, même pour un jeton inconnu ou déjà révoqué, pour ne rien révéler.
+- **Connexion par empreinte** : `POST /me/biometric-devices` (session requise) lie le téléphone et renvoie une clé d'appareil de 32 octets aléatoires, affichée une seule fois. La table `biometric_devices` (V26) ne garde que son hash SHA-256.
+- `POST /auth/biometric/login` compare la clé en temps constant, verrouille la ligne (`PESSIMISTIC_WRITE`), remplace la clé et émet une session. Une clé déjà remplacée qui revient révoque le téléphone : la révocation est conservée malgré l'erreur (`noRollbackFor`).
+- `POST /auth/biometric/revoke` délie le téléphone si la clé correspond et répond `204` dans tous les cas. L'empreinte elle-même ne quitte jamais l'appareil.
 - L'inscription est limitée aux domaines étudiants, configurables via `app.security.student-email-domains`.
 - Mots de passe hachés (BCrypt), jamais journalisés.
 - Secrets et identifiants **hors du dépôt** : variables d'environnement ou `.env` ignoré par Git.
@@ -607,8 +627,33 @@ Le choix est local au téléphone et persiste dans le stockage sécurisé sous
 - Les validateurs de formulaire reprennent les contraintes Bean Validation du
   back-end (email, mot de passe 8–72, nom 120, téléphone optionnel) ; le serveur
   reste l'autorité finale.
-- La restauration de session au démarrage et la garde de redirection ne sont
-  **pas encore implémentées** : l'app démarre sur `/login`.
+- Le routeur de l’application démarre sur `/session`. `SessionController` vérifie
+  les jetons du stockage sécurisé avec `/me` avant d’autoriser les routes privées.
+  Un refus du jeton d’accès déclenche le renouvellement partagé dans
+  `AuthenticatedApi`. Un refus définitif du renouvellement efface la session et
+  redirige vers `/login`. Une panne réseau conserve les jetons et propose une
+  reprise explicite. La déconnexion attend la suppression du stockage sécurisé.
+- `createAppRouter` accepte un contrôleur de session pour activer ces gardes.
+  Le fournisseur de production l’injecte systématiquement. Les tests de navigation
+  isolée peuvent construire un routeur sans garde, tandis que les tests de session
+  utilisent le véritable fournisseur de l’application.
+- Une rotation conserve l’identité de session. Une connexion, une déconnexion ou
+  la destruction du stockage en mémoire invalide les réponses encore en vol.
+  Une ancienne connexion ou un ancien renouvellement ne peut pas remplacer les
+  jetons d’un autre compte.
+- La déconnexion appelle `/auth/logout` avec un délai court, puis efface les jetons
+  même hors ligne. Une session ouverte rouvre l’accueil sans empreinte.
+- Le lien d’empreinte (`emsidrive.biometric_device_id`, `…_device_key`, `…_email`,
+  `…_name`) survit à la déconnexion. La clé remplacée par le serveur est enregistrée
+  **avant** la nouvelle session. Un `401` efface le lien ; une panne réseau le conserve.
+- `local_auth` est appelé en mode biométrie seule ; le repli est le mot de passe de
+  l’app, pas le code du téléphone. `BiometricAuth` est l’unique point d’accès au
+  plugin et se remplace par un faux capteur dans les tests. Android impose
+  `FlutterFragmentActivity`, la permission `USE_BIOMETRIC` et un thème de lancement
+  AppCompat ; iOS impose `NSFaceIDUsageDescription`.
+- La fenêtre d’empreinte est dessinée par le système : seuls ses textes sont
+  personnalisés (`BiometricPromptTexts`). Les essais refusés y sont gérés par Android
+  et l’app reçoit seulement « annulé ». Délier le téléphone demande une confirmation.
 
 ### Variables d'environnement de sécurité
 
@@ -618,4 +663,27 @@ Le choix est local au téléphone et persiste dans le stockage sécurisé sous
 | `JWT_ACCESS_TOKEN_TTL` | `PT15M` | Durée de vie de l'access token |
 | `JWT_REFRESH_TOKEN_TTL` | `P7D` | Durée de vie du refresh token |
 | `STUDENT_EMAIL_DOMAINS` | `emsi-edu.ma` | Domaines autorisés à l'inscription, séparés par des virgules |
+
+## Cycle de vie marketplace
+
+La migration V25 ajoute les horodatages réels de départ et de fin aux offres.
+Une réservation reste `CONFIRMED` pendant le trajet, avec un statut exposé
+`ONGOING` lorsque l’offre est en cours. Le conducteur démarre et termine l’offre
+pour tous ses passagers confirmés. Les réservations terminées deviennent
+`COMPLETED` et les annulations deviennent `CANCELLED`.
+
+Les mutations verrouillent les lignes dans l’ordre demande, offre, réservation.
+Une annulation est idempotente et restitue les places d’une offre une seule fois.
+L’unicité offre/passager s’applique aux réservations actives via un index partiel.
+Une réservation annulée reste en historique et une nouvelle acceptation crée un
+nouvel identifiant. Une annonce ayant déjà eu une réservation ne peut plus être
+modifiée afin de conserver les itinéraires historiques. Les éditions vérifient
+une révision et reprennent les coordonnées exactes uniquement pour l’auteur.
+
+Une annulation par le conducteur remet une demande acceptée en attente. Une
+annulation de la demande par son passager la ferme. L’annulation d’une annonce
+ferme ses réservations actives. Les notifications de changement restent privées
+aux participants. Les messages historiques restent lisibles, leur envoi et le
+partage de position sont refusés après clôture. Le mobile expose les annonces
+personnelles, les actions confirmées et l’historique depuis Trajets.
 

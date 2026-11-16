@@ -5,6 +5,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/biometric_offer_host.dart';
+import '../../features/auth/presentation/session_screen.dart';
+import '../../features/auth/application/session_controller.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 
@@ -33,17 +36,71 @@ part 'app_router.g.dart';
 ///
 /// Kept alive so the navigation state survives rebuilds of the widget tree.
 @Riverpod(keepAlive: true)
-GoRouter appRouter(Ref ref) => createAppRouter();
+GoRouter appRouter(Ref ref) {
+  final router = createAppRouter(
+    initialLocation: AppRoutes.session,
+    session: ref.watch(sessionControllerProvider),
+  );
+  ref.onDispose(router.dispose);
+  return router;
+}
 
 /// Builds the [GoRouter] instance driving the app.
 ///
 /// A [StatefulShellRoute.indexedStack] gives each of the four tabs its own
 /// navigation stack while keeping the bottom bar permanently visible. The two
 /// authentication routes live outside the shell so they render full screen.
-GoRouter createAppRouter({String initialLocation = AppRoutes.initial}) {
+GoRouter createAppRouter({
+  String initialLocation = AppRoutes.initial,
+  SessionController? session,
+}) {
   return GoRouter(
     initialLocation: initialLocation,
+    refreshListenable: session,
+    redirect: session == null
+        ? null
+        : (_, state) {
+            final path = state.uri.path;
+            final authenticating =
+                path == AppRoutes.login || path == AppRoutes.register;
+            switch (session.status) {
+              case SessionStatus.restoring || SessionStatus.unavailable:
+                if (path == AppRoutes.session) return null;
+                return Uri(
+                  path: AppRoutes.session,
+                  queryParameters: authenticating
+                      ? null
+                      : {'from': state.uri.toString()},
+                ).toString();
+              case SessionStatus.signedOut:
+                return authenticating ? null : AppRoutes.login;
+              case SessionStatus.signedIn:
+                if (path == AppRoutes.session) {
+                  final destination = state.uri.queryParameters['from'];
+                  final uri = destination == null
+                      ? null
+                      : Uri.tryParse(destination);
+                  if (uri != null &&
+                      !uri.hasScheme &&
+                      !uri.hasAuthority &&
+                      uri.path.startsWith('/') &&
+                      ![
+                        AppRoutes.session,
+                        AppRoutes.login,
+                        AppRoutes.register,
+                      ].contains(uri.path)) {
+                    return uri.toString();
+                  }
+                  return AppRoutes.home;
+                }
+                return authenticating ? AppRoutes.home : null;
+            }
+          },
     routes: <RouteBase>[
+      GoRoute(
+        path: AppRoutes.session,
+        builder: (_, _) => const SessionScreen(),
+      ),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
@@ -215,7 +272,7 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: navigationShell,
+      body: BiometricOfferHost(child: navigationShell),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

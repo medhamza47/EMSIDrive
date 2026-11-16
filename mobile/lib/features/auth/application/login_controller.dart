@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/errors/app_failure.dart';
 import '../data/auth_repository_provider.dart';
 import 'auth_submission_state.dart';
+import 'biometric_settings_controller.dart';
 
 part 'login_controller.g.dart';
 
@@ -26,9 +27,12 @@ class LoginController extends _$LoginController {
       final session = await ref
           .read(authRepositoryProvider)
           .login(email: email, password: password);
-      state = AuthSucceeded(session);
+      if (ref.mounted) {
+        ref.read(biometricOfferProvider.notifier).request(session.user.email);
+        state = AuthSucceeded(session);
+      }
     } on AppFailure catch (failure) {
-      state = AuthFailed(failure);
+      if (ref.mounted) state = AuthFailed(failure);
     }
   }
 
