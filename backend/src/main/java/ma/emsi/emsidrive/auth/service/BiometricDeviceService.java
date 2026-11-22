@@ -47,7 +47,7 @@ public class BiometricDeviceService {
 
     @Transactional
     public EnrollResponse enroll(UUID userId, String deviceName) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findForAuthentication(userId)
                 .filter(User::isEnabled)
                 .orElseThrow(() -> ApiException.unauthorized("ACCOUNT_UNAVAILABLE", "Account is not available"));
         String key = newKey();
@@ -61,6 +61,11 @@ public class BiometricDeviceService {
 
     @Transactional(noRollbackFor = ApiException.class)
     public LoginResponse login(UUID deviceId, String deviceKey) {
+        // Lock the account before the device, matching moderation's lock order.
+        UUID owner = deviceRepository.findOwner(deviceId)
+                .orElseThrow(BiometricDeviceService::invalidDevice);
+        User user = userRepository.findForAuthentication(owner)
+                .orElseThrow(BiometricDeviceService::invalidDevice);
         BiometricDevice device = deviceRepository.findForUpdate(deviceId)
                 .filter(BiometricDevice::isActive)
                 .orElseThrow(BiometricDeviceService::invalidDevice);
@@ -71,7 +76,6 @@ public class BiometricDeviceService {
             deviceRepository.save(device);
             throw invalidDevice();
         }
-        User user = device.getUser();
         if (!user.isEnabled()) {
             throw ApiException.forbidden("ACCOUNT_DISABLED", "This account is disabled");
         }

@@ -2559,6 +2559,468 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Connexion par empreinte activée.'**
   String get biometricEnabledMessage;
+
+  /// No description provided for @pushSettingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications du téléphone'**
+  String get pushSettingTitle;
+
+  /// No description provided for @pushSettingEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les notifications'**
+  String get pushSettingEnable;
+
+  /// No description provided for @pushSettingDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.'**
+  String get pushSettingDescription;
+
+  /// No description provided for @pushSettingUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La configuration Firebase doit être ajoutée à cette version de l’application.'**
+  String get pushSettingUnavailable;
+
+  /// No description provided for @pushSettingDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez les notifications dans les paramètres Android, puis réessayez.'**
+  String get pushSettingDenied;
+
+  /// No description provided for @pushSettingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activation incomplète. Vérifiez votre connexion et réessayez.'**
+  String get pushSettingError;
+
+  /// No description provided for @pushForegroundNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle activité sur votre trajet.'**
+  String get pushForegroundNotice;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get pushOpen;
+
+  /// No description provided for @pushChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez reçu un nouveau message dans le chat du trajet.'**
+  String get pushChatMessage;
+
+  /// No description provided for @vehiclesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes véhicules'**
+  String get vehiclesTitle;
+
+  /// No description provided for @vehiclesDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérez les véhicules associés à votre compte conducteur.'**
+  String get vehiclesDescription;
+
+  /// No description provided for @vehiclesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’avez pas encore ajouté de véhicule.'**
+  String get vehiclesEmpty;
+
+  /// No description provided for @vehiclesAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un véhicule'**
+  String get vehiclesAdd;
+
+  /// No description provided for @vehiclesEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le véhicule'**
+  String get vehiclesEdit;
+
+  /// No description provided for @vehiclesDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le véhicule'**
+  String get vehiclesDelete;
+
+  /// No description provided for @vehiclesDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer {name} de votre compte ?'**
+  String vehiclesDeleteConfirm(String name);
+
+  /// No description provided for @vehiclesCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get vehiclesCancel;
+
+  /// No description provided for @vehiclesType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de véhicule'**
+  String get vehiclesType;
+
+  /// No description provided for @vehiclesBrand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marque'**
+  String get vehiclesBrand;
+
+  /// No description provided for @vehiclesModel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle'**
+  String get vehiclesModel;
+
+  /// No description provided for @vehiclesColor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur (facultative)'**
+  String get vehiclesColor;
+
+  /// No description provided for @vehiclesSeats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Places passagers'**
+  String get vehiclesSeats;
+
+  /// No description provided for @vehiclesSeatCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} place(s) passager(s)'**
+  String vehiclesSeatCount(int count);
+
+  /// No description provided for @vehiclesRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce champ est obligatoire.'**
+  String get vehiclesRequired;
+
+  /// No description provided for @vehiclesSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer le véhicule'**
+  String get vehiclesSave;
+
+  /// No description provided for @tripVehicleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre véhicule pour que les passagers puissent le reconnaître.'**
+  String get tripVehicleHint;
+
+  /// No description provided for @tripVehicleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule de cette offre'**
+  String get tripVehicleLabel;
+
+  /// No description provided for @tripVehicleUnspecified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule non renseigné'**
+  String get tripVehicleUnspecified;
+
+  /// No description provided for @tripRatingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'★ {rating}/5 · {count} avis'**
+  String tripRatingLabel(String rating, int count);
+
+  /// No description provided for @tripSummaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan du trajet'**
+  String get tripSummaryTitle;
+
+  /// No description provided for @tripSummaryOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le bilan et évaluer'**
+  String get tripSummaryOpen;
+
+  /// No description provided for @tripParticipants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get tripParticipants;
+
+  /// No description provided for @tripDriver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conducteur'**
+  String get tripDriver;
+
+  /// No description provided for @tripDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée réelle · {minutes} min'**
+  String tripDuration(int minutes);
+
+  /// No description provided for @tripReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer {name}'**
+  String tripReviewTitle(String name);
+
+  /// No description provided for @tripReviewHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une seule évaluation définitive est autorisée par participant pour ce trajet.'**
+  String get tripReviewHint;
+
+  /// No description provided for @tripReviewStars.
+  ///
+  /// In fr, this message translates to:
+  /// **'{score} étoiles'**
+  String tripReviewStars(int score);
+
+  /// No description provided for @tripReviewSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre évaluation a été enregistrée · {score}/5'**
+  String tripReviewSaved(int score);
+
+  /// No description provided for @tripReviewComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commentaire (facultatif)'**
+  String get tripReviewComment;
+
+  /// No description provided for @tripReviewSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer mon évaluation'**
+  String get tripReviewSubmit;
+
+  /// No description provided for @tripCostsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage des frais'**
+  String get tripCostsTitle;
+
+  /// No description provided for @tripCostsRule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les frais en MAD sont répartis par place occupée, conducteur compris. Une réservation de plusieurs places prend en charge ces places. Les centimes restants sont répartis en commençant par le conducteur. Le montant est définitif après confirmation.'**
+  String get tripCostsRule;
+
+  /// No description provided for @tripCostsAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais totaux du trajet'**
+  String get tripCostsAmount;
+
+  /// No description provided for @tripCostsInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un montant de 0 à 99 999,99 MAD, avec deux décimales maximum.'**
+  String get tripCostsInvalid;
+
+  /// No description provided for @tripCostsPublish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le partage'**
+  String get tripCostsPublish;
+
+  /// No description provided for @tripCostConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier définitivement ce montant et sa répartition entre les participants ?'**
+  String get tripCostConfirm;
+
+  /// No description provided for @tripCostsTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total du trajet · {amount} MAD'**
+  String tripCostsTotal(String amount);
+
+  /// No description provided for @tripCostsWaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur pourra renseigner les frais de ce trajet.'**
+  String get tripCostsWaiting;
+
+  /// No description provided for @tripYourShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre contribution'**
+  String get tripYourShare;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un problème'**
+  String get reportTitle;
+
+  /// No description provided for @reportHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.'**
+  String get reportHint;
+
+  /// No description provided for @reportCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif'**
+  String get reportCategory;
+
+  /// No description provided for @reportHarassment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement'**
+  String get reportHarassment;
+
+  /// No description provided for @reportNoShow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absence au rendez-vous'**
+  String get reportNoShow;
+
+  /// No description provided for @reportUnsafeDriving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conduite dangereuse'**
+  String get reportUnsafeDriving;
+
+  /// No description provided for @reportFakeProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux profil'**
+  String get reportFakeProfile;
+
+  /// No description provided for @reportPayment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage des frais'**
+  String get reportPayment;
+
+  /// No description provided for @reportOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get reportOther;
+
+  /// No description provided for @reportDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get reportDescription;
+
+  /// No description provided for @reportDescriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique ce qui s’est passé…'**
+  String get reportDescriptionHint;
+
+  /// No description provided for @reportRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décris le problème avant de l’envoyer.'**
+  String get reportRequired;
+
+  /// No description provided for @reportTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.'**
+  String get reportTooLong;
+
+  /// No description provided for @reportSessionChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.'**
+  String get reportSessionChanged;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le signalement'**
+  String get reportSend;
+
+  /// No description provided for @reportSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalement envoyé'**
+  String get reportSent;
+
+  /// No description provided for @reportSentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux suivre son traitement dans Profil → Mes signalements.'**
+  String get reportSentHint;
+
+  /// No description provided for @reportClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get reportClose;
+
+  /// No description provided for @reportFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.'**
+  String get reportFailed;
+
+  /// No description provided for @reportRetryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations sont conservées pour réessayer le même envoi sans créer de doublon.'**
+  String get reportRetryHint;
+
+  /// No description provided for @reportReference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence {id}'**
+  String reportReference(String id);
+
+  /// No description provided for @myReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes signalements'**
+  String get myReports;
+
+  /// No description provided for @myReportsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les 100 derniers signalements que tu as envoyés et leur état de traitement.'**
+  String get myReportsHint;
+
+  /// No description provided for @myReportsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n’as envoyé aucun signalement.'**
+  String get myReportsEmpty;
+
+  /// No description provided for @reportOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvert'**
+  String get reportOpen;
+
+  /// No description provided for @reportUnderReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'En examen'**
+  String get reportUnderReview;
+
+  /// No description provided for @reportResolved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résolu'**
+  String get reportResolved;
+
+  /// No description provided for @reportDismissed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classé'**
+  String get reportDismissed;
 }
 
 class _AppLocalizationsDelegate

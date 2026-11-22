@@ -14,6 +14,7 @@ abstract final class AppRoutes {
   static const String notifications = '/notifications';
   static const String profile = '/profile';
   static const String profileEdit = '$profile/edit';
+  static const String vehicles = '$profile/vehicles';
   static const String planning = '/planning';
 
   static const String rideRequest = '$rides/request';
@@ -22,6 +23,7 @@ abstract final class AppRoutes {
   static const String rideTracking = '$rides/tracking';
   static const String fuelSplit = '$rides/fuel';
   static const String rideReview = '$rides/review';
+  static const String rideHistory = '$rides?tab=mine&history=true';
   static const String scheduleImport = '$planning/import';
   static const String scheduleSlots = '$planning/review';
   static const String suggestions = '$planning/suggestions';
@@ -31,6 +33,7 @@ abstract final class AppRoutes {
   static String suggestionDetail(String driverId) => '$suggestions/$driverId';
   static String listing(String kind, String id) => '$rides/listings/$kind/$id';
   static String acceptedRide(String id) => '/trip/$id';
+  static String tripSummary(String id) => '/trip/$id/summary';
 
   /// Initial location shown when the app starts.
   ///

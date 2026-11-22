@@ -8,7 +8,8 @@
 
 param(
     [ValidateRange(1, 65535)]
-    [int]$Port = 8080
+    [int]$Port = 8080,
+    [string]$FirebaseCredentials = (Join-Path $env:LOCALAPPDATA 'EMSIDrive\firebase-service-account.json')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,6 +18,11 @@ $apiBaseUrl = "http://localhost:$Port"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $backendDir = Join-Path $repoRoot 'backend'
 $javaHome = 'C:\Program Files\Android\Android Studio\jbr'
+
+if (Test-Path -LiteralPath $FirebaseCredentials -PathType Leaf) {
+    $env:GOOGLE_APPLICATION_CREDENTIALS = (Resolve-Path -LiteralPath $FirebaseCredentials).Path
+    $env:PUSH_ENABLED = 'true'
+}
 
 function Test-ApiUp {
     try {

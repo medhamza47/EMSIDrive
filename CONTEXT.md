@@ -7,6 +7,127 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Administration Angular et modération du 22 novembre 2026
+
+- À la demande de l’utilisateur, `admin-web/` utilise Angular 21 LTS et TypeScript,
+  avec composants standalone et routes chargées à la demande. Node 22.17 est
+  compatible. `npm start` expose `127.0.0.1:4200` avec un proxy `/api` vers 8081.
+- `/api/v1/admin/**` exige le rôle ADMIN dans Spring Security et dans le contrôleur.
+  Le filtre JWT vérifie le compte actif, son rôle actuel et la date d’invalidation
+  des accès. Les anciens JWT sans `issuedMillis` utilisent leur `iat`.
+- `ModerationService` fournit indicateurs cumulés, comptes, fiches, accès motivé,
+  offres/demandes filtrées, dossiers de signalement et historique. Pagination de 20,
+  contrôle des filtres et de la révision, verrouillage des décisions, transactions
+  communes avec `admin_actions`. Les comptes ADMIN sont protégés contre la suspension.
+- V27 ajoute `access_invalidated_at`, les révisions et identifiants d’envoi des
+  signalements, leur référence de demande et la table `admin_actions`.
+- La suspension révoque refresh tokens, liens biométriques et appareils push.
+  Les connexions et renouvellements verrouillent le compte avant leur écriture.
+  La connexion biométrique suit l’ordre compte → appareil. `User` utilise
+  `DynamicUpdate` pour préserver une décision concurrente lors d’une modification
+  du profil. L’acceptation vérifie et verrouille les deux comptes actifs.
+- `PUT /api/v1/reports/{submissionId}` accepte un contexte réservation, ou une
+  annonce avec son type. Le serveur déduit le compte signalé et refuse l’auto-
+  signalement. Même identifiant et contenu donnent le même dossier. Un contenu
+  différent avec cet identifiant produit 409. `GET /reports` reste limité à l’auteur.
+- Flutter ajoute le formulaire depuis les fiches d’annonce et de trajet, avec
+  champs verrouillés après la première tentative pour permettre un réessai identique.
+  `Profil → Mes signalements` suit les 100 derniers dossiers du compte.
+- La session Angular reste dans `sessionStorage`, avec renouvellement partagé,
+  déconnexion et rejet des réponses provenant d’une session précédente. L’API
+  protège les autorisations indépendamment du navigateur.
+- `scripts/grant-admin.ps1` attribue le rôle à un compte déjà inscrit et actif
+  dans le conteneur local, avec audit. Le compte local dédié et son mot de passe
+  aléatoire sont décrits dans le README. Les identifiants restent hors du dépôt.
+- Avancement fonctionnel estimé après cette étape, 87 %, contre 82 % auparavant.
+  Validation avec 128 tests backend, 220 tests Flutter et 11 tests Angular réussis.
+  La vérification visuelle automatisée a été interrompue par le contrôle Chrome.
+  Vérifier manuellement le rendu, puis poursuivre les essais à deux téléphones et
+  le déploiement. La compilation et les tests servent de validation technique.
+
+### Parcours complet et bilan du 22 novembre 2026
+
+- `ListingInput.vehicleId` est facultatif pour les clients existants. L’API
+  vérifie le propriétaire, l’état actif, le type et les places du véhicule choisi
+  pour une offre. V26 conserve marque, modèle et couleur sur l’offre.
+- `GET /marketplace/trips/{id}/summary` renvoie aux participants d’une réservation
+  terminée le trajet, la durée serveur, les participants, leur propre avis et les
+  frais de l’offre avec les contributions. Les réservations annulées sont exclues.
+- `PUT /marketplace/trips/{id}/review` accepte une note 1–5 et un commentaire de
+  500 caractères maximum. Le serveur déduit le destinataire. Un seul avis définitif
+  par réservation et auteur. Les répétitions identiques sont idempotentes.
+- `PUT /marketplace/trips/{id}/costs` publie une seule répartition définitive, par
+  le conducteur après la fin. Total de 0 à 99 999,99 MAD, deux décimales maximum.
+  Répartition entière au centime, pondérée par les places réservées, conducteur
+  compris. Les centimes restants vont au conducteur puis aux passagers par UUID.
+- Les tables `ratings`, `fuel_splits` et `fuel_shares` existantes sont réutilisées.
+  Les écritures suivent le verrouillage demande → offre → réservation du cycle
+  de vie. Le profil renvoie `rating` et `ratingCount`. Les annonces affichent la
+  réputation de leur auteur.
+- Flutter ouvre `TripSummaryScreen` depuis le trajet terminé. Les anciens accès
+  aux frais et avis redirigent vers l’historique. Les frais constituent un
+  récapitulatif à régler entre les participants.
+- Avancement estimé après cette étape, 82 %, contre 74 % auparavant. La grille du
+  README conserve les pondérations. Les essais sur deux téléphones physiques,
+  le back-office et le déploiement restent à traiter.
+- Validation locale avec le conducteur de démonstration via l’API et le compte
+  ouvert dans l’émulateur. Chat, position de test, démarrage, fin, bilan et deux
+  avis enregistrés. Répartition de 10,01 MAD en 5,01 MAD et 5,00 MAD. La vraie
+  notification FCM « Trajet terminé » a été reçue en arrière-plan et a rouvert le
+  trajet. Le trajet et ses données de démonstration restent dans l’historique.
+- 123 tests backend et 217 tests Flutter réussis. Analyse Flutter sans erreur.
+  APK debug reconstruite avec l’API de l’émulateur sur `10.0.2.2:8081`.
+
+### Gestion mobile des véhicules du 22 novembre 2026
+
+- `Profil → Mes véhicules` utilise les routes existantes `/api/v1/me/vehicles`.
+  Liste, création, modification et suppression avec confirmation sont reliées à
+  PostgreSQL. Champs alignés sur `VehicleRequest`, avec 1 à 8 places passagers.
+- `vehiclesProvider` observe `sessionIdProvider` pour recharger au changement de
+  compte. Le formulaire conserve ses champs après erreur et refuse les mutations
+  si sa session d’origine a changé.
+- La sélection d’un véhicule précis dans les offres reste à relier.
+- À la demande de l’utilisateur, annoncer le pourcentage après chaque tâche
+  terminée et mettre à jour la grille du README. Estimation globale après cette
+  étape, 74 %, contre 70 % avant la gestion mobile des véhicules. Les pondérations
+  incluent le back-office et le déploiement et restent des estimations.
+
+### Intégration des notifications système du 22 novembre 2026
+
+- V25 crée `push_devices` et `push_deliveries`. Un trigger lie la file à la
+  transaction d’insertion des notifications de trajet, y compris `CHAT_MESSAGE`.
+- `PUT /api/v1/me/push-devices` inscrit un identifiant d’installation FCM avec le
+  refresh token actif du même compte. `DELETE` retire uniquement l’appareil du
+  compte authentifié. La rotation transfère le lien vers le nouveau refresh token.
+- `PushDeliveryWorker` verrouille les envois et appareils avec `SKIP LOCKED`,
+  vérifie le compte, la génération et la session, puis envoie via `PushSender`.
+  Réessais bornés à cinq, expiration après une heure, suppression des cibles FCM
+  désinscrites. Un expéditeur simulé permet les tests sans compte Firebase.
+- Flutter utilise `PushService`, `PushHost` et `PushSetting`. Inscription après
+  consentement, réessai au retour au premier plan, validation des UUID et du compte
+  pour les liens, retrait lors de la déconnexion. Les textes sont dans `app_fr.arb`.
+- Le plugin Google Services Android est conditionnel au fichier local
+  `mobile/android/app/google-services.json`. Le SDK Flutter utilise `register()`
+  et `onRegistered`, le SDK Admin 9.12 utilise `setFid()`.
+  Le manifeste active `firebase_messaging_installation_id_enabled`, requis pour
+  l’enregistrement FID. Toute modification du manifeste exige une reconstruction.
+- L’activation demande `PUSH_ENABLED=true` côté serveur avec des credentials ADC.
+  Android charge la configuration native par défaut. Les fichiers Firebase et clés
+  de service sont exclus du dépôt. Les commandes figurent dans le README.
+- Le projet Firebase `emsidrive-a62d1` est configuré le 22 novembre, avec
+  l’application Android et Cloud Messaging HTTP v1 activé. `google-services.json`
+  est installé localement. La clé privée reste dans
+  `%LOCALAPPDATA%\EMSIDrive\firebase-service-account.json`, hors du dépôt.
+  `start-backend.ps1` détecte ce fichier ou accepte `-FirebaseCredentials`.
+  Flutter essaie la configuration native par défaut et accepte une désactivation
+  explicite avec `PUSH_ENABLED=false`. Le push iOS attend sa configuration APNs.
+- Après correction du manifeste, l’activation inscrit l’émulateur Pixel 5 dans
+  `push_devices`. Réception réelle vérifiée avec un envoi direct SDK Admin,
+  application en arrière-plan. Le parcours complet de trajet entre deux appareils
+  et la réception après fermeture normale restent à valider.
+- Le projet utilise le forfait Spark. Analytics et les options Gemini et
+  Google Developer Program ont été désactivés pendant sa création.
+
 **EMSIDrive** est une plateforme de covoiturage réservée aux étudiants de l'**EMSI Marrakech**.
 
 Elle permet à un étudiant de publier ou de demander un trajet, de trouver des conducteurs proches,
@@ -19,7 +140,7 @@ de trajets partagés, puis d'évaluer le trajet effectué.
 |-----------|------|-------------|
 | **API** | Back-end métier, authentification, persistance, notifications | Spring Boot 3.5 (Java 17) + PostgreSQL 16 |
 | **Mobile** | Application étudiante (conducteur / passager) | Flutter (Dart) |
-| **Admin web** | Back-office de modération et de supervision | Application web (React + TypeScript) |
+| **Admin web** | Back-office de modération et de supervision | Angular 21 LTS + TypeScript |
 
 ### Périmètre fonctionnel (issu des maquettes)
 
@@ -109,17 +230,16 @@ EMSIDrive/
 │   │   └── features/<feature>/   # Un dossier de tests par fonctionnalité
 │   └── integration_test/         # Tests d'intégration (à venir)
 │
-├── admin-web/                    # Back-office web (à venir)
+├── admin-web/                    # Back-office Angular
 │   ├── package.json
+│   ├── proxy.conf.json           # /api → API locale sur 8081
 │   └── src/
-│       ├── assets/
-│       ├── components/           # Composants réutilisables
-│       ├── features/             # users/, rides/, reports/, dashboard/
-│       ├── layouts/
-│       ├── router/
-│       ├── services/             # Appels API
-│       ├── styles/               # Thème, tokens de design
-│       └── types/
+│       ├── app/
+│       │   ├── core/             # Session HTTP, états des listes
+│       │   ├── features/         # Login, shell, dashboard, users, rides, reports, audit
+│       │   ├── shared/           # Pagination, libellés des états
+│       │   └── app.routes.ts     # Routes et garde administrateur
+│       └── styles.scss           # Thème EMSI responsive
 │
 ├── docs/                                     # (à venir)
 │   ├── scrum/                    # Backlog, sprints, rétrospectives
@@ -166,8 +286,10 @@ Chaque composant est autonome : il possède son propre outillage, ses tests et s
 
 - **Code, identifiants, noms de fichiers techniques, commentaires, logs, messages de commit : anglais.**
 - **Textes d'interface visibles par l'utilisateur : français** (labels, boutons, erreurs, emails).
-- Les traductions sont centralisées (fichiers ARB en Flutter, fichiers i18n en admin web).
-  Aucun libellé français codé en dur dans les widgets ou composants.
+- Flutter centralise ses traductions dans les fichiers ARB. Les widgets utilisent
+  `AppLocalizations` pour leurs textes.
+- L’administration utilise le français dans ses templates Angular. Les libellés
+  d’états réutilisés sont centralisés dans `shared/label.ts`.
 
 ### API (Spring Boot / Java)
 
@@ -256,12 +378,12 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
   observent un état de chargement passent `settle: false` et augmentent la
   surface de test (`tester.binding.setSurfaceSize`) pour éviter les taps hors écran.
 
-### Admin web (TypeScript / React)
+### Admin web (Angular / TypeScript)
 
 | Élément | Convention | Exemple |
 |---------|-----------|---------|
-| Composants | `PascalCase`, un par fichier | `UserTable.tsx` |
-| Hooks | préfixe `use` | `useRideFilters.ts` |
+| Composants standalone | `PascalCase`, un par fichier | `Users` dans `users.ts` |
+| État réactif | signals Angular | `selected`, `loading` |
 | Fonctions / variables | `camelCase` | `fetchPendingReports()` |
 | Types / interfaces | `PascalCase`, sans préfixe `I` | `RideSummary` |
 | Fichiers utilitaires | `kebab-case` | `format-date.ts` |
@@ -452,7 +574,7 @@ Une désinstallation, ou un changement de clé de signature, efface les données
 - Tests de composants et de services avec le runner du projet ; lint TypeScript obligatoire.
 
 ```bash
-cd admin-web && npm test && npm run lint
+cd admin-web && npm run build && npm test -- --watch=false
 ```
 
 ### Règles

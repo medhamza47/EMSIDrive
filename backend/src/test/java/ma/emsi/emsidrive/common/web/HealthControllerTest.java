@@ -17,6 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(HealthController.class)
 @Import({SecurityConfig.class, JwtService.class, JwtAuthenticationFilter.class, RestAuthenticationEntryPoint.class})
 class HealthControllerTest {
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private ma.emsi.emsidrive.user.repository.UserRepository users;
 
     @Autowired
     private MockMvc mockMvc;

@@ -31,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class, JwtService.class, JwtAuthenticationFilter.class, RestAuthenticationEntryPoint.class})
 class AuthControllerTest {
+    @MockitoBean
+    private ma.emsi.emsidrive.user.repository.UserRepository users;
 
     private static final UUID USER_ID = UUID.fromString("3f1c8a54-6c1e-4a4f-9d2b-1f0f2f5c7a11");
     private static final String EMAIL = "sara.elidrissi@emsi-edu.ma";

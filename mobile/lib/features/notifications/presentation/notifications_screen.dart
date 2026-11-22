@@ -57,6 +57,7 @@ class NotificationsScreen extends ConsumerWidget {
               ),
               trailing: const Icon(Icons.chevron_right),
               child: FlowCopy(switch (notice.title) {
+                'CHAT_MESSAGE' => l.pushChatMessage,
                 'TRIP_CANCELLED' => l.rideNoticeCancelled,
                 'TRIP_STARTED' => l.rideNoticeStarted,
                 'TRIP_COMPLETED' => l.rideNoticeCompleted,

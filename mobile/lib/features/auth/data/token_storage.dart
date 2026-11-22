@@ -30,6 +30,12 @@ class TokenStorage extends ChangeNotifier {
     return _storage.read(key: StorageKeys.refreshToken);
   }
 
+  Future<bool> readPushEnabled() async =>
+      await _storage.read(key: 'emsidrive.push_enabled') == 'true';
+
+  Future<void> writePushEnabled(bool enabled) =>
+      _storage.write(key: 'emsidrive.push_enabled', value: '$enabled');
+
   /// Stores both tokens atomically from the caller's point of view.
   Future<void> saveTokens({
     required String accessToken,

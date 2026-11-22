@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/routes.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/flow_page.dart';
@@ -14,6 +17,7 @@ import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
 import 'ride_lifecycle.dart';
 import '../../home/application/home_controller.dart';
+import '../../reports/presentation/report_screens.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
@@ -236,6 +240,19 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
       child: Scaffold(
         appBar: AppBar(
           title: Text(ride?.partner ?? l.acceptedRideTitle),
+          actions: [
+            if (ride != null)
+              IconButton(
+                tooltip: l.reportTitle,
+                icon: const Icon(Icons.flag_outlined),
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ReportScreen(contextData: {'bookingId': ride.id}),
+                  ),
+                ),
+              ),
+          ],
           bottom: TabBar(
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: Theme.of(context)
@@ -280,6 +297,13 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         ),
         const SizedBox(height: 8),
         FlowCopy(ride.path.title, rideDeparture(ride.path.departure)),
+        if (ride.vehicleDetails != null) Text(ride.vehicleDetails!.label),
+        if (ride.status == 'COMPLETED')
+          PrimaryButton(
+            label: l.tripSummaryOpen,
+            icon: Icons.receipt_long_outlined,
+            onPressed: () => context.push(AppRoutes.tripSummary(ride.id)),
+          ),
         const SizedBox(height: 12),
         MarketplaceMap(path: ride.path, live: live),
         if (ride.isDriver && ride.active) ...[

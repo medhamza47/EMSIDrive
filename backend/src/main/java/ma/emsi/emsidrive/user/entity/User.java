@@ -25,6 +25,7 @@ import ma.emsi.emsidrive.common.entity.AuditableEntity;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity(name = "User")
+@org.hibernate.annotations.DynamicUpdate
 @Table(name = "users")
 public class User extends AuditableEntity {
 
@@ -67,4 +68,7 @@ public class User extends AuditableEntity {
     @Builder.Default
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
+
+    @Column(name = "access_invalidated_at")
+    private java.time.Instant accessInvalidatedAt;
 }

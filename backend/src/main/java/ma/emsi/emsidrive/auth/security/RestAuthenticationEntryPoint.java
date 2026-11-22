@@ -14,12 +14,21 @@ import org.springframework.stereotype.Component;
 
 /** Returns the standard {@link ApiError} payload instead of the default empty 401. */
 @Component
-public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint, org.springframework.security.web.access.AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
     public RestAuthenticationEntryPoint(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       org.springframework.security.access.AccessDeniedException exception) throws IOException {
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getOutputStream(),
+                ApiError.of(403, "ADMIN_REQUIRED", "Administrator access is required"));
     }
 
     @Override

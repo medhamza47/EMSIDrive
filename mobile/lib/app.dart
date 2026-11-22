@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
+import 'features/notifications/presentation/push_host.dart';
 
 /// Root widget of EMSIDrive.
 ///
@@ -16,6 +17,7 @@ class EmsiDriveApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
+      builder: (_, child) => PushHost(child: child ?? const SizedBox.shrink()),
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
