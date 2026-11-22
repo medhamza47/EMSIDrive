@@ -24,11 +24,24 @@ Document de référence du projet : contexte, architecture, structure des dossie
 - Le plugin Google Services Android est conditionnel au fichier local
   `mobile/android/app/google-services.json`. Le SDK Flutter utilise `register()`
   et `onRegistered`, le SDK Admin 9.12 utilise `setFid()`.
-- L’activation demande `PUSH_ENABLED=true` côté serveur avec des credentials ADC,
-  et `--dart-define=PUSH_ENABLED=true` côté Android. Les fichiers Firebase et clés
+  Le manifeste active `firebase_messaging_installation_id_enabled`, requis pour
+  l’enregistrement FID. Toute modification du manifeste exige une reconstruction.
+- L’activation demande `PUSH_ENABLED=true` côté serveur avec des credentials ADC.
+  Android charge la configuration native par défaut. Les fichiers Firebase et clés
   de service sont exclus du dépôt. Les commandes figurent dans le README.
-- Aucun projet Firebase n’est encore configuré. La réception réelle sur Android
-  reste à vérifier après configuration. Le push iOS attend sa configuration APNs.
+- Le projet Firebase `emsidrive-a62d1` est configuré le 22 novembre, avec
+  l’application Android et Cloud Messaging HTTP v1 activé. `google-services.json`
+  est installé localement. La clé privée reste dans
+  `%LOCALAPPDATA%\EMSIDrive\firebase-service-account.json`, hors du dépôt.
+  `start-backend.ps1` détecte ce fichier ou accepte `-FirebaseCredentials`.
+  Flutter essaie la configuration native par défaut et accepte une désactivation
+  explicite avec `PUSH_ENABLED=false`. Le push iOS attend sa configuration APNs.
+- Après correction du manifeste, l’activation inscrit l’émulateur Pixel 5 dans
+  `push_devices`. Réception réelle vérifiée avec un envoi direct SDK Admin,
+  application en arrière-plan. Le parcours complet de trajet entre deux appareils
+  et la réception après fermeture normale restent à valider.
+- Le projet utilise le forfait Spark. Analytics et les options Gemini et
+  Google Developer Program ont été désactivés pendant sa création.
 
 **EMSIDrive** est une plateforme de covoiturage réservée aux étudiants de l'**EMSI Marrakech**.
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/authenticated_api.dart';
@@ -62,7 +64,16 @@ class PushService extends ChangeNotifier {
       if (_disposed) return;
       try {
         await action();
-      } catch (_) {
+      } catch (error) {
+        debugPrint('Push operation failed (${error.runtimeType}).');
+        if (error is FirebaseException) {
+          debugPrint('Push Firebase error code ${error.code}.');
+        }
+        if (error is DioException) {
+          debugPrint(
+            'Push API error ${error.response?.statusCode}, ${error.type.name}.',
+          );
+        }
         _setStatus(PushStatus.error);
       }
     });

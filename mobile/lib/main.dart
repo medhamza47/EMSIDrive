@@ -10,7 +10,7 @@ import 'app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   PushGateway? gateway;
-  if (const bool.fromEnvironment('PUSH_ENABLED')) {
+  if (const bool.fromEnvironment('PUSH_ENABLED', defaultValue: true)) {
     try {
       await Firebase.initializeApp();
       gateway = FirebasePushGateway();

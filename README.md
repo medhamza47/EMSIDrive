@@ -25,7 +25,7 @@ notifications d’acceptation apparaissent dans l’application, avec un indicat
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
 Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
 utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
-Les notifications système Android disposent d’une intégration Firebase à configurer.
+Les notifications système Android disposent d’une intégration Firebase configurée localement.
 Le back-office reste à réaliser.
 
 ## Notifications système Android
@@ -36,9 +36,14 @@ d’autoriser ou de désactiver les alertes. Un appui ouvre le trajet du compte
 destinataire après vérification de la session. Au premier plan, une bannière
 propose d’ouvrir le trajet.
 
-Firebase est absent de l’environnement actuel. L’envoi réel reste en attente
-d’activation. Le réglage indique cette configuration manquante et les notifications
-dans l’application continuent à fonctionner.
+Le projet Firebase **EMSIDrive** (`emsidrive-a62d1`) est configuré localement avec
+l’application Android et Cloud Messaging HTTP v1 activé. Le fichier Android est
+ignoré par Git et la clé privée du serveur reste hors du dépôt.
+
+Au démarrage, Android essaie de charger sa configuration Firebase. Une version
+sans fichier Firebase affiche la configuration manquante dans le profil et garde
+les notifications dans l’application. `--dart-define=PUSH_ENABLED=false` désactive
+explicitement cette intégration pour une compilation.
 
 ### Activation
 
@@ -69,6 +74,13 @@ flutter run -d emulator-5554 --dart-define=PUSH_ENABLED=true --dart-define=API_B
    l’autorisation Android. Sur téléphone physique, remplacer `10.0.2.2` par
    l’adresse réseau du PC ou celle du backend hébergé.
 
+Sur le PC configuré, la clé serveur est conservée dans
+`%LOCALAPPDATA%\EMSIDrive\firebase-service-account.json`. Le script
+`start-backend.ps1` la détecte et active l’envoi. Le paramètre
+`-FirebaseCredentials 'chemin-du-fichier.json'` permet d’utiliser un autre fichier.
+Le backend doit être redémarré après un changement de configuration. Les collègues
+doivent installer leur configuration locale avant de tester Firebase.
+
 ### Livraison et tests
 
 V25 ajoute les appareils et une file PostgreSQL, alimentée dans la transaction
@@ -86,9 +98,16 @@ renouvellement actif, conservé lors de sa rotation. La déconnexion serveur blo
 les envois suivants. Le mobile retire aussi son inscription et un changement de
 compte invalide les anciens envois en attente.
 
-Les tests automatisés utilisent un expéditeur simulé. La réception FCM réelle
-reste à valider après configuration sur deux appareils, au premier plan, en
-arrière-plan et après fermeture normale. Android suspend les messages après un
+Le manifeste Android active `firebase_messaging_installation_id_enabled`, requis
+par le SDK pour `register()` et `onRegistered`. Après un changement du manifeste,
+recompiler et réinstaller l’application. Un rechargement Flutter ne suffit pas.
+
+Les tests automatisés utilisent un expéditeur simulé. Le 22 novembre 2026,
+l’activation a inscrit l’émulateur Pixel 5 dans `push_devices`. Un envoi direct
+par le SDK Admin et les credentials locaux a affiché « Test des notifications
+réussi. » dans Android, application en arrière-plan. Le test complet d’un
+événement de trajet entre deux appareils, au premier plan et après fermeture
+normale, reste à effectuer. Android suspend les messages après un
 arrêt forcé jusqu’à la réouverture manuelle. Le push iOS nécessite sa configuration
 Firebase/APNs et une validation sur appareil.
 
@@ -468,7 +487,8 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 - `flutter test` passe avec **211 tests Flutter**, dont huit nouveaux tests de
   consentement, inscription, déconnexion et gestion des erreurs de notifications.
 - `flutter analyze` ne signale aucun problème.
-- L’envoi Firebase réel attend la création du projet et l’ajout des paramètres.
+- Le projet Firebase et les paramètres locaux sont installés. L’inscription de
+  l’émulateur et la réception d’un envoi FCM direct en arrière-plan sont validées.
 
 ### Validation précédente de la connexion par empreinte
 
