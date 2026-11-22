@@ -7,6 +7,20 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Gestion mobile des véhicules du 22 novembre 2026
+
+- `Profil → Mes véhicules` utilise les routes existantes `/api/v1/me/vehicles`.
+  Liste, création, modification et suppression avec confirmation sont reliées à
+  PostgreSQL. Champs alignés sur `VehicleRequest`, avec 1 à 8 places passagers.
+- `vehiclesProvider` observe `sessionIdProvider` pour recharger au changement de
+  compte. Le formulaire conserve ses champs après erreur et refuse les mutations
+  si sa session d’origine a changé.
+- La sélection d’un véhicule précis dans les offres reste à relier.
+- À la demande de l’utilisateur, annoncer le pourcentage après chaque tâche
+  terminée et mettre à jour la grille du README. Estimation globale après cette
+  étape, 74 %, contre 70 % avant la gestion mobile des véhicules. Les pondérations
+  incluent le back-office et le déploiement et restent des estimations.
+
 ### Intégration des notifications système du 22 novembre 2026
 
 - V25 crée `push_devices` et `push_deliveries`. Un trigger lie la file à la

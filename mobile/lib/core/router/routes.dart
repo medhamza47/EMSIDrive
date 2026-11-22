@@ -14,6 +14,7 @@ abstract final class AppRoutes {
   static const String notifications = '/notifications';
   static const String profile = '/profile';
   static const String profileEdit = '$profile/edit';
+  static const String vehicles = '$profile/vehicles';
   static const String planning = '/planning';
 
   static const String rideRequest = '$rides/request';

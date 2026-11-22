@@ -12,6 +12,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/vehicles/presentation/vehicles_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/schedule/presentation/planning_screen.dart';
 import '../../features/matching/presentation/suggestion_screens.dart';
@@ -250,6 +251,10 @@ GoRouter createAppRouter({
                   GoRoute(
                     path: "edit",
                     builder: (_, _) => const ProfileEditScreen(),
+                  ),
+                  GoRoute(
+                    path: 'vehicles',
+                    builder: (_, _) => const VehiclesScreen(),
                   ),
                 ],
               ),

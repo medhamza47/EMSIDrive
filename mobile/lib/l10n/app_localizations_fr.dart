@@ -1429,4 +1429,57 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get pushChatMessage =>
       'Vous avez reçu un nouveau message dans le chat du trajet.';
+
+  @override
+  String get vehiclesTitle => 'Mes véhicules';
+
+  @override
+  String get vehiclesDescription =>
+      'Gérez les véhicules associés à votre compte conducteur.';
+
+  @override
+  String get vehiclesEmpty => 'Vous n’avez pas encore ajouté de véhicule.';
+
+  @override
+  String get vehiclesAdd => 'Ajouter un véhicule';
+
+  @override
+  String get vehiclesEdit => 'Modifier le véhicule';
+
+  @override
+  String get vehiclesDelete => 'Supprimer le véhicule';
+
+  @override
+  String vehiclesDeleteConfirm(String name) {
+    return 'Supprimer $name de votre compte ?';
+  }
+
+  @override
+  String get vehiclesCancel => 'Annuler';
+
+  @override
+  String get vehiclesType => 'Type de véhicule';
+
+  @override
+  String get vehiclesBrand => 'Marque';
+
+  @override
+  String get vehiclesModel => 'Modèle';
+
+  @override
+  String get vehiclesColor => 'Couleur (facultative)';
+
+  @override
+  String get vehiclesSeats => 'Places passagers';
+
+  @override
+  String vehiclesSeatCount(int count) {
+    return '$count place(s) passager(s)';
+  }
+
+  @override
+  String get vehiclesRequired => 'Ce champ est obligatoire.';
+
+  @override
+  String get vehiclesSave => 'Enregistrer le véhicule';
 }

@@ -2613,6 +2613,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vous avez reçu un nouveau message dans le chat du trajet.'**
   String get pushChatMessage;
+
+  /// No description provided for @vehiclesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes véhicules'**
+  String get vehiclesTitle;
+
+  /// No description provided for @vehiclesDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérez les véhicules associés à votre compte conducteur.'**
+  String get vehiclesDescription;
+
+  /// No description provided for @vehiclesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’avez pas encore ajouté de véhicule.'**
+  String get vehiclesEmpty;
+
+  /// No description provided for @vehiclesAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un véhicule'**
+  String get vehiclesAdd;
+
+  /// No description provided for @vehiclesEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le véhicule'**
+  String get vehiclesEdit;
+
+  /// No description provided for @vehiclesDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le véhicule'**
+  String get vehiclesDelete;
+
+  /// No description provided for @vehiclesDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer {name} de votre compte ?'**
+  String vehiclesDeleteConfirm(String name);
+
+  /// No description provided for @vehiclesCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get vehiclesCancel;
+
+  /// No description provided for @vehiclesType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de véhicule'**
+  String get vehiclesType;
+
+  /// No description provided for @vehiclesBrand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marque'**
+  String get vehiclesBrand;
+
+  /// No description provided for @vehiclesModel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle'**
+  String get vehiclesModel;
+
+  /// No description provided for @vehiclesColor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur (facultative)'**
+  String get vehiclesColor;
+
+  /// No description provided for @vehiclesSeats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Places passagers'**
+  String get vehiclesSeats;
+
+  /// No description provided for @vehiclesSeatCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} place(s) passager(s)'**
+  String vehiclesSeatCount(int count);
+
+  /// No description provided for @vehiclesRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce champ est obligatoire.'**
+  String get vehiclesRequired;
+
+  /// No description provided for @vehiclesSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer le véhicule'**
+  String get vehiclesSave;
 }
 
 class _AppLocalizationsDelegate

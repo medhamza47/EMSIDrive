@@ -10,6 +10,7 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
+| Véhicules | **Profil → Mes véhicules** permet de consulter, ajouter, modifier et supprimer ses véhicules avec confirmation. Type, marque, modèle, couleur facultative et places passagers sont enregistrés par compte via l’API existante. |
 | Planning et IA | Import réel de photos JPEG/PNG et de PDF avec Groq, correction des cours détectés, confirmation puis enregistrement. Le planning affiche les sept jours et propose des offres compatibles avec les horaires et le campus. |
 | Carte de Marrakech | Choix du sens **Vers l’EMSI** ou **Depuis l’EMSI**, puis du campus **Targa** ou **Centre**. Pour l’autre extrémité, l’étudiant place un repère sur la carte ou utilise **Ma position**. L’aperçu routier affiche le tracé, la distance et la durée estimée. |
 | Annonces | **Trajets** sépare les **Demandes**, les **Offres** et **Mes trajets**. La publication et l’acceptation passent par l’API. La fiche d’une annonce affiche le tracé avant l’acceptation. |
@@ -24,9 +25,48 @@ notifications d’acceptation apparaissent dans l’application, avec un indicat
 
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
 Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
-utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
+utilisent encore des interactions simulées.
 Les notifications système Android disposent d’une intégration Firebase configurée localement.
 Le back-office reste à réaliser.
+
+### Suivi de l’avancement
+
+Estimation fonctionnelle établie le 22 novembre 2026, sur le périmètre global
+mobile, API, administration et mise en ligne. Chaque ligne représente une part
+du projet, appréciée selon les fonctions réalisées et les validations restantes.
+Les pondérations sont une estimation de travail et pourront être révisées si le
+périmètre change. Après chaque tâche terminée, mettre cette grille à jour et
+communiquer le pourcentage au demandeur.
+
+| Domaine | Points réalisés | Poids |
+| --- | --- | --- |
+| Comptes et profil | 15 | 15 |
+| Demandes, offres et cycle du trajet | 18 | 20 |
+| Cartes et suivi GPS | 8 | 10 |
+| Chat privé | 8 | 10 |
+| Notifications | 7 | 10 |
+| Planning, import et suggestions | 9 | 10 |
+| Gestion des véhicules | 5 | 5 |
+| Évaluations et partage des frais | 0 | 5 |
+| Back-office | 0 | 5 |
+| Qualité, validation sur appareils et déploiement | 4 | 10 |
+| **Total** | **74** | **100** |
+
+La gestion mobile des véhicules fait passer l’estimation de **70 % à 74 %**.
+Les validations à deux téléphones, les évaluations, le partage des frais,
+le back-office et le déploiement font partie du travail restant.
+
+### Gérer ses véhicules
+
+Ouvrir **Profil → Mes véhicules → Ajouter un véhicule**. Choisir voiture ou moto,
+renseigner la marque, le modèle, la couleur facultative et de 1 à 8 places
+passagers, puis enregistrer. Chaque carte propose la modification et la
+suppression avec confirmation. En cas d’échec d’enregistrement, les champs
+restent remplis pour permettre un nouvel essai. Un changement de compte recharge
+la liste et bloque l’enregistrement d’un formulaire ouvert sur l’ancien compte.
+
+La sélection d’un véhicule précis lors de la publication d’une offre reste à
+relier. Les offres utilisent actuellement leur propre type et nombre de places.
 
 ## Notifications système Android
 
@@ -484,8 +524,12 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 
 - `mvn clean test` passe avec **120 tests backend**, dont quatre nouveaux tests
   PostgreSQL de la file push.
-- `flutter test` passe avec **211 tests Flutter**, dont huit nouveaux tests de
-  consentement, inscription, déconnexion et gestion des erreurs de notifications.
+- `flutter test` passe avec **214 tests Flutter**, dont huit tests de
+  notifications et trois tests de gestion des véhicules, couvrant le parcours
+  HTTP, la confirmation de suppression, la reprise après erreur et le changement
+  de compte.
+- Les **20 tests ciblés** `VehicleServiceTest` et `ProfileVehicleIntegrationTest`
+  passent, avec contrôle des propriétaires et persistance PostgreSQL.
 - `flutter analyze` ne signale aucun problème.
 - Le projet Firebase et les paramètres locaux sont installés. L’inscription de
   l’émulateur et la réception d’un envoi FCM direct en arrière-plan sont validées.

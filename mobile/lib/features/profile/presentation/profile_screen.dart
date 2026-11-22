@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../notifications/presentation/push_setting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,6 +10,7 @@ import '../../../shared/widgets/outline_button.dart';
 import '../../../shared/widgets/avatar.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/form_section.dart';
+import '../../notifications/presentation/push_setting.dart';
 import '../application/profile_controller.dart';
 import 'profile_edit_screen.dart';
 import '../../auth/application/biometric_settings_controller.dart';
@@ -151,6 +151,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
         const _BiometricSetting(),
+        OutlineButton(
+          label: l.vehiclesTitle,
+          icon: Icons.directions_car_outlined,
+          onPressed: () => context.push(AppRoutes.vehicles),
+        ),
         const PushSetting(),
         OutlineButton(
           label: l.signOutLabel,
