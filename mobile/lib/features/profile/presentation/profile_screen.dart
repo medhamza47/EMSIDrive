@@ -90,6 +90,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
+                          if (profile.rating != null)
+                            Text(
+                              l.tripRatingLabel(
+                                profile.rating!.toStringAsFixed(1),
+                                profile.ratingCount,
+                              ),
+                            ),
                           if (profile.major?.isNotEmpty ?? false)
                             Chip(label: Text(profile.major!)),
                         ],

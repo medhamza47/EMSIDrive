@@ -16,6 +16,8 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Annonces | **Trajets** sépare les **Demandes**, les **Offres** et **Mes trajets**. La publication et l’acceptation passent par l’API. La fiche d’une annonce affiche le tracé avant l’acceptation. |
 | Acceptation | L’API réserve la place et crée, dans la même transaction, une notification pour l’auteur de l’annonce. Les deux participants retrouvent le trajet dans **Mes trajets** et peuvent s’écrire dans un chat privé. |
 | Suivi | Depuis un trajet accepté, le conducteur peut activer **Partager ma position**. Le passager voit le repère s’actualiser sur sa carte toutes les quelques secondes. |
+| Bilan et évaluations | Un trajet terminé propose **Voir le bilan et évaluer**. Le bilan privé affiche l’itinéraire, la durée réelle disponible et les participants. Chacun peut noter son partenaire de 1 à 5 avec un commentaire facultatif. La moyenne et le nombre d’avis apparaissent sur le profil et sur les annonces. |
+| Frais | Après la fin du trajet, le conducteur peut confirmer un total en MAD. Le serveur conserve une répartition par place occupée, conducteur compris, avec un arrondi exact au centime. |
 
 Le point en ville est arrondi dans l’annonce publique. Les coordonnées exactes, le chat
 et la position du conducteur sont accessibles aux participants via le trajet accepté.
@@ -24,8 +26,9 @@ arrière-plan. Le serveur masque une position datant de plus de 30 secondes. Les
 notifications d’acceptation apparaissent dans l’application, avec un indicateur de non-lu.
 
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
-Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
-utilisent encore des interactions simulées.
+Certains anciens écrans de recherche de conducteurs issus des maquettes utilisent
+encore des interactions simulées. Les accès aux frais et aux évaluations ouvrent
+désormais l’historique des trajets réels.
 Les notifications système Android disposent d’une intégration Firebase configurée localement.
 Le back-office reste à réaliser.
 
@@ -41,19 +44,20 @@ communiquer le pourcentage au demandeur.
 | Domaine | Points réalisés | Poids |
 | --- | --- | --- |
 | Comptes et profil | 15 | 15 |
-| Demandes, offres et cycle du trajet | 18 | 20 |
+| Demandes, offres et cycle du trajet | 20 | 20 |
 | Cartes et suivi GPS | 8 | 10 |
 | Chat privé | 8 | 10 |
-| Notifications | 7 | 10 |
+| Notifications | 8 | 10 |
 | Planning, import et suggestions | 9 | 10 |
 | Gestion des véhicules | 5 | 5 |
-| Évaluations et partage des frais | 0 | 5 |
+| Évaluations et partage des frais | 5 | 5 |
 | Back-office | 0 | 5 |
 | Qualité, validation sur appareils et déploiement | 4 | 10 |
-| **Total** | **74** | **100** |
+| **Total** | **82** | **100** |
 
-La gestion mobile des véhicules fait passer l’estimation de **70 % à 74 %**.
-Les validations à deux téléphones, les évaluations, le partage des frais,
+La gestion mobile des véhicules a fait passer l’estimation de **70 % à 74 %**.
+Le parcours véhicule, bilan, évaluations, frais et livraison FCM de fin de trajet
+porte ensuite l’estimation à **82 %**. Les validations à deux téléphones physiques,
 le back-office et le déploiement font partie du travail restant.
 
 ### Gérer ses véhicules
@@ -65,8 +69,45 @@ suppression avec confirmation. En cas d’échec d’enregistrement, les champs
 restent remplis pour permettre un nouvel essai. Un changement de compte recharge
 la liste et bloque l’enregistrement d’un formulaire ouvert sur l’ancien compte.
 
-La sélection d’un véhicule précis lors de la publication d’une offre reste à
-relier. Les offres utilisent actuellement leur propre type et nombre de places.
+La publication d’une offre propose les véhicules du compte. Le serveur vérifie
+leur propriétaire, leur état actif, le type et la capacité. Les annonces et les
+trajets conservent la marque, le modèle et la couleur enregistrés lors de la
+publication, même si le véhicule est ensuite modifié ou supprimé. Les anciennes
+offres et les clients qui omettent `vehicleId` restent compatibles.
+
+### Terminer, évaluer et partager les frais
+
+Depuis **Mes trajets**, le conducteur démarre puis termine le trajet. Dans
+**Historique**, ouvrir le trajet puis **Voir le bilan et évaluer**. Le bilan
+regroupe le conducteur et les réservations terminées de la même offre. La durée
+provient des heures serveur de début et de fin et reste absente si un ancien
+trajet ne dispose pas de ces heures.
+
+Chaque auteur peut publier une seule évaluation définitive par réservation.
+Le serveur déduit le destinataire à partir des participants et refuse les avis
+avant la fin du trajet. Un nouvel envoi identique est accepté sans créer de
+doublon. Un avis différent après publication est refusé.
+
+Seul le conducteur renseigne les frais après la fin du trajet. Le montant est
+compris entre 0 et 99 999,99 MAD, avec deux décimales maximum. La répartition est
+définitive après confirmation. Chaque place occupée porte le même poids, avec
+une place pour le conducteur. Une réservation de trois places prend en charge
+trois parts. Les centimes restants sont affectés d’abord au conducteur puis aux
+passagers, dans un ordre stable. La somme des contributions égale le total.
+L’application conserve un récapitulatif de contributions à régler entre
+participants. Le règlement effectif reste à organiser entre eux.
+
+V26 ajoute les informations historiques du véhicule et une contrainte unique
+pour les nouvelles évaluations marketplace. Les tables `ratings`, `fuel_splits`
+et `fuel_shares` existantes sont réutilisées. Les mutations verrouillent le
+trajet dans le même ordre que son cycle de vie, pour sérialiser les doubles
+soumissions et conserver le partage des frais dans une seule transaction.
+
+Les nouvelles routes authentifiées sont `GET /api/v1/marketplace/trips/{id}/summary`,
+`PUT /api/v1/marketplace/trips/{id}/review` et
+`PUT /api/v1/marketplace/trips/{id}/costs`. Le bilan est réservé aux participants
+d’une réservation terminée. Les accès historiques `/rides/fuel` et `/rides/review`
+redirigent vers l’historique pour choisir le trajet concerné.
 
 ## Notifications système Android
 
@@ -145,9 +186,12 @@ recompiler et réinstaller l’application. Un rechargement Flutter ne suffit pa
 Les tests automatisés utilisent un expéditeur simulé. Le 22 novembre 2026,
 l’activation a inscrit l’émulateur Pixel 5 dans `push_devices`. Un envoi direct
 par le SDK Admin et les credentials locaux a affiché « Test des notifications
-réussi. » dans Android, application en arrière-plan. Le test complet d’un
-événement de trajet entre deux appareils, au premier plan et après fermeture
-normale, reste à effectuer. Android suspend les messages après un
+réussi. » dans Android, application en arrière-plan. Un second essai avec le
+conducteur via l’API et le passager dans l’émulateur a validé les événements de
+chat, démarrage et fin via la file PostgreSQL et le worker FCM. La notification
+« Trajet terminé » a été affichée en arrière-plan et a rouvert le trajet. Les
+essais sur deux téléphones physiques et après fermeture normale restent à
+effectuer. Android suspend les messages après un
 arrêt forcé jusqu’à la réouverture manuelle. Le push iOS nécessite sa configuration
 Firebase/APNs et une validation sur appareil.
 
@@ -522,17 +566,26 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 
 ### Validation du 22 novembre 2026
 
-- `mvn clean test` passe avec **120 tests backend**, dont quatre nouveaux tests
-  PostgreSQL de la file push.
-- `flutter test` passe avec **214 tests Flutter**, dont huit tests de
+- `mvn clean test` passe avec **123 tests backend**, dont quatre tests
+  PostgreSQL de la file push et trois nouveaux parcours de bilan, frais, avis et
+  véhicule d’offre. Les tests couvrent aussi les soumissions concurrentes.
+- `flutter test` passe avec **217 tests Flutter**, dont huit tests de
   notifications et trois tests de gestion des véhicules, couvrant le parcours
   HTTP, la confirmation de suppression, la reprise après erreur et le changement
   de compte.
+- Trois tests supplémentaires couvrent le bilan réel via HTTP, l’évaluation,
+  la confirmation des frais, la reprise après erreur et la compatibilité des
+  anciennes données.
 - Les **20 tests ciblés** `VehicleServiceTest` et `ProfileVehicleIntegrationTest`
   passent, avec contrôle des propriétaires et persistance PostgreSQL.
 - `flutter analyze` ne signale aucun problème.
 - Le projet Firebase et les paramètres locaux sont installés. L’inscription de
   l’émulateur et la réception d’un envoi FCM direct en arrière-plan sont validées.
+- Un trajet de démonstration du 22 novembre est conservé dans l’historique local
+  pour présenter le bilan et la répartition de 10,01 MAD. Le conducteur de test
+  utilise l’API, le passager utilise l’émulateur. La position GPS de ce parcours
+  est une coordonnée de test envoyée à l’API. Les capteurs de deux téléphones
+  physiques restent à vérifier ensemble.
 
 ### Validation précédente de la connexion par empreinte
 

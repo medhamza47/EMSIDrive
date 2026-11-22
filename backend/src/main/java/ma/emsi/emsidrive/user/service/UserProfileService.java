@@ -25,7 +25,7 @@ public class UserProfileService {
 
     @Transactional(readOnly = true)
     public UserProfileResponse getProfile(UUID userId) {
-        return UserProfileResponse.from(requireUser(userId));
+        return response(requireUser(userId));
     }
 
     @Transactional
@@ -40,7 +40,12 @@ public class UserProfileService {
         user.setPreferredCampus(normalize(request.preferredCampus()));
         user.setPreferredVehicle(normalize(request.preferredVehicle()));
 
-        return UserProfileResponse.from(userRepository.saveAndFlush(user));
+        return response(userRepository.saveAndFlush(user));
+    }
+
+    private UserProfileResponse response(User user) {
+        return UserProfileResponse.from(user, userRepository.averageRating(user.getId()),
+                userRepository.ratingCount(user.getId()));
     }
 
     private User requireUser(UUID userId) {

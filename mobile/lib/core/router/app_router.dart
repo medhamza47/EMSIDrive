@@ -19,9 +19,9 @@ import '../../features/matching/presentation/suggestion_screens.dart';
 import '../../features/rides/data/demo_drivers.dart';
 import '../../features/rides/domain/marketplace_models.dart';
 import '../../features/rides/presentation/accepted_ride_screen.dart';
+import '../../features/rides/presentation/trip_summary_screen.dart';
 import '../../features/rides/presentation/marketplace_screens.dart';
 import '../../features/rides/presentation/driver_screens.dart';
-import '../../features/rides/presentation/ride_completion_screens.dart';
 import '../../features/rides/presentation/ride_request_screen.dart';
 import '../../features/rides/presentation/ride_tracking_screen.dart';
 import '../../features/rides/presentation/rides_screen.dart';
@@ -113,6 +113,13 @@ GoRouter createAppRouter({
         path: '/trip/:id',
         builder: (_, state) =>
             AcceptedRideScreen(id: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'summary',
+            builder: (_, state) =>
+                TripSummaryScreen(id: state.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.notifications,
@@ -147,7 +154,11 @@ GoRouter createAppRouter({
               GoRoute(
                 path: AppRoutes.rides,
                 builder: (_, state) => RidesScreen(
-                  key: ValueKey(state.uri.queryParameters['tab']),
+                  key: ValueKey(
+                    '${state.uri.queryParameters['tab']}-${state.uri.queryParameters['history']}',
+                  ),
+                  initialHistory:
+                      state.uri.queryParameters['history'] == 'true',
                   initialTab: state.uri.queryParameters['tab'] == 'requests'
                       ? 0
                       : state.uri.queryParameters['tab'] == 'mine'
@@ -197,11 +208,11 @@ GoRouter createAppRouter({
                   ),
                   GoRoute(
                     path: 'fuel',
-                    builder: (_, _) => const FuelSplitScreen(),
+                    redirect: (_, _) => AppRoutes.rideHistory,
                   ),
                   GoRoute(
                     path: 'review',
-                    builder: (_, _) => const RideReviewScreen(),
+                    redirect: (_, _) => AppRoutes.rideHistory,
                   ),
                 ],
               ),

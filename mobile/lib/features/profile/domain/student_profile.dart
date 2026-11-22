@@ -48,6 +48,8 @@ class StudentProfile {
     photoUrl: json['photoUrl'] as String?,
     preferredCampus: json['preferredCampus'] as String?,
     preferredVehicle: json['preferredVehicle'] as String?,
+    rating: (json['rating'] as num?)?.toDouble(),
+    ratingCount: (json['ratingCount'] as num?)?.toInt() ?? 0,
   );
 
   Map<String, dynamic> toUpdateJson() => {

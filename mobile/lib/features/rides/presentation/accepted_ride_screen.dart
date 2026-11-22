@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/routes.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/flow_page.dart';
@@ -280,6 +283,13 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
         ),
         const SizedBox(height: 8),
         FlowCopy(ride.path.title, rideDeparture(ride.path.departure)),
+        if (ride.vehicleDetails != null) Text(ride.vehicleDetails!.label),
+        if (ride.status == 'COMPLETED')
+          PrimaryButton(
+            label: l.tripSummaryOpen,
+            icon: Icons.receipt_long_outlined,
+            onPressed: () => context.push(AppRoutes.tripSummary(ride.id)),
+          ),
         const SizedBox(height: 12),
         MarketplaceMap(path: ride.path, live: live),
         if (ride.isDriver && ride.active) ...[

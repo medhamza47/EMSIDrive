@@ -2709,6 +2709,150 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Enregistrer le véhicule'**
   String get vehiclesSave;
+
+  /// No description provided for @tripVehicleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre véhicule pour que les passagers puissent le reconnaître.'**
+  String get tripVehicleHint;
+
+  /// No description provided for @tripVehicleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule de cette offre'**
+  String get tripVehicleLabel;
+
+  /// No description provided for @tripVehicleUnspecified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Véhicule non renseigné'**
+  String get tripVehicleUnspecified;
+
+  /// No description provided for @tripRatingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'★ {rating}/5 · {count} avis'**
+  String tripRatingLabel(String rating, int count);
+
+  /// No description provided for @tripSummaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan du trajet'**
+  String get tripSummaryTitle;
+
+  /// No description provided for @tripSummaryOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le bilan et évaluer'**
+  String get tripSummaryOpen;
+
+  /// No description provided for @tripParticipants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get tripParticipants;
+
+  /// No description provided for @tripDriver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conducteur'**
+  String get tripDriver;
+
+  /// No description provided for @tripDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée réelle · {minutes} min'**
+  String tripDuration(int minutes);
+
+  /// No description provided for @tripReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluer {name}'**
+  String tripReviewTitle(String name);
+
+  /// No description provided for @tripReviewHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une seule évaluation définitive est autorisée par participant pour ce trajet.'**
+  String get tripReviewHint;
+
+  /// No description provided for @tripReviewStars.
+  ///
+  /// In fr, this message translates to:
+  /// **'{score} étoiles'**
+  String tripReviewStars(int score);
+
+  /// No description provided for @tripReviewSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre évaluation a été enregistrée · {score}/5'**
+  String tripReviewSaved(int score);
+
+  /// No description provided for @tripReviewComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commentaire (facultatif)'**
+  String get tripReviewComment;
+
+  /// No description provided for @tripReviewSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer mon évaluation'**
+  String get tripReviewSubmit;
+
+  /// No description provided for @tripCostsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage des frais'**
+  String get tripCostsTitle;
+
+  /// No description provided for @tripCostsRule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les frais en MAD sont répartis par place occupée, conducteur compris. Une réservation de plusieurs places prend en charge ces places. Les centimes restants sont répartis en commençant par le conducteur. Le montant est définitif après confirmation.'**
+  String get tripCostsRule;
+
+  /// No description provided for @tripCostsAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais totaux du trajet'**
+  String get tripCostsAmount;
+
+  /// No description provided for @tripCostsInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un montant de 0 à 99 999,99 MAD, avec deux décimales maximum.'**
+  String get tripCostsInvalid;
+
+  /// No description provided for @tripCostsPublish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le partage'**
+  String get tripCostsPublish;
+
+  /// No description provided for @tripCostConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier définitivement ce montant et sa répartition entre les participants ?'**
+  String get tripCostConfirm;
+
+  /// No description provided for @tripCostsTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total du trajet · {amount} MAD'**
+  String tripCostsTotal(String amount);
+
+  /// No description provided for @tripCostsWaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le conducteur pourra renseigner les frais de ce trajet.'**
+  String get tripCostsWaiting;
+
+  /// No description provided for @tripYourShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre contribution'**
+  String get tripYourShare;
 }
 
 class _AppLocalizationsDelegate

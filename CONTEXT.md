@@ -7,6 +7,39 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Parcours complet et bilan du 22 novembre 2026
+
+- `ListingInput.vehicleId` est facultatif pour les clients existants. L’API
+  vérifie le propriétaire, l’état actif, le type et les places du véhicule choisi
+  pour une offre. V26 conserve marque, modèle et couleur sur l’offre.
+- `GET /marketplace/trips/{id}/summary` renvoie aux participants d’une réservation
+  terminée le trajet, la durée serveur, les participants, leur propre avis et les
+  frais de l’offre avec les contributions. Les réservations annulées sont exclues.
+- `PUT /marketplace/trips/{id}/review` accepte une note 1–5 et un commentaire de
+  500 caractères maximum. Le serveur déduit le destinataire. Un seul avis définitif
+  par réservation et auteur. Les répétitions identiques sont idempotentes.
+- `PUT /marketplace/trips/{id}/costs` publie une seule répartition définitive, par
+  le conducteur après la fin. Total de 0 à 99 999,99 MAD, deux décimales maximum.
+  Répartition entière au centime, pondérée par les places réservées, conducteur
+  compris. Les centimes restants vont au conducteur puis aux passagers par UUID.
+- Les tables `ratings`, `fuel_splits` et `fuel_shares` existantes sont réutilisées.
+  Les écritures suivent le verrouillage demande → offre → réservation du cycle
+  de vie. Le profil renvoie `rating` et `ratingCount`. Les annonces affichent la
+  réputation de leur auteur.
+- Flutter ouvre `TripSummaryScreen` depuis le trajet terminé. Les anciens accès
+  aux frais et avis redirigent vers l’historique. Les frais constituent un
+  récapitulatif à régler entre les participants.
+- Avancement estimé après cette étape, 82 %, contre 74 % auparavant. La grille du
+  README conserve les pondérations. Les essais sur deux téléphones physiques,
+  le back-office et le déploiement restent à traiter.
+- Validation locale avec le conducteur de démonstration via l’API et le compte
+  ouvert dans l’émulateur. Chat, position de test, démarrage, fin, bilan et deux
+  avis enregistrés. Répartition de 10,01 MAD en 5,01 MAD et 5,00 MAD. La vraie
+  notification FCM « Trajet terminé » a été reçue en arrière-plan et a rouvert le
+  trajet. Le trajet et ses données de démonstration restent dans l’historique.
+- 123 tests backend et 217 tests Flutter réussis. Analyse Flutter sans erreur.
+  APK debug reconstruite avec l’API de l’émulateur sur `10.0.2.2:8081`.
+
 ### Gestion mobile des véhicules du 22 novembre 2026
 
 - `Profil → Mes véhicules` utilise les routes existantes `/api/v1/me/vehicles`.

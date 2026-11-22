@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import java.math.BigDecimal;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -39,6 +41,114 @@ class RideMarketplaceIntegrationTest {
     @Autowired
     private TestRestTemplate client;
 
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @Test
+    void offersValidateOwnedVehiclesAndKeepTheirPublishedDescription() {
+        String driver = register("vehicleDriver");
+        String other = register("vehicleOther");
+        var headers = new HttpHeaders();
+        headers.setBearerAuth(driver);
+        var created = client.exchange("/api/v1/me/vehicles", HttpMethod.POST, new HttpEntity<>(Map.of(
+                "type", "VOITURE", "brand", "Dacia", "model", "Sandero", "color", "Blue", "seats", 2), headers), JsonNode.class);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        String vehicle = created.getBody().path("id").asText();
+        var input = new java.util.HashMap<String, Object>(Map.of(
+                "kind", "OFFER", "campus", "CENTRE", "toCampus", true,
+                "point", Map.of("latitude", 31.632123, "longitude", -8.011123),
+                "departure", OffsetDateTime.now().plusHours(1).toString(),
+                "seats", 2, "vehicle", "CAR", "vehicleId", vehicle));
+        exchange(HttpMethod.POST, "/listings", other, input, HttpStatus.BAD_REQUEST);
+        input.put("seats", 3);
+        exchange(HttpMethod.POST, "/listings", driver, input, HttpStatus.BAD_REQUEST);
+        input.put("seats", 2);
+        input.put("vehicle", "MOTO");
+        exchange(HttpMethod.POST, "/listings", driver, input, HttpStatus.BAD_REQUEST);
+        input.put("vehicle", "CAR");
+        String offer = exchange(HttpMethod.POST, "/listings", driver, input, HttpStatus.OK).path("id").asText();
+        var listing = exchange(HttpMethod.GET, "/listings/OFFER/" + offer, other, null, HttpStatus.OK);
+        assertThat(listing.path("vehicle_brand").asText()).isEqualTo("Dacia");
+        assertThat(listing.path("vehicle_color").asText()).isEqualTo("Blue");
+        client.exchange("/api/v1/me/vehicles/" + vehicle, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+        listing = exchange(HttpMethod.GET, "/listings/OFFER/" + offer, other, null, HttpStatus.OK);
+        assertThat(listing.path("vehicle_id").isNull()).isTrue();
+        assertThat(listing.path("vehicle_model").asText()).isEqualTo("Sandero");
+    }
+
+    @Test
+    void completedRideHasPrivateSummaryReviewsAndExactSharedCosts() throws Exception {
+        String driver = register("summaryDriver"), passenger = register("summaryPassenger"),
+                second = register("summarySecond"), observer = register("summaryObserver");
+        String offer = publish(driver, "OFFER", Map.of("latitude", 31.632123, "longitude", -8.011123), 2);
+        String firstId = exchange(HttpMethod.POST, "/listings/OFFER/" + offer + "/accept", passenger, null, HttpStatus.OK).path("id").asText();
+        String secondId = exchange(HttpMethod.POST, "/listings/OFFER/" + offer + "/accept", second, null, HttpStatus.OK).path("id").asText();
+        String trip = "/trips/" + firstId;
+        exchange(HttpMethod.GET, trip + "/summary", passenger, null, HttpStatus.CONFLICT);
+        exchange(HttpMethod.PUT, trip + "/review", passenger, Map.of("score", 5), HttpStatus.CONFLICT);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "10.00"), HttpStatus.CONFLICT);
+        exchange(HttpMethod.POST, trip + "/actions/START", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.POST, trip + "/messages", passenger, Map.of("body", "Arrived"), HttpStatus.OK);
+        exchange(HttpMethod.PUT, trip + "/location", driver, Map.of("latitude", 31.632123, "longitude", -8.011123), HttpStatus.OK);
+        exchange(HttpMethod.POST, trip + "/actions/COMPLETE", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.GET, trip + "/summary", observer, null, HttpStatus.NOT_FOUND);
+        exchange(HttpMethod.PUT, trip + "/review", observer, Map.of("score", 5), HttpStatus.NOT_FOUND);
+        exchange(HttpMethod.PUT, trip + "/costs", passenger, Map.of("total", "10.00"), HttpStatus.FORBIDDEN);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "-1.00"), HttpStatus.BAD_REQUEST);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "1.001"), HttpStatus.BAD_REQUEST);
+        exchange(HttpMethod.PUT, trip + "/review", passenger, Map.of("score", 6), HttpStatus.BAD_REQUEST);
+        var reviews = java.util.stream.IntStream.range(0, 2).mapToObj(i -> CompletableFuture.runAsync(() ->
+                exchange(HttpMethod.PUT, trip + "/review", passenger, Map.of("score", 5, "comment", "Great ride"), HttpStatus.OK))).toList();
+        CompletableFuture.allOf(reviews.toArray(CompletableFuture[]::new)).get(20, TimeUnit.SECONDS);
+        exchange(HttpMethod.PUT, trip + "/review", passenger, Map.of("score", 4), HttpStatus.CONFLICT);
+        exchange(HttpMethod.PUT, trip + "/review", driver, Map.of("score", 4, "comment", "On time"), HttpStatus.OK);
+        var publications = java.util.stream.IntStream.range(0, 2).mapToObj(i -> CompletableFuture.runAsync(() ->
+                exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "10.00"), HttpStatus.OK))).toList();
+        CompletableFuture.allOf(publications.toArray(CompletableFuture[]::new)).get(20, TimeUnit.SECONDS);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "11.00"), HttpStatus.CONFLICT);
+        var summary = exchange(HttpMethod.GET, trip + "/summary", passenger, null, HttpStatus.OK);
+        assertThat(summary.path("participants").size()).isEqualTo(3);
+        assertThat(summary.path("duration_seconds").asDouble()).isGreaterThanOrEqualTo(0);
+        assertThat(summary.path("trip").path("live_latitude").isNull()).isTrue();
+        assertThat(summary.path("my_review").path("score").asInt()).isEqualTo(5);
+        BigDecimal sum = BigDecimal.ZERO;
+        for (var share : summary.path("shares")) sum = sum.add(share.path("amount").decimalValue());
+        assertThat(sum).isEqualByComparingTo("10.00");
+        assertThat(summary.path("shares").size()).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM ratings WHERE booking_id = ?::uuid", Integer.class, firstId)).isEqualTo(2);
+        var otherSummary = exchange(HttpMethod.GET, "/trips/" + secondId + "/summary", second, null, HttpStatus.OK);
+        assertThat(otherSummary.path("costs").path("total_cost").decimalValue()).isEqualByComparingTo("10.00");
+        var headers = new HttpHeaders();
+        headers.setBearerAuth(driver);
+        var profile = client.exchange("/api/v1/me", HttpMethod.GET, new HttpEntity<>(headers), JsonNode.class).getBody();
+        assertThat(profile.path("rating").asDouble()).isEqualTo(5.0);
+        assertThat(profile.path("ratingCount").asInt()).isEqualTo(1);
+    }
+
+    @Test
+    void groupedRequestCostsAreWeightedBySeatsAndZeroCostIsSupported() {
+        String driver = register("groupDriver"), passenger = register("groupPassenger");
+        String request = publish(passenger, "REQUEST", Map.of("latitude", 31.632123, "longitude", -8.011123), 3);
+        String id = exchange(HttpMethod.POST, "/listings/REQUEST/" + request + "/accept", driver, null, HttpStatus.OK).path("id").asText();
+        String trip = "/trips/" + id;
+        exchange(HttpMethod.POST, trip + "/actions/START", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.POST, trip + "/actions/COMPLETE", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "10.01"), HttpStatus.OK);
+        var summary = exchange(HttpMethod.GET, trip + "/summary", passenger, null, HttpStatus.OK);
+        for (var share : summary.path("shares")) {
+            assertThat(share.path("amount").decimalValue()).isEqualByComparingTo(share.path("mine").asBoolean() ? "7.50" : "2.51");
+        }
+        request = publish(passenger, "REQUEST", Map.of("latitude", 31.632123, "longitude", -8.011123));
+        id = exchange(HttpMethod.POST, "/listings/REQUEST/" + request + "/accept", driver, null, HttpStatus.OK).path("id").asText();
+        trip = "/trips/" + id;
+        exchange(HttpMethod.POST, trip + "/actions/START", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.POST, trip + "/actions/COMPLETE", driver, null, HttpStatus.OK);
+        exchange(HttpMethod.PUT, trip + "/costs", driver, Map.of("total", "0.00"), HttpStatus.OK);
+        summary = exchange(HttpMethod.GET, trip + "/summary", passenger, null, HttpStatus.OK);
+        assertThat(summary.path("shares").size()).isEqualTo(2);
+        for (var share : summary.path("shares")) assertThat(share.path("amount").decimalValue()).isEqualByComparingTo("0.00");
+    }
+
     @Test
     void acceptingEitherKindCreatesAPrivateTripAndNotifiesItsAuthor() {
         String driver = register("driver");
@@ -48,10 +158,10 @@ class RideMarketplaceIntegrationTest {
 
         String request = publish(passenger, "REQUEST", point);
         String offer = publish(driver, "OFFER", point);
-        assertThat(exchange(HttpMethod.GET, "/listings?kind=REQUEST", driver, null, HttpStatus.OK).get(0)
-                .path("id").asText()).isEqualTo(request);
-        assertThat(exchange(HttpMethod.GET, "/listings?kind=OFFER", passenger, null, HttpStatus.OK).get(0)
-                .path("id").asText()).isEqualTo(offer);
+        assertThat(exchange(HttpMethod.GET, "/listings?kind=REQUEST", driver, null, HttpStatus.OK)
+                .findValuesAsText("id")).contains(request);
+        assertThat(exchange(HttpMethod.GET, "/listings?kind=OFFER", passenger, null, HttpStatus.OK)
+                .findValuesAsText("id")).contains(offer);
         var publicListing = exchange(HttpMethod.GET, "/listings/REQUEST/" + request, other, null, HttpStatus.OK);
         assertThat(publicListing.path("origin_latitude").asDouble()).isEqualTo(31.632);
 

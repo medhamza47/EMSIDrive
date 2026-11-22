@@ -10,6 +10,7 @@ import '../../../shared/widgets/flow_page.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/form_section.dart';
 import '../../profile/data/profile_repository_provider.dart';
+import '../../vehicles/data/vehicles_repository.dart';
 import '../data/marketplace_api.dart';
 import '../domain/marketplace_models.dart';
 import '../domain/marrakech_trip.dart';
@@ -34,6 +35,7 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
   late int _vehicle = widget.isOffer ? 1 : 2;
   bool _touched = false;
   int _seats = 1;
+  String? _vehicleId;
   EmsiCampus _campus = EmsiCampus.centre;
   CampusDirection _direction = CampusDirection.toCampus;
   LatLng? _cityPoint;
@@ -57,6 +59,7 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
       _date = DateUtils.dateOnly(path.departure);
       _time = TimeOfDay.fromDateTime(path.departure);
       _seats = editing.seats;
+      _vehicleId = editing.vehicleId;
       _vehicle = const ['MOTO', 'CAR', 'ANY'].indexOf(editing.vehicle);
       if (_vehicle < 0) _vehicle = 2;
       _notes.text = editing.notes ?? '';
@@ -124,6 +127,7 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
             vehicle: const ['MOTO', 'CAR', 'ANY'][_vehicle],
             notes: _notes.text.trim(),
             editing: widget.editing,
+            vehicleId: widget.isOffer ? _vehicleId : null,
           );
       if (mounted) {
         if (widget.editing != null) {
@@ -192,6 +196,14 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
     final vehicles = [l.vehicleMotorcycle, l.vehicleCar, l.vehicleAny];
     final cityPoint = _cityPoint;
     final toCampus = _direction == CampusDirection.toCampus;
+    final ownedVehicles = widget.isOffer ? ref.watch(vehiclesProvider) : null;
+    final selectedVehicles = ownedVehicles?.value?.where(
+      (v) => v.id == _vehicleId,
+    );
+    final selectedVehicle = selectedVehicles?.firstOrNull;
+    final maxSeats = selectedVehicle == null
+        ? 4
+        : selectedVehicle.seats.clamp(1, 4);
     final campusField = DropdownButtonFormField<EmsiCampus>(
       initialValue: _campus,
       isExpanded: true,
@@ -298,6 +310,55 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
           title: l.rideFormDetails,
           icon: Icons.airline_seat_recline_normal_outlined,
           children: [
+            if (widget.isOffer) ...[
+              Text(l.tripVehicleHint),
+              if (ownedVehicles!.isLoading) const LinearProgressIndicator(),
+              if (ownedVehicles.hasError)
+                TextButton(
+                  onPressed: () => ref.invalidate(vehiclesProvider),
+                  child: Text(l.retryLabel),
+                ),
+              if (ownedVehicles.hasValue)
+                DropdownButtonFormField<String>(
+                  key: ValueKey(_vehicleId),
+                  initialValue: selectedVehicle?.id ?? '',
+                  isExpanded: true,
+                  decoration: InputDecoration(labelText: l.tripVehicleLabel),
+                  items: [
+                    DropdownMenuItem(
+                      value: '',
+                      child: Text(l.tripVehicleUnspecified),
+                    ),
+                    for (final vehicle in ownedVehicles.value!)
+                      DropdownMenuItem(
+                        value: vehicle.id,
+                        child: Text(
+                          '${vehicle.brand} ${vehicle.model}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: _publishing
+                      ? null
+                      : (id) => _edit(() {
+                          _vehicleId = id == '' ? null : id;
+                          final vehicle = ownedVehicles.value!
+                              .where((v) => v.id == id)
+                              .firstOrNull;
+                          if (vehicle != null) {
+                            _vehicle = vehicle.type == 'MOTO' ? 0 : 1;
+                            _seats = _vehicle == 0
+                                ? 1
+                                : _seats.clamp(1, vehicle.seats.clamp(1, 4));
+                          }
+                        }),
+                ),
+              TextButton.icon(
+                onPressed: () => context.push(AppRoutes.vehicles),
+                icon: const Icon(Icons.directions_car_outlined),
+                label: Text(l.vehiclesTitle),
+              ),
+            ],
             Text(
               l.vehiclePreference,
               style: Theme.of(context).textTheme.titleSmall,
@@ -309,10 +370,12 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
                   ChoiceChip(
                     label: Text(vehicle),
                     selected: _vehicle == index,
-                    onSelected: (_) => _edit(() {
-                      _vehicle = index;
-                      if (index == 0) _seats = 1;
-                    }),
+                    onSelected: selectedVehicle != null
+                        ? null
+                        : (_) => _edit(() {
+                            _vehicle = index;
+                            if (index == 0) _seats = 1;
+                          }),
                   ),
               ],
             ),
@@ -328,7 +391,7 @@ class _RideRequestScreenState extends ConsumerState<RideRequestScreen> {
                 IconButton.outlined(
                   tooltip: l.addSeat,
                   icon: const Icon(Icons.add),
-                  onPressed: _vehicle != 0 && _seats < 4
+                  onPressed: _vehicle != 0 && _seats < maxSeats
                       ? () => _edit(() => _seats++)
                       : null,
                 ),

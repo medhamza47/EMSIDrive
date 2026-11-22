@@ -5,6 +5,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.LinkedHashMap;
+import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.ReviewInput;
 import ma.emsi.emsidrive.common.exception.ApiException;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.Kind;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.ListingInput;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RideMarketplace {
     private static final String TRIP_COLUMNS = """
             b.id, o.driver_id = ? AS is_driver, o.started_at, o.completed_at, b.cancelled_at,
+            o.vehicle_id, o.vehicle_brand, o.vehicle_model, o.vehicle_color, o.vehicle_preference,
             CASE WHEN b.status = 'CONFIRMED' AND o.status = 'ONGOING' THEN 'ONGOING'
                  ELSE b.status END AS status,
             CASE WHEN b.passenger_id = ? THEN driver.full_name ELSE passenger.full_name END AS partner,
@@ -47,10 +50,12 @@ public class RideMarketplace {
         this.area = area;
     }
 
+    @Transactional
     public UUID publish(UUID user, ListingInput input) {
         var route = route(input);
+        var vehicle = selectedVehicle(user, input);
         Kind kind = input.kind();
-        return jdbc.queryForObject("""
+        UUID id = jdbc.queryForObject("""
                 INSERT INTO %s (%s, origin_label, destination_label, origin_latitude, origin_longitude,
                     destination_latitude, destination_longitude, departure_time, %s,
                     vehicle_preference, notes, marketplace)
@@ -59,6 +64,29 @@ public class RideMarketplace {
                 route.originLabel(), route.destinationLabel(), route.origin().latitude(), route.origin().longitude(),
                 route.destination().latitude(), route.destination().longitude(),
                 input.departure(), input.seats(), input.vehicle().name(), input.notes());
+        if (kind == Kind.OFFER) saveVehicle(id, input.vehicleId(), vehicle);
+        return id;
+    }
+
+    private Map<String, Object> selectedVehicle(UUID user, ListingInput input) {
+        if (input.vehicleId() == null) return Map.of();
+        if (input.kind() != Kind.OFFER) {
+            throw ApiException.badRequest("INVALID_VEHICLE", "Only offers can select a vehicle");
+        }
+        var rows = jdbc.queryForList("SELECT * FROM vehicles WHERE id = ? AND owner_id = ? AND active FOR SHARE",
+                input.vehicleId(), user);
+        if (rows.isEmpty()) throw ApiException.badRequest("INVALID_VEHICLE", "Select an active vehicle belonging to your account");
+        var vehicle = rows.get(0);
+        String type = "MOTO".equals(vehicle.get("type")) ? "MOTO" : "CAR";
+        if (!type.equals(input.vehicle().name()) || input.seats() > ((Number) vehicle.get("seats")).intValue()) {
+            throw ApiException.badRequest("INVALID_VEHICLE", "Vehicle type or passenger capacity does not match the offer");
+        }
+        return vehicle;
+    }
+
+    private void saveVehicle(UUID offer, UUID vehicleId, Map<String, Object> vehicle) {
+        jdbc.update("UPDATE ride_offers SET vehicle_id = ?, vehicle_brand = ?, vehicle_model = ?, vehicle_color = ? WHERE id = ?",
+                vehicleId, vehicle.get("brand"), vehicle.get("model"), vehicle.get("color"), offer);
     }
 
     private record Route(String originLabel, String destinationLabel, Point origin, Point destination) {}
@@ -96,6 +124,7 @@ public class RideMarketplace {
         }
         var input = update.listing();
         var route = route(input);
+        var vehicle = selectedVehicle(user, input);
         jdbc.update("""
                 UPDATE %s SET origin_label = ?, destination_label = ?, origin_latitude = ?, origin_longitude = ?,
                     destination_latitude = ?, destination_longitude = ?, departure_time = ?, %s = ?,
@@ -103,6 +132,7 @@ public class RideMarketplace {
                 """.formatted(table(kind), seats(kind)), route.originLabel(), route.destinationLabel(),
                 route.origin().latitude(), route.origin().longitude(), route.destination().latitude(),
                 route.destination().longitude(), input.departure(), input.seats(), input.vehicle().name(), input.notes(), id);
+        if (kind == Kind.OFFER) saveVehicle(id, input.vehicleId(), vehicle);
     }
 
     private void lockOwnedListing(UUID user, Kind kind, UUID id) {
@@ -141,8 +171,14 @@ public class RideMarketplace {
     }
 
     private String listingQuery(Kind kind) {
+        String vehicleColumns = kind == Kind.OFFER
+                ? "r.vehicle_id, r.vehicle_brand, r.vehicle_model, r.vehicle_color,"
+                : "NULL::uuid AS vehicle_id, NULL::text AS vehicle_brand, NULL::text AS vehicle_model, NULL::text AS vehicle_color,";
         return """
                 SELECT r.id, u.full_name AS author, r.%1$s = ? AS own, r.%2$s AS seats,
+                    %6$s
+                    (SELECT avg(score) FROM ratings WHERE target_id = u.id) AS author_rating,
+                    (SELECT count(*) FROM ratings WHERE target_id = u.id) AS author_rating_count,
                     r.status, r.updated_at::text AS revision,
                     (r.status = '%3$s' AND r.departure_time > now()
                         AND NOT EXISTS (SELECT 1 FROM bookings b WHERE %5$s)) AS can_edit,
@@ -163,7 +199,7 @@ public class RideMarketplace {
                         AND r.departure_time > now()) AS can_accept
                 FROM %4$s r JOIN users u ON u.id = r.%1$s WHERE r.marketplace
                 """.formatted(owner(kind), seats(kind), openStatus(kind), table(kind),
-                        kind == Kind.OFFER ? "b.ride_offer_id = r.id" : "b.ride_request_id = r.id");
+                        kind == Kind.OFFER ? "b.ride_offer_id = r.id" : "b.ride_request_id = r.id", vehicleColumns);
     }
 
     @Transactional
@@ -241,6 +277,106 @@ public class RideMarketplace {
     public Map<String, Object> trip(UUID user, UUID id) {
         return first(jdbc.queryForList("SELECT " + TRIP_COLUMNS + TRIP_FROM + " AND b.id = ?",
                 user, user, user, user, id));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> summary(UUID user, UUID id) {
+        var trip = trip(user, id);
+        requireCompleted(trip);
+        var booking = jdbc.queryForMap("""
+                SELECT b.ride_offer_id, b.passenger_id, o.driver_id,
+                    extract(epoch FROM (o.completed_at - o.started_at)) AS duration_seconds
+                FROM bookings b JOIN ride_offers o ON o.id = b.ride_offer_id WHERE b.id = ?
+                """, id);
+        var result = new LinkedHashMap<String, Object>();
+        result.put("trip", trip);
+        result.put("duration_seconds", booking.get("duration_seconds"));
+        result.put("participants", participants((UUID) booking.get("ride_offer_id")));
+        result.put("my_review", jdbc.queryForList("""
+                SELECT score, comment FROM ratings WHERE booking_id = ? AND author_id = ?
+                ORDER BY created_at, id LIMIT 1
+                """, id, user).stream().findFirst().orElse(null));
+        var costs = jdbc.queryForList("SELECT id, total_cost, currency FROM fuel_splits WHERE ride_offer_id = ?",
+                booking.get("ride_offer_id"));
+        result.put("costs", costs.stream().findFirst().orElse(null));
+        result.put("shares", costs.isEmpty() ? List.of() : jdbc.queryForList("""
+                SELECT u.full_name AS name, s.amount, s.user_id = ? AS mine
+                FROM fuel_shares s JOIN users u ON u.id = s.user_id WHERE s.fuel_split_id = ?
+                ORDER BY s.user_id
+                """, user, costs.get(0).get("id")));
+        return result;
+    }
+
+    private List<Map<String, Object>> participants(UUID offer) {
+        return jdbc.queryForList("""
+                SELECT u.id, u.full_name AS name, TRUE AS is_driver, 1 AS seats
+                FROM ride_offers o JOIN users u ON u.id = o.driver_id WHERE o.id = ?
+                UNION ALL
+                SELECT u.id, u.full_name AS name, FALSE AS is_driver, b.seats_booked AS seats
+                FROM bookings b JOIN users u ON u.id = b.passenger_id
+                WHERE b.ride_offer_id = ? AND b.status = 'COMPLETED'
+                ORDER BY is_driver DESC, id
+                """, offer, offer);
+    }
+
+    private static void requireCompleted(Map<String, Object> booking) {
+        if (!"COMPLETED".equals(booking.get("status"))) {
+            throw ApiException.conflict("TRIP_NOT_COMPLETED", "Complete the ride before opening its summary");
+        }
+    }
+
+    @Transactional
+    public void review(UUID user, UUID id, ReviewInput input) {
+        var booking = lockTrip(user, id);
+        requireCompleted(booking);
+        String comment = input.comment() == null ? "" : input.comment().strip();
+        var existing = jdbc.queryForList("SELECT score, coalesce(comment, '') AS comment FROM ratings "
+                + "WHERE booking_id = ? AND author_id = ? ORDER BY created_at, id LIMIT 1", id, user);
+        if (!existing.isEmpty()) {
+            var previous = existing.get(0);
+            if (((Number) previous.get("score")).intValue() != input.score() || !comment.equals(previous.get("comment"))) {
+                throw ApiException.conflict("REVIEW_ALREADY_SUBMITTED", "A review has already been submitted");
+            }
+            return;
+        }
+        Object target = user.equals(booking.get("driver_id")) ? booking.get("passenger_id") : booking.get("driver_id");
+        jdbc.update("""
+                INSERT INTO ratings(booking_id, ride_offer_id, author_id, target_id, score, comment, marketplace_review)
+                VALUES (?, ?, ?, ?, ?, ?, TRUE)
+                """, id, booking.get("ride_offer_id"), user, target, input.score(), comment);
+    }
+
+    @Transactional
+    public void costs(UUID user, UUID id, BigDecimal total) {
+        var booking = lockTrip(user, id);
+        requireCompleted(booking);
+        if (!user.equals(booking.get("driver_id"))) {
+            throw ApiException.forbidden("DRIVER_REQUIRED", "Only the driver can publish the ride costs");
+        }
+        UUID offer = (UUID) booking.get("ride_offer_id");
+        var existing = jdbc.queryForList("SELECT total_cost FROM fuel_splits WHERE ride_offer_id = ?", offer);
+        if (!existing.isEmpty()) {
+            if (total.compareTo((BigDecimal) existing.get(0).get("total_cost")) != 0) {
+                throw ApiException.conflict("COSTS_ALREADY_PUBLISHED", "Ride costs have already been published");
+            }
+            return;
+        }
+        var participants = participants(offer);
+        int seats = participants.stream().mapToInt(p -> ((Number) p.get("seats")).intValue()).sum();
+        long cents = total.movePointRight(2).longValueExact();
+        long base = cents / seats;
+        long remainder = cents % seats;
+        UUID split = jdbc.queryForObject("""
+                INSERT INTO fuel_splits(ride_offer_id, created_by_id, total_cost) VALUES (?, ?, ?) RETURNING id
+                """, UUID.class, offer, user, total);
+        for (var participant : participants) {
+            int weight = ((Number) participant.get("seats")).intValue();
+            long extra = Math.min(remainder, weight);
+            BigDecimal amount = BigDecimal.valueOf(base * weight + extra, 2);
+            remainder -= extra;
+            jdbc.update("INSERT INTO fuel_shares(fuel_split_id, user_id, amount) VALUES (?, ?, ?)",
+                    split, participant.get("id"), amount);
+        }
     }
 
     // Every lifecycle mutation locks request -> offer -> booking, also matching request acceptance.

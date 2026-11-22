@@ -19,9 +19,14 @@ String rideDeparture(DateTime date) =>
     DateFormat.MMMEd('fr').add_Hm().format(date);
 
 class MarketplaceBoard extends ConsumerStatefulWidget {
-  const MarketplaceBoard({required this.initialTab, super.key});
+  const MarketplaceBoard({
+    required this.initialTab,
+    this.initialHistory = false,
+    super.key,
+  });
 
   final int initialTab;
+  final bool initialHistory;
 
   @override
   ConsumerState<MarketplaceBoard> createState() => _MarketplaceBoardState();
@@ -31,7 +36,7 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
   late int _tab = widget.initialTab;
   late Future<List<Object>> _items = _load();
   bool _mine = false;
-  bool _history = false;
+  late bool _history = widget.initialHistory;
 
   Future<List<Object>> _load() {
     final api = ref.read(marketplaceApiProvider);
@@ -262,6 +267,15 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                 listing.path.title,
                 rideDeparture(listing.path.departure),
               ),
+              if (listing.vehicleDetails != null)
+                Text(listing.vehicleDetails!.label),
+              if (listing.authorRating != null)
+                Text(
+                  l.tripRatingLabel(
+                    listing.authorRating!.toStringAsFixed(1),
+                    listing.authorRatingCount,
+                  ),
+                ),
               if (listing.notes case final notes? when notes.isNotEmpty)
                 Text(notes),
               if (!listing.own) Text(l.approximatePickup),

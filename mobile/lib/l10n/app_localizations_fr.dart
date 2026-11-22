@@ -1482,4 +1482,94 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get vehiclesSave => 'Enregistrer le véhicule';
+
+  @override
+  String get tripVehicleHint =>
+      'Choisissez votre véhicule pour que les passagers puissent le reconnaître.';
+
+  @override
+  String get tripVehicleLabel => 'Véhicule de cette offre';
+
+  @override
+  String get tripVehicleUnspecified => 'Véhicule non renseigné';
+
+  @override
+  String tripRatingLabel(String rating, int count) {
+    return '★ $rating/5 · $count avis';
+  }
+
+  @override
+  String get tripSummaryTitle => 'Bilan du trajet';
+
+  @override
+  String get tripSummaryOpen => 'Voir le bilan et évaluer';
+
+  @override
+  String get tripParticipants => 'Participants';
+
+  @override
+  String get tripDriver => 'Conducteur';
+
+  @override
+  String tripDuration(int minutes) {
+    return 'Durée réelle · $minutes min';
+  }
+
+  @override
+  String tripReviewTitle(String name) {
+    return 'Évaluer $name';
+  }
+
+  @override
+  String get tripReviewHint =>
+      'Une seule évaluation définitive est autorisée par participant pour ce trajet.';
+
+  @override
+  String tripReviewStars(int score) {
+    return '$score étoiles';
+  }
+
+  @override
+  String tripReviewSaved(int score) {
+    return 'Votre évaluation a été enregistrée · $score/5';
+  }
+
+  @override
+  String get tripReviewComment => 'Commentaire (facultatif)';
+
+  @override
+  String get tripReviewSubmit => 'Envoyer mon évaluation';
+
+  @override
+  String get tripCostsTitle => 'Partage des frais';
+
+  @override
+  String get tripCostsRule =>
+      'Les frais en MAD sont répartis par place occupée, conducteur compris. Une réservation de plusieurs places prend en charge ces places. Les centimes restants sont répartis en commençant par le conducteur. Le montant est définitif après confirmation.';
+
+  @override
+  String get tripCostsAmount => 'Frais totaux du trajet';
+
+  @override
+  String get tripCostsInvalid =>
+      'Saisissez un montant de 0 à 99 999,99 MAD, avec deux décimales maximum.';
+
+  @override
+  String get tripCostsPublish => 'Confirmer le partage';
+
+  @override
+  String get tripCostConfirm =>
+      'Publier définitivement ce montant et sa répartition entre les participants ?';
+
+  @override
+  String tripCostsTotal(String amount) {
+    return 'Total du trajet · $amount MAD';
+  }
+
+  @override
+  String get tripCostsWaiting =>
+      'Le conducteur pourra renseigner les frais de ce trajet.';
+
+  @override
+  String get tripYourShare => 'Votre contribution';
 }

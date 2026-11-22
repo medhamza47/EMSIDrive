@@ -27,7 +27,29 @@ public class RideMarketplaceController {
     public record ListingInput(
             @NotNull Kind kind, @NotNull Campus campus, @NotNull Boolean toCampus,
             @NotNull @Valid Point point, @NotNull @Future OffsetDateTime departure,
-            @Min(1) @Max(4) int seats, @NotNull Vehicle vehicle, @Size(max = 500) String notes) {}
+            @Min(1) @Max(4) int seats, @NotNull Vehicle vehicle, @Size(max = 500) String notes,
+            UUID vehicleId) {}
+
+    public record ReviewInput(@Min(1) @Max(5) int score, @Size(max = 500) String comment) {}
+    public record CostInput(@NotNull @DecimalMin("0.00") @DecimalMax("99999.99")
+                            @Digits(integer = 5, fraction = 2) java.math.BigDecimal total) {}
+
+    @GetMapping("/trips/{id}/summary")
+    public Map<String, Object> summary(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id) {
+        return service.summary(user.id(), id);
+    }
+
+    @PutMapping("/trips/{id}/review")
+    public void review(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id,
+                       @Valid @RequestBody ReviewInput input) {
+        service.review(user.id(), id, input);
+    }
+
+    @PutMapping("/trips/{id}/costs")
+    public void costs(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id,
+                      @Valid @RequestBody CostInput input) {
+        service.costs(user.id(), id, input.total());
+    }
 
     public record Point(
             @NotNull @DecimalMin("-90") @DecimalMax("90") java.math.BigDecimal latitude,
