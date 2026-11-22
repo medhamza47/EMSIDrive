@@ -35,6 +35,10 @@ spring:
 
 app:
   schedule:
+    openrouter-api-key: ${OPENROUTER_API_KEY:}
+    openrouter-model: ${OPENROUTER_MODEL:particle-ai/particle-1:free}
+    openrouter-url: ${OPENROUTER_URL:https://openrouter.ai/api/v1/chat/completions}
+    openrouter-timeout-seconds: ${OPENROUTER_TIMEOUT_SECONDS:120}
     gemini-api-key: ${GEMINI_API_KEY:}
     gemini-model: ${GEMINI_MODEL:gemini-3.8-flash}
     gemini-fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-3.5-flash-lite,gemini-3.1-flash-lite}

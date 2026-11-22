@@ -712,6 +712,24 @@ abstract class AppLocalizations {
   /// **'Frais d’essence'**
   String get fuelTitle;
 
+  /// No description provided for @fuelAmountError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez un montant avec deux décimales maximum.'**
+  String get fuelAmountError;
+
+  /// No description provided for @fuelRemovePassenger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer un passager'**
+  String get fuelRemovePassenger;
+
+  /// No description provided for @fuelAddPassenger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un passager'**
+  String get fuelAddPassenger;
+
   /// No description provided for @fuelSummary.
   ///
   /// In fr, this message translates to:
@@ -1597,7 +1615,7 @@ abstract class AppLocalizations {
   /// No description provided for @timetableImportHint.
   ///
   /// In fr, this message translates to:
-  /// **'Importez un seul emploi du temps lisible, recadré sur votre groupe. Photo JPEG/PNG ou PDF de 1 à 3 pages, jusqu’à 8 Mo.'**
+  /// **'Photo ou PDF (1 à 3 pages) · 8 Mo max.'**
   String get timetableImportHint;
 
   /// No description provided for @timetableGroup.
@@ -1615,7 +1633,7 @@ abstract class AppLocalizations {
   /// No description provided for @timetableAiNotice.
   ///
   /// In fr, this message translates to:
-  /// **'Votre document est transmis à Google Gemini ou à Groq en secours et conservé temporairement sur notre serveur pendant le traitement. Il est supprimé à la fin de l’analyse ; les imports expirent après 24 h. Seuls les jours et horaires confirmés restent dans votre planning.'**
+  /// **'Le service en ligne reçoit votre document pour lire les horaires. Le serveur efface le document après traitement.'**
   String get timetableAiNotice;
 
   /// No description provided for @timetableManual.
@@ -1891,7 +1909,7 @@ abstract class AppLocalizations {
   /// No description provided for @timetableRateLimit.
   ///
   /// In fr, this message translates to:
-  /// **'Une analyse est déjà en cours, le serveur est occupé ou les quotas d’analyse sont atteints. Patientez puis réessayez, ou saisissez vos horaires manuellement.'**
+  /// **'Analyse occupée. Réessayez dans un instant ou saisissez vos horaires.'**
   String get timetableRateLimit;
 
   /// No description provided for @timetableAiError.
@@ -2587,7 +2605,7 @@ abstract class AppLocalizations {
   /// No description provided for @timetableHero.
   ///
   /// In fr, this message translates to:
-  /// **'Vos horaires, votre prochain trajet'**
+  /// **'Votre emploi du temps'**
   String get timetableHero;
 
   /// No description provided for @timetableStepImport.
@@ -3219,6 +3237,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Partage avec vos passagers pendant le trajet, même écran éteint sur Android. Vous pouvez l’arrêter ici.'**
   String get tripSharingDisclosure;
+
+  /// No description provided for @timetableLocalMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur ce téléphone'**
+  String get timetableLocalMode;
+
+  /// No description provided for @timetableServerMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get timetableServerMode;
+
+  /// No description provided for @timetableLocalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne · Document privé'**
+  String get timetableLocalHint;
+
+  /// No description provided for @timetableServerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise pour analyser'**
+  String get timetableServerHint;
+
+  /// No description provided for @timetableLocalRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture en cours… Gardez cet écran ouvert.'**
+  String get timetableLocalRunning;
+
+  /// No description provided for @timetableLocalReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez les horaires avant de confirmer.'**
+  String get timetableLocalReview;
+
+  /// No description provided for @timetableLocalNotDetected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les jours ou les en-têtes horaires ne sont pas assez lisibles. Essayez une photo plus nette et droite, l’analyse en ligne ou la saisie manuelle.'**
+  String get timetableLocalNotDetected;
+
+  /// No description provided for @timetableLocalAmbiguous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les horaires lus sont contradictoires ou se chevauchent. Essayez une photo plus nette, l’analyse en ligne ou la saisie manuelle.'**
+  String get timetableLocalAmbiguous;
+
+  /// No description provided for @timetableLocalMemory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette image utilise trop de mémoire. Recadrez la photo autour du tableau puis réessayez.'**
+  String get timetableLocalMemory;
+
+  /// No description provided for @timetableLocalBusy.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture précédente se termine. Patientez quelques instants puis réessayez.'**
+  String get timetableLocalBusy;
+
+  /// No description provided for @timetableLocalFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement.'**
+  String get timetableLocalFailed;
 }
 
 class _AppLocalizationsDelegate

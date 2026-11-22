@@ -46,7 +46,25 @@ facultatifs pour compatibilité avec les anciens clients ; une séance sans libe
 enregistrée comme « Séance ». Le lieu n’est pas conservé lors de l’enregistrement.
 Les dates sont obligatoires, ordonnées, avec une validité maximale d’un an.
 
-## Analyse Gemini
+## Analyse OpenRouter
+
+Le mode **En ligne** utilise OpenRouter lorsque `OPENROUTER_API_KEY` est configure
+dans `backend/.env.local` (ignore par Git). La cle reste exclusivement sur le serveur.
+Le modele par defaut est `particle-ai/particle-1:free` et peut etre change avec
+`OPENROUTER_MODEL`. Le delai maximal par requete vaut 120 secondes
+(`OPENROUTER_TIMEOUT_SECONDS`, de 1 a 300).
+
+Les images JPEG/PNG et les pages PDF normalisees sont envoyees en Base64 via
+`https://openrouter.ai/api/v1/chat/completions`. Les imports immediats et les travaux
+en arriere-plan partagent la meme selection de fournisseur. Quand OpenRouter est
+configure, une erreur ne transmet pas le document a un autre fournisseur.
+Les reponses sont validees avant la verification et la confirmation par l'etudiant.
+Une saturation du modele gratuit renvoie `SCHEDULE_AI_RATE_LIMIT` ; reessayer plus tard.
+
+Sans cle OpenRouter, le serveur utilise PaddleOCR-VL s'il est configure, puis
+l'integration Gemini/Groq existante. Le mode **Sur ce telephone** reste local.
+
+## Analyse Gemini (configuration alternative)
 
 L’OCR local et ses tests Tesseract ont été retirés. L’import utilise
 `GeminiScheduleAnalyzer` et l’endpoint compatible Google :

@@ -12,7 +12,7 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
-| Planning et Gemini | Import JPEG/PNG/PDF en arrière-plan avec modèles de secours, reprise depuis Planning ou Profil, puis validation des horaires de présence. Recherche d’offres réservables selon le campus, les horaires et la proximité du point choisi. Aucun OCR local à installer. |
+| Planning et lecture sur téléphone | Sur Android 8+, lecture JPEG/PNG/PDF sur l’appareil avec PP-OCRv6 Small embarqué, sans clé ni appel IA externe. Le mode **En ligne** conserve l’import en arrière-plan avec reprise depuis Planning ou Profil. Les deux modes demandent de vérifier les horaires avant l’enregistrement. |
 | Carte de Marrakech | Choix du sens **Vers l’EMSI** ou **Depuis l’EMSI**, puis du campus **Targa** ou **Centre**. Pour l’autre extrémité, l’étudiant place un repère sur la carte ou utilise **Ma position**. L’aperçu routier affiche le tracé, la distance et la durée estimée. |
 | Annonces | **Trajets** sépare les **Demandes**, les **Offres** et **Mes trajets**. La publication et l’acceptation passent par l’API. La fiche d’une annonce affiche le tracé avant l’acceptation. |
 | Acceptation | L’API réserve la place et crée, dans la même transaction, une notification pour l’auteur de l’annonce. Les deux participants retrouvent le trajet dans **Mes trajets** et peuvent s’écrire dans un chat privé. |
@@ -28,6 +28,37 @@ L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis 
 Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
 utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
 Les notifications système et le back-office restent à réaliser.
+
+## Analyse avancee avec PaddleOCR-VL
+
+Le service Docker et les commandes de telechargement sont dans
+[deploy/paddleocr-vl/README.md](deploy/paddleocr-vl/README.md).
+Le modele complet PaddleOCR-VL-1.6 fonctionne sur le PC; le telephone utilise
+le mode **En ligne**. Definir `PADDLE_OCR_URL=http://localhost:8090/layout-parsing`
+avant de demarrer le backend pour selectionner ce service.
+Les resultats conservent uniquement les jours et les horaires et doivent etre verifies.
+
+## Lecture locale sur Android
+
+Dans **Planning → Importer**, le mode **Sur ce téléphone** utilise les modèles
+PP-OCRv6 Small inclus dans l’APK (environ 31 Mo de modèles, hors moteur et
+bibliothèques natives). Les photos et les PDF d’une à trois pages sont traités
+sur le CPU du téléphone. Les coordonnées OCR et les bordures physiques servent
+à associer les jours, les colonnes horaires et les cellules fusionnées. Les
+horaires explicitement imprimés dans un cours restent prioritaires. Si une
+bordure est incertaine, l’heure de fin reste à compléter plutôt que d’inventer
+la durée du cours. Une vérification et une confirmation sont toujours requises.
+
+La lecture locale n’envoie pas le document au serveur et peut fonctionner sans
+accès à une API IA. L’enregistrement du planning dans le compte et les recherches
+de trajets nécessitent toujours la connexion à l’API EMSIDrive. Garder l’écran
+d’import ouvert pendant la lecture ; l’annulation ignore le résultat et libère
+le moteur à la fin de l’opération native en cours. Le mode **En ligne** reste
+sélectionnable explicitement et n’est jamais lancé automatiquement après un
+échec de lecture locale.
+
+Les sources, licences, versions et empreintes des modèles sont documentées dans
+[`mobile/android/paddleocr-sdk/README.md`](mobile/android/paddleocr-sdk/README.md).
 
 ## Modifications intégrées le 8 novembre 2026
 

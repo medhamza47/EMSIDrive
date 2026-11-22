@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../l10n/app_localizations.dart';
+import '../data/local_schedule_analyzer.dart';
 
 class ScheduleFileTooLarge {
   const ScheduleFileTooLarge();
@@ -9,6 +10,17 @@ class ScheduleFileTooLarge {
 
 String scheduleError(BuildContext context, Object error) {
   final l = AppLocalizations.of(context);
+  if (error is LocalScheduleException) {
+    return switch (error.code) {
+      'LOCAL_OCR_NO_TIMETABLE' => l.timetableLocalNotDetected,
+      'LOCAL_OCR_AMBIGUOUS' => l.timetableLocalAmbiguous,
+      'LOCAL_OCR_FILE' => l.timetableFileError,
+      'LOCAL_OCR_PDF_PAGES' => l.timetablePdfPages,
+      'LOCAL_OCR_MEMORY' => l.timetableLocalMemory,
+      'LOCAL_OCR_BUSY' => l.timetableLocalBusy,
+      _ => l.timetableLocalFailed,
+    };
+  }
   if (error is ScheduleFileTooLarge) return l.timetableFileSize;
   if (error is UnauthorizedFailure) return l.timetableSignIn;
   if (error is NetworkFailure || error is TimeoutFailure) {

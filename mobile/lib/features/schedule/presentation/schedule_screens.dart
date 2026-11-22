@@ -15,6 +15,8 @@ import '../data/schedule_repository.dart';
 import '../domain/schedule_models.dart';
 import '../application/saved_timetable_provider.dart';
 import '../application/import_job_provider.dart';
+import '../data/local_schedule_analyzer.dart';
+import '../../auth/data/session_id_provider.dart';
 import 'import_job_card.dart';
 import 'schedule_error.dart';
 
@@ -32,6 +34,7 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
   String? _filename;
   Object? _error;
   bool _loading = true, _busy = false, _loaded = false, _analyzing = false;
+  bool _onDevice = false;
   ScheduleRepository get _repository => ref.read(scheduleRepositoryProvider);
   @override
   void initState() {
@@ -121,6 +124,7 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
   }
 
   Future<void> _analyze() async {
+    final session = ref.read(sessionIdProvider);
     _cancel = CancelToken();
     setState(() {
       _analyzing = true;
@@ -128,6 +132,28 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
       _error = null;
     });
     try {
+      if (_onDevice) {
+        final draft = await ref
+            .read(localScheduleAnalyzerProvider)
+            .analyze(
+              _bytes!,
+              _filename!,
+              _group.text.trim(),
+              _current?.revision ?? 0,
+              _cancel,
+            );
+        if (!mounted ||
+            _cancel.isCancelled ||
+            ref.read(sessionIdProvider) != session) {
+          return;
+        }
+        setState(() {
+          _busy = false;
+          _analyzing = false;
+        });
+        await _edit(draft);
+        return;
+      }
       await _repository.startImport(
         _bytes!,
         _filename!,
@@ -190,57 +216,53 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
     final l = AppLocalizations.of(context);
     final pending =
         ref.watch(scheduleImportJobProvider).asData?.value?.pending ?? false;
-    final enabled = !_loading && !_busy && _loaded && !pending;
+    final localAvailable = ref.watch(localScheduleAnalyzerProvider).available;
+    final enabled = !_busy && (_onDevice || (!_loading && _loaded && !pending));
     return FlowPage(
       title: l.scheduleTitle,
       children: [
         const ImportJobCard(),
-        Card(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 36,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                ),
-                Text(
-                  l.timetableHero,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Text(l.timetableImportHint),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    Chip(
-                      avatar: const Icon(Icons.upload_file, size: 18),
-                      label: Text(l.timetableStepImport),
-                    ),
-                    Chip(
-                      avatar: const Icon(Icons.event_available, size: 18),
-                      label: Text(l.timetableStepReview),
-                    ),
-                    Chip(
-                      avatar: const Icon(Icons.directions_car, size: 18),
-                      label: Text(l.timetableStepRide),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const CircleAvatar(
+            child: Icon(Icons.calendar_month_rounded),
           ),
+          title: Text(
+            l.timetableHero,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          subtitle: Text(l.timetableImportHint),
         ),
         if (_analyzing && _busy) ...[
           const LinearProgressIndicator(),
-          Text(l.importUploading),
+          Text(_onDevice ? l.timetableLocalRunning : l.importUploading),
           TextButton.icon(
             onPressed: () => _cancel.cancel(),
             icon: const Icon(Icons.close),
             label: Text(l.timetableCancel),
+          ),
+        ],
+        if (localAvailable) ...[
+          SegmentedButton<bool>(
+            segments: [
+              ButtonSegment(
+                value: true,
+                icon: const Icon(Icons.phone_android),
+                label: Text(l.timetableLocalMode),
+              ),
+              ButtonSegment(
+                value: false,
+                icon: const Icon(Icons.cloud_outlined),
+                label: Text(l.timetableServerMode),
+              ),
+            ],
+            selected: {_onDevice},
+            onSelectionChanged: _busy
+                ? null
+                : (value) => setState(() {
+                    _onDevice = value.single;
+                    _error = null;
+                  }),
           ),
         ],
         if (_loading) const LinearProgressIndicator(),
@@ -289,19 +311,26 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
         Wrap(
           spacing: 8,
           children: [
-            FilledButton.tonal(
+            FilledButton.tonalIcon(
               onPressed: enabled ? () => _pick(false) : null,
-              child: Text(l.chooseFile),
+              icon: const Icon(Icons.upload_file_rounded),
+              label: Text(l.chooseFile),
             ),
-            OutlinedButton(
+            OutlinedButton.icon(
               onPressed: enabled ? () => _pick(true) : null,
-              child: Text(l.takePhoto),
+              icon: const Icon(Icons.camera_alt_outlined),
+              label: Text(l.takePhoto),
             ),
           ],
         ),
         if (_bytes != null) ...[
           ListTile(
-            title: Text(_filename!),
+            leading: const Icon(Icons.description_outlined),
+            title: Text(
+              _filename!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             trailing: IconButton(
               tooltip: l.removeFile,
               onPressed: enabled
@@ -327,11 +356,12 @@ class _ImportState extends ConsumerState<ScheduleImportScreen> {
           maxLength: 120,
           decoration: InputDecoration(
             labelText: l.timetableGroup,
-            helperText: l.timetableGroupHint,
+            prefixIcon: const Icon(Icons.groups_outlined),
+            counterText: '',
             helperMaxLines: 3,
           ),
         ),
-        Text(l.timetableAiNotice),
+        Text(_onDevice ? l.timetableLocalReview : l.timetableAiNotice),
         PrimaryButton(
           label: l.analyzeSchedule,
           isLoading: _busy,

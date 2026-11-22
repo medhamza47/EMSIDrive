@@ -346,6 +346,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fuelTitle => 'Frais d’essence';
 
   @override
+  String get fuelAmountError =>
+      'Saisissez un montant avec deux décimales maximum.';
+
+  @override
+  String get fuelRemovePassenger => 'Retirer un passager';
+
+  @override
+  String get fuelAddPassenger => 'Ajouter un passager';
+
+  @override
   String get fuelSummary => 'Total 40 MAD, partagé entre 4 personnes';
 
   @override
@@ -856,8 +866,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get timetableImportHint =>
-      'Importez un seul emploi du temps lisible, recadré sur votre groupe. Photo JPEG/PNG ou PDF de 1 à 3 pages, jusqu’à 8 Mo.';
+  String get timetableImportHint => 'Photo ou PDF (1 à 3 pages) · 8 Mo max.';
 
   @override
   String get timetableGroup => 'Classe / groupe';
@@ -868,7 +877,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get timetableAiNotice =>
-      'Votre document est transmis à Google Gemini ou à Groq en secours et conservé temporairement sur notre serveur pendant le traitement. Il est supprimé à la fin de l’analyse ; les imports expirent après 24 h. Seuls les jours et horaires confirmés restent dans votre planning.';
+      'Le service en ligne reçoit votre document pour lire les horaires. Le serveur efface le document après traitement.';
 
   @override
   String get timetableManual => 'Saisir mes horaires manuellement';
@@ -1024,7 +1033,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get timetableRateLimit =>
-      'Une analyse est déjà en cours, le serveur est occupé ou les quotas d’analyse sont atteints. Patientez puis réessayez, ou saisissez vos horaires manuellement.';
+      'Analyse occupée. Réessayez dans un instant ou saisissez vos horaires.';
 
   @override
   String get timetableAiError =>
@@ -1409,7 +1418,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeSeeAll => 'Tout voir';
 
   @override
-  String get timetableHero => 'Vos horaires, votre prochain trajet';
+  String get timetableHero => 'Votre emploi du temps';
 
   @override
   String get timetableStepImport => '1. Importer';
@@ -1771,4 +1780,44 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tripSharingDisclosure =>
       'Partage avec vos passagers pendant le trajet, même écran éteint sur Android. Vous pouvez l’arrêter ici.';
+
+  @override
+  String get timetableLocalMode => 'Sur ce téléphone';
+
+  @override
+  String get timetableServerMode => 'En ligne';
+
+  @override
+  String get timetableLocalHint => 'Hors ligne · Document privé';
+
+  @override
+  String get timetableServerHint => 'Connexion requise pour analyser';
+
+  @override
+  String get timetableLocalRunning =>
+      'Lecture en cours… Gardez cet écran ouvert.';
+
+  @override
+  String get timetableLocalReview =>
+      'Vérifiez les horaires avant de confirmer.';
+
+  @override
+  String get timetableLocalNotDetected =>
+      'Les jours ou les en-têtes horaires ne sont pas assez lisibles. Essayez une photo plus nette et droite, l’analyse en ligne ou la saisie manuelle.';
+
+  @override
+  String get timetableLocalAmbiguous =>
+      'Les horaires lus sont contradictoires ou se chevauchent. Essayez une photo plus nette, l’analyse en ligne ou la saisie manuelle.';
+
+  @override
+  String get timetableLocalMemory =>
+      'Cette image utilise trop de mémoire. Recadrez la photo autour du tableau puis réessayez.';
+
+  @override
+  String get timetableLocalBusy =>
+      'La lecture précédente se termine. Patientez quelques instants puis réessayez.';
+
+  @override
+  String get timetableLocalFailed =>
+      'La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement.';
 }

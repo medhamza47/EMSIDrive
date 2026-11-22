@@ -24,7 +24,7 @@ public class ScheduleImportJobs {
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     private final ScheduleDocumentReader reader;
-    private final GeminiScheduleAnalyzer analyzer;
+    private final ScheduleAnalyzer analyzer;
     private final TransactionTemplate transactions;
     private final boolean enabled;
     private final ExecutorService workers = Executors.newFixedThreadPool(2);
@@ -35,7 +35,7 @@ public class ScheduleImportJobs {
     private volatile boolean stopping;
 
     public ScheduleImportJobs(JdbcTemplate jdbc, ObjectMapper mapper, ScheduleDocumentReader reader,
-                              GeminiScheduleAnalyzer analyzer, PlatformTransactionManager manager,
+                              ScheduleAnalyzer analyzer, PlatformTransactionManager manager,
                               @Value("${app.schedule.jobs-enabled:true}") boolean enabled) {
         this.jdbc = jdbc; this.mapper = mapper; this.reader = reader; this.analyzer = analyzer;
         this.transactions = new TransactionTemplate(manager); this.enabled = enabled;

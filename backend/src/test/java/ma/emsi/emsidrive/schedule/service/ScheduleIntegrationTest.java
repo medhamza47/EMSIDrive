@@ -40,7 +40,7 @@ class ScheduleIntegrationTest {
     @Autowired ScheduleMatchingService matching;
     @Autowired ma.emsi.emsidrive.ride.marketplace.MarrakechArea area;
     @Autowired org.springframework.security.crypto.password.PasswordEncoder passwords;
-    @MockitoBean GeminiScheduleAnalyzer analyzer;
+    @MockitoBean ScheduleAnalyzer analyzer;
 
     @BeforeEach void clearIsolatedTestDatabase() {
         // This datasource belongs to the dedicated PostgreSQLContainer above.

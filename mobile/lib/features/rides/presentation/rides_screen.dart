@@ -18,7 +18,6 @@ class RidesScreen extends StatelessWidget {
     return FlowPage(
       title: l.navRides,
       children: [
-        Text(l.ridesIntro),
         MarketplaceBoard(initialTab: initialTab),
         ExpansionTile(
           title: Text(l.ridesTools),

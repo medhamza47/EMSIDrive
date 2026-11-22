@@ -357,21 +357,24 @@ class _MarketplaceMapState extends State<MarketplaceMap> {
                       ],
                     ),
                   ),
-                if (widget.trackingMode)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: IconButton.filledTonal(
-                        tooltip: l.tripRecenter,
-                        icon: const Icon(Icons.my_location),
-                        onPressed: () {
-                          _follow = true;
-                          _controller.fitCamera(_fit);
-                        },
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: IconButton.filledTonal(
+                      tooltip: l.tripRecenter,
+                      icon: Icon(
+                        widget.trackingMode
+                            ? Icons.my_location
+                            : Icons.fit_screen_outlined,
                       ),
+                      onPressed: () {
+                        _follow = true;
+                        _controller.fitCamera(_fit);
+                      },
                     ),
                   ),
+                ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Material(

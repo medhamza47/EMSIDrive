@@ -9,8 +9,10 @@ import android.os.Build
 
 class MainActivity : FlutterFragmentActivity() {
     private var permissionResult: MethodChannel.Result? = null
+    private var localScheduleOcr: LocalScheduleOcr? = null
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        localScheduleOcr = LocalScheduleOcr(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "emsidrive/notifications")
             .setMethodCallHandler { call, result ->
                 if (call.method != "requestPermission") result.notImplemented()
@@ -22,6 +24,11 @@ class MainActivity : FlutterFragmentActivity() {
                     requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 3021)
                 }
             }
+    }
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        localScheduleOcr?.close()
+        localScheduleOcr = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

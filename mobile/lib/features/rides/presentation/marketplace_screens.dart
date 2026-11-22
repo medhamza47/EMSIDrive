@@ -88,51 +88,26 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
-        Row(
-          children: [
+        SegmentedButton<int>(
+          expandedInsets: EdgeInsets.zero,
+          showSelectedIcon: false,
+          segments: [
             for (final entry in [
               l.rideRequests,
               l.rideOffers,
               l.myAcceptedRides,
             ].asMap().entries)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Semantics(
-                    selected: _tab == entry.key,
-                    child: _tab == entry.key
-                        ? FilledButton(
-                            key: ValueKey('rides-tab-${entry.key}'),
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 12,
-                              ),
-                            ),
-                            onPressed: () => _select(entry.key),
-                            child: Text(
-                              entry.value,
-                              textAlign: TextAlign.center,
-                            ),
-                          )
-                        : OutlinedButton(
-                            key: ValueKey('rides-tab-${entry.key}'),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 12,
-                              ),
-                            ),
-                            onPressed: () => _select(entry.key),
-                            child: Text(
-                              entry.value,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                  ),
+              ButtonSegment(
+                value: entry.key,
+                label: Text(
+                  entry.value,
+                  key: ValueKey('rides-tab-${entry.key}'),
+                  textAlign: TextAlign.center,
                 ),
               ),
           ],
+          selected: {_tab},
+          onSelectionChanged: (values) => _select(values.single),
         ),
         if (_tab < 2)
           Align(

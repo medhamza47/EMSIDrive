@@ -11,10 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ScheduleAnalysisService {
     private final ScheduleDocumentReader reader;
-    private final GeminiScheduleAnalyzer analyzer;
+    private final ScheduleAnalyzer analyzer;
     private final Semaphore capacity = new Semaphore(2);
     private final Set<UUID> running = new HashSet<>();
-    public ScheduleAnalysisService(ScheduleDocumentReader reader, GeminiScheduleAnalyzer analyzer) {
+    public ScheduleAnalysisService(ScheduleDocumentReader reader, ScheduleAnalyzer analyzer) {
         this.reader = reader; this.analyzer = analyzer;
     }
 
