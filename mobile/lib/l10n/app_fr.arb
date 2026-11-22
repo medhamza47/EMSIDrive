@@ -836,5 +836,40 @@
   "tripCostsTotal": "Total du trajet · {amount} MAD",
   "@tripCostsTotal": {"placeholders": {"amount": {"type": "String"}}},
   "tripCostsWaiting": "Le conducteur pourra renseigner les frais de ce trajet.",
-  "tripYourShare": "Votre contribution"
+  "tripYourShare": "Votre contribution",
+  "reportTitle": "Signaler un problème",
+  "reportHint": "Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.",
+  "reportCategory": "Motif",
+  "reportHarassment": "Harcèlement",
+  "reportNoShow": "Absence au rendez-vous",
+  "reportUnsafeDriving": "Conduite dangereuse",
+  "reportFakeProfile": "Faux profil",
+  "reportPayment": "Partage des frais",
+  "reportOther": "Autre",
+  "reportDescription": "Description",
+  "reportDescriptionHint": "Explique ce qui s’est passé…",
+  "reportRequired": "Décris le problème avant de l’envoyer.",
+  "reportTooLong": "Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.",
+  "reportSessionChanged": "Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.",
+  "reportSend": "Envoyer le signalement",
+  "reportSent": "Signalement envoyé",
+  "reportSentHint": "Tu peux suivre son traitement dans Profil → Mes signalements.",
+  "reportClose": "Fermer",
+  "reportFailed": "L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.",
+  "reportRetryHint": "Les informations sont conservées pour réessayer le même envoi sans créer de doublon.",
+  "reportReference": "Référence {id}",
+  "@reportReference": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "myReports": "Mes signalements",
+  "myReportsHint": "Les 100 derniers signalements que tu as envoyés et leur état de traitement.",
+  "myReportsEmpty": "Tu n’as envoyé aucun signalement.",
+  "reportOpen": "Ouvert",
+  "reportUnderReview": "En examen",
+  "reportResolved": "Résolu",
+  "reportDismissed": "Classé"
 }

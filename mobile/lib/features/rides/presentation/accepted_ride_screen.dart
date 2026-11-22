@@ -17,6 +17,7 @@ import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
 import 'ride_lifecycle.dart';
 import '../../home/application/home_controller.dart';
+import '../../reports/presentation/report_screens.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
@@ -239,6 +240,19 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
       child: Scaffold(
         appBar: AppBar(
           title: Text(ride?.partner ?? l.acceptedRideTitle),
+          actions: [
+            if (ride != null)
+              IconButton(
+                tooltip: l.reportTitle,
+                icon: const Icon(Icons.flag_outlined),
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ReportScreen(contextData: {'bookingId': ride.id}),
+                  ),
+                ),
+              ),
+          ],
           bottom: TabBar(
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: Theme.of(context)

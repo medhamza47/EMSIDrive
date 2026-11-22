@@ -2853,6 +2853,174 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre contribution'**
   String get tripYourShare;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un problème'**
+  String get reportTitle;
+
+  /// No description provided for @reportHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.'**
+  String get reportHint;
+
+  /// No description provided for @reportCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif'**
+  String get reportCategory;
+
+  /// No description provided for @reportHarassment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement'**
+  String get reportHarassment;
+
+  /// No description provided for @reportNoShow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absence au rendez-vous'**
+  String get reportNoShow;
+
+  /// No description provided for @reportUnsafeDriving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conduite dangereuse'**
+  String get reportUnsafeDriving;
+
+  /// No description provided for @reportFakeProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux profil'**
+  String get reportFakeProfile;
+
+  /// No description provided for @reportPayment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage des frais'**
+  String get reportPayment;
+
+  /// No description provided for @reportOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get reportOther;
+
+  /// No description provided for @reportDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get reportDescription;
+
+  /// No description provided for @reportDescriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique ce qui s’est passé…'**
+  String get reportDescriptionHint;
+
+  /// No description provided for @reportRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décris le problème avant de l’envoyer.'**
+  String get reportRequired;
+
+  /// No description provided for @reportTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.'**
+  String get reportTooLong;
+
+  /// No description provided for @reportSessionChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.'**
+  String get reportSessionChanged;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le signalement'**
+  String get reportSend;
+
+  /// No description provided for @reportSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalement envoyé'**
+  String get reportSent;
+
+  /// No description provided for @reportSentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux suivre son traitement dans Profil → Mes signalements.'**
+  String get reportSentHint;
+
+  /// No description provided for @reportClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get reportClose;
+
+  /// No description provided for @reportFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.'**
+  String get reportFailed;
+
+  /// No description provided for @reportRetryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations sont conservées pour réessayer le même envoi sans créer de doublon.'**
+  String get reportRetryHint;
+
+  /// No description provided for @reportReference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence {id}'**
+  String reportReference(String id);
+
+  /// No description provided for @myReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes signalements'**
+  String get myReports;
+
+  /// No description provided for @myReportsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les 100 derniers signalements que tu as envoyés et leur état de traitement.'**
+  String get myReportsHint;
+
+  /// No description provided for @myReportsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n’as envoyé aucun signalement.'**
+  String get myReportsEmpty;
+
+  /// No description provided for @reportOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvert'**
+  String get reportOpen;
+
+  /// No description provided for @reportUnderReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'En examen'**
+  String get reportUnderReview;
+
+  /// No description provided for @reportResolved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résolu'**
+  String get reportResolved;
+
+  /// No description provided for @reportDismissed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classé'**
+  String get reportDismissed;
 }
 
 class _AppLocalizationsDelegate

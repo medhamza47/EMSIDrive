@@ -220,6 +220,7 @@ void main() {
       });
       await pumpEmsiDriveApp(tester, initialLocation: AppRoutes.profile);
 
+      await tester.ensureVisible(find.text(l10nOf().signOutLabel));
       await tester.tap(find.text(l10nOf().signOutLabel));
       await tester.pumpAndSettle();
 

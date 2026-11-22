@@ -14,6 +14,7 @@ import 'ride_summary_card.dart';
 import 'ride_lifecycle.dart';
 import 'ride_request_screen.dart';
 import '../../home/application/home_controller.dart';
+import '../../reports/presentation/report_screens.dart';
 
 String rideDeparture(DateTime date) =>
     DateFormat.MMMEd('fr').add_Hm().format(date);
@@ -301,6 +302,21 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                   onPressed: _accepting ? null : () => _cancelListing(listing),
                   icon: const Icon(Icons.cancel_outlined),
                   label: Text(l.rideCancelListing),
+                ),
+              if (!listing.own)
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.flag_outlined),
+                  label: Text(l.reportTitle),
+                  onPressed: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) => ReportScreen(
+                        contextData: {
+                          'kind': listing.kind.name.toUpperCase(),
+                          'listingId': listing.id,
+                        },
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ],

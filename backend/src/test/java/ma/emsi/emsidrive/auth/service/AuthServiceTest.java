@@ -185,7 +185,7 @@ class AuthServiceTest {
     void loginIssuesTokensForValidCredentials() {
         User user = student(true);
         user.setPasswordHash(passwordEncoder.encode(RAW_PASSWORD));
-        when(userRepository.findByEmailIgnoreCase(STUDENT_EMAIL)).thenReturn(Optional.of(user));
+        when(userRepository.findForLogin(STUDENT_EMAIL)).thenReturn(Optional.of(user));
 
         AuthResponse response = authService.login(new LoginRequest("  Sara.ElIdrissi@EMSI-EDU.ma  ", RAW_PASSWORD));
 
@@ -196,7 +196,7 @@ class AuthServiceTest {
 
     @Test
     void loginRejectsUnknownEmail() {
-        when(userRepository.findByEmailIgnoreCase(anyString())).thenReturn(Optional.empty());
+        when(userRepository.findForLogin(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(new LoginRequest(STUDENT_EMAIL, RAW_PASSWORD)))
                 .isInstanceOfSatisfying(ApiException.class, ex -> {
@@ -210,7 +210,7 @@ class AuthServiceTest {
     void loginRejectsWrongPassword() {
         User user = student(true);
         user.setPasswordHash(passwordEncoder.encode(RAW_PASSWORD));
-        when(userRepository.findByEmailIgnoreCase(STUDENT_EMAIL)).thenReturn(Optional.of(user));
+        when(userRepository.findForLogin(STUDENT_EMAIL)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> authService.login(new LoginRequest(STUDENT_EMAIL, "WrongPass123!")))
                 .isInstanceOfSatisfying(ApiException.class, ex ->
@@ -222,7 +222,7 @@ class AuthServiceTest {
     void loginRejectsDisabledAccount() {
         User user = student(false);
         user.setPasswordHash(passwordEncoder.encode(RAW_PASSWORD));
-        when(userRepository.findByEmailIgnoreCase(STUDENT_EMAIL)).thenReturn(Optional.of(user));
+        when(userRepository.findForLogin(STUDENT_EMAIL)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> authService.login(new LoginRequest(STUDENT_EMAIL, RAW_PASSWORD)))
                 .isInstanceOfSatisfying(ApiException.class, ex -> {
@@ -235,7 +235,7 @@ class AuthServiceTest {
     @Test
     void refreshRotatesTheTokenPairAndRevokesThePreviousToken() {
         String raw = storeRefreshToken(Instant.now().plus(Duration.ofDays(7)), null);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(student(true)));
+        when(userRepository.findForAuthentication(USER_ID)).thenReturn(Optional.of(student(true)));
 
         AuthResponse response = authService.refresh(raw);
 
@@ -298,7 +298,7 @@ class AuthServiceTest {
     @Test
     void refreshRejectsTokenOfDisabledOwner() {
         String raw = storeRefreshToken(Instant.now().plus(Duration.ofDays(7)), null);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(student(false)));
+        when(userRepository.findForAuthentication(USER_ID)).thenReturn(Optional.of(student(false)));
 
         assertThatThrownBy(() -> authService.refresh(raw))
                 .isInstanceOfSatisfying(ApiException.class, ex ->

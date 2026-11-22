@@ -7,6 +7,44 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Administration Angular et modération du 22 novembre 2026
+
+- À la demande de l’utilisateur, `admin-web/` utilise Angular 21 LTS et TypeScript,
+  avec composants standalone et routes chargées à la demande. Node 22.17 est
+  compatible. `npm start` expose `127.0.0.1:4200` avec un proxy `/api` vers 8081.
+- `/api/v1/admin/**` exige le rôle ADMIN dans Spring Security et dans le contrôleur.
+  Le filtre JWT vérifie le compte actif, son rôle actuel et la date d’invalidation
+  des accès. Les anciens JWT sans `issuedMillis` utilisent leur `iat`.
+- `ModerationService` fournit indicateurs cumulés, comptes, fiches, accès motivé,
+  offres/demandes filtrées, dossiers de signalement et historique. Pagination de 20,
+  contrôle des filtres et de la révision, verrouillage des décisions, transactions
+  communes avec `admin_actions`. Les comptes ADMIN sont protégés contre la suspension.
+- V27 ajoute `access_invalidated_at`, les révisions et identifiants d’envoi des
+  signalements, leur référence de demande et la table `admin_actions`.
+- La suspension révoque refresh tokens, liens biométriques et appareils push.
+  Les connexions et renouvellements verrouillent le compte avant leur écriture.
+  La connexion biométrique suit l’ordre compte → appareil. `User` utilise
+  `DynamicUpdate` pour préserver une décision concurrente lors d’une modification
+  du profil. L’acceptation vérifie et verrouille les deux comptes actifs.
+- `PUT /api/v1/reports/{submissionId}` accepte un contexte réservation, ou une
+  annonce avec son type. Le serveur déduit le compte signalé et refuse l’auto-
+  signalement. Même identifiant et contenu donnent le même dossier. Un contenu
+  différent avec cet identifiant produit 409. `GET /reports` reste limité à l’auteur.
+- Flutter ajoute le formulaire depuis les fiches d’annonce et de trajet, avec
+  champs verrouillés après la première tentative pour permettre un réessai identique.
+  `Profil → Mes signalements` suit les 100 derniers dossiers du compte.
+- La session Angular reste dans `sessionStorage`, avec renouvellement partagé,
+  déconnexion et rejet des réponses provenant d’une session précédente. L’API
+  protège les autorisations indépendamment du navigateur.
+- `scripts/grant-admin.ps1` attribue le rôle à un compte déjà inscrit et actif
+  dans le conteneur local, avec audit. Le compte local dédié et son mot de passe
+  aléatoire sont décrits dans le README. Les identifiants restent hors du dépôt.
+- Avancement fonctionnel estimé après cette étape, 87 %, contre 82 % auparavant.
+  Validation avec 128 tests backend, 220 tests Flutter et 11 tests Angular réussis.
+  La vérification visuelle automatisée a été interrompue par le contrôle Chrome.
+  Vérifier manuellement le rendu, puis poursuivre les essais à deux téléphones et
+  le déploiement. La compilation et les tests servent de validation technique.
+
 ### Parcours complet et bilan du 22 novembre 2026
 
 - `ListingInput.vehicleId` est facultatif pour les clients existants. L’API
@@ -102,7 +140,7 @@ de trajets partagés, puis d'évaluer le trajet effectué.
 |-----------|------|-------------|
 | **API** | Back-end métier, authentification, persistance, notifications | Spring Boot 3.5 (Java 17) + PostgreSQL 16 |
 | **Mobile** | Application étudiante (conducteur / passager) | Flutter (Dart) |
-| **Admin web** | Back-office de modération et de supervision | Application web (React + TypeScript) |
+| **Admin web** | Back-office de modération et de supervision | Angular 21 LTS + TypeScript |
 
 ### Périmètre fonctionnel (issu des maquettes)
 
@@ -192,17 +230,16 @@ EMSIDrive/
 │   │   └── features/<feature>/   # Un dossier de tests par fonctionnalité
 │   └── integration_test/         # Tests d'intégration (à venir)
 │
-├── admin-web/                    # Back-office web (à venir)
+├── admin-web/                    # Back-office Angular
 │   ├── package.json
+│   ├── proxy.conf.json           # /api → API locale sur 8081
 │   └── src/
-│       ├── assets/
-│       ├── components/           # Composants réutilisables
-│       ├── features/             # users/, rides/, reports/, dashboard/
-│       ├── layouts/
-│       ├── router/
-│       ├── services/             # Appels API
-│       ├── styles/               # Thème, tokens de design
-│       └── types/
+│       ├── app/
+│       │   ├── core/             # Session HTTP, états des listes
+│       │   ├── features/         # Login, shell, dashboard, users, rides, reports, audit
+│       │   ├── shared/           # Pagination, libellés des états
+│       │   └── app.routes.ts     # Routes et garde administrateur
+│       └── styles.scss           # Thème EMSI responsive
 │
 ├── docs/                                     # (à venir)
 │   ├── scrum/                    # Backlog, sprints, rétrospectives
@@ -249,8 +286,10 @@ Chaque composant est autonome : il possède son propre outillage, ses tests et s
 
 - **Code, identifiants, noms de fichiers techniques, commentaires, logs, messages de commit : anglais.**
 - **Textes d'interface visibles par l'utilisateur : français** (labels, boutons, erreurs, emails).
-- Les traductions sont centralisées (fichiers ARB en Flutter, fichiers i18n en admin web).
-  Aucun libellé français codé en dur dans les widgets ou composants.
+- Flutter centralise ses traductions dans les fichiers ARB. Les widgets utilisent
+  `AppLocalizations` pour leurs textes.
+- L’administration utilise le français dans ses templates Angular. Les libellés
+  d’états réutilisés sont centralisés dans `shared/label.ts`.
 
 ### API (Spring Boot / Java)
 
@@ -339,12 +378,12 @@ Codes d'erreur utilisés (stables, jamais traduits, le mobile s'appuie dessus) :
   observent un état de chargement passent `settle: false` et augmentent la
   surface de test (`tester.binding.setSurfaceSize`) pour éviter les taps hors écran.
 
-### Admin web (TypeScript / React)
+### Admin web (Angular / TypeScript)
 
 | Élément | Convention | Exemple |
 |---------|-----------|---------|
-| Composants | `PascalCase`, un par fichier | `UserTable.tsx` |
-| Hooks | préfixe `use` | `useRideFilters.ts` |
+| Composants standalone | `PascalCase`, un par fichier | `Users` dans `users.ts` |
+| État réactif | signals Angular | `selected`, `loading` |
 | Fonctions / variables | `camelCase` | `fetchPendingReports()` |
 | Types / interfaces | `PascalCase`, sans préfixe `I` | `RideSummary` |
 | Fichiers utilitaires | `kebab-case` | `format-date.ts` |
@@ -535,7 +574,7 @@ Une désinstallation, ou un changement de clé de signature, efface les données
 - Tests de composants et de services avec le runner du projet ; lint TypeScript obligatoire.
 
 ```bash
-cd admin-web && npm test && npm run lint
+cd admin-web && npm run build && npm test -- --watch=false
 ```
 
 ### Règles

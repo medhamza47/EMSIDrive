@@ -70,7 +70,7 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailIgnoreCase(normalizeEmail(request.email()))
+        User user = userRepository.findForLogin(normalizeEmail(request.email()))
                 .orElseThrow(AuthService::invalidCredentials);
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
@@ -99,7 +99,7 @@ public class AuthService {
             throw ApiException.unauthorized("INVALID_REFRESH_TOKEN", "Refresh token is expired or revoked");
         }
 
-        User user = userRepository.findById(jwtService.extractUserId(claims))
+        User user = userRepository.findForAuthentication(jwtService.extractUserId(claims))
                 .filter(User::isEnabled)
                 .orElseThrow(() -> ApiException.unauthorized(
                         "INVALID_REFRESH_TOKEN", "Refresh token owner is not available"));

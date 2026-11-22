@@ -153,7 +153,7 @@ public class RideMarketplace {
                     + " ORDER BY r.departure_time DESC, r.id LIMIT 100", user, user, user);
         }
         return jdbc.queryForList(listingQuery(kind) + """
-                AND r.status = ? AND r.departure_time > now()
+                AND u.enabled AND r.status = ? AND r.departure_time > now()
                 AND r.%s > 0
                 AND NOT EXISTS (SELECT 1 FROM bookings b
                     WHERE b.ride_offer_id = r.id AND b.passenger_id = ? AND b.status = 'CONFIRMED')
@@ -195,7 +195,7 @@ public class RideMarketplace {
                          ELSE r.destination_latitude END AS destination_latitude,
                     CASE WHEN r.destination_label = 'Marrakech' THEN round(r.destination_longitude, 3)
                          ELSE r.destination_longitude END AS destination_longitude,
-                    (r.%1$s <> ? AND r.status = '%3$s' AND r.%2$s > 0
+                    (u.enabled AND r.%1$s <> ? AND r.status = '%3$s' AND r.%2$s > 0
                         AND r.departure_time > now()) AS can_accept
                 FROM %4$s r JOIN users u ON u.id = r.%1$s WHERE r.marketplace
                 """.formatted(owner(kind), seats(kind), openStatus(kind), table(kind),
@@ -211,6 +211,11 @@ public class RideMarketplace {
         UUID owner = (UUID) row.get("owner");
         if (user.equals(owner)) {
             throw ApiException.conflict("OWN_LISTING", "Cannot accept your own listing");
+        }
+        var availableAccounts = jdbc.queryForList(
+                "SELECT id FROM users WHERE id IN (?, ?) AND enabled ORDER BY id FOR SHARE", UUID.class, user, owner);
+        if (availableAccounts.size() != 2) {
+            throw ApiException.conflict("ACCOUNT_UNAVAILABLE", "A participant account is unavailable");
         }
         String existingQuery = kind == Kind.OFFER
                 ? "SELECT id FROM bookings WHERE ride_offer_id = ? AND passenger_id = ? AND status = 'CONFIRMED'"

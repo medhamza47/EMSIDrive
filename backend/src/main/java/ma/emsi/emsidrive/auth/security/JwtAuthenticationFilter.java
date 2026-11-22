@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ma.emsi.emsidrive.user.repository.UserRepository;
 
 /**
  * Populates the security context from a {@code Bearer} access token.
@@ -28,9 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
+    private final UserRepository users;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository users) {
         this.jwtService = jwtService;
+        this.users = users;
     }
 
     @Override
@@ -58,7 +61,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        AuthenticatedUser principal = jwtService.toAuthenticatedUser(claims);
+        var account = users.findById(jwtService.extractUserId(claims)).orElse(null);
+        if (account == null || !account.isEnabled()) return;
+        Number issuedMillis = claims.get("issuedMillis", Number.class);
+        long issued = issuedMillis == null ? claims.getIssuedAt().getTime() : issuedMillis.longValue();
+        if (account.getAccessInvalidatedAt() != null
+                && issued <= account.getAccessInvalidatedAt().toEpochMilli()) return;
+        AuthenticatedUser principal = new AuthenticatedUser(account.getId(), account.getEmail(), account.getRole());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

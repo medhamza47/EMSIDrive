@@ -11,6 +11,7 @@ import '../../../shared/widgets/avatar.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/form_section.dart';
 import '../../notifications/presentation/push_setting.dart';
+import '../../reports/presentation/report_screens.dart';
 import '../application/profile_controller.dart';
 import 'profile_edit_screen.dart';
 import '../../auth/application/biometric_settings_controller.dart';
@@ -164,6 +165,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           onPressed: () => context.push(AppRoutes.vehicles),
         ),
         const PushSetting(),
+        OutlineButton(
+          label: l.myReports,
+          icon: Icons.flag_outlined,
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute(builder: (_) => const MyReportsScreen()),
+          ),
+        ),
         OutlineButton(
           label: l.signOutLabel,
           icon: Icons.logout,

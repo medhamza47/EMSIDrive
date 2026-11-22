@@ -18,6 +18,8 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Suivi | Depuis un trajet accepté, le conducteur peut activer **Partager ma position**. Le passager voit le repère s’actualiser sur sa carte toutes les quelques secondes. |
 | Bilan et évaluations | Un trajet terminé propose **Voir le bilan et évaluer**. Le bilan privé affiche l’itinéraire, la durée réelle disponible et les participants. Chacun peut noter son partenaire de 1 à 5 avec un commentaire facultatif. La moyenne et le nombre d’avis apparaissent sur le profil et sur les annonces. |
 | Frais | Après la fin du trajet, le conducteur peut confirmer un total en MAD. Le serveur conserve une répartition par place occupée, conducteur compris, avec un arrondi exact au centime. |
+| Administration Angular | Connexion administrateur, indicateurs réels, recherche et consultation des comptes, suspension/réactivation motivée, supervision des trajets filtrés et historique des décisions. |
+| Signalements | Envoi depuis une annonce ou un trajet accepté, suivi dans **Profil → Mes signalements**, examen et décision dans le back-office. |
 
 Le point en ville est arrondi dans l’annonce publique. Les coordonnées exactes, le chat
 et la position du conducteur sont accessibles aux participants via le trajet accepté.
@@ -30,7 +32,7 @@ Certains anciens écrans de recherche de conducteurs issus des maquettes utilise
 encore des interactions simulées. Les accès aux frais et aux évaluations ouvrent
 désormais l’historique des trajets réels.
 Les notifications système Android disposent d’une intégration Firebase configurée localement.
-Le back-office reste à réaliser.
+Le back-office Angular est relié à la même API et à la même base PostgreSQL.
 
 ### Suivi de l’avancement
 
@@ -51,14 +53,76 @@ communiquer le pourcentage au demandeur.
 | Planning, import et suggestions | 9 | 10 |
 | Gestion des véhicules | 5 | 5 |
 | Évaluations et partage des frais | 5 | 5 |
-| Back-office | 0 | 5 |
+| Back-office | 5 | 5 |
 | Qualité, validation sur appareils et déploiement | 4 | 10 |
-| **Total** | **82** | **100** |
+| **Total** | **87** | **100** |
 
 La gestion mobile des véhicules a fait passer l’estimation de **70 % à 74 %**.
 Le parcours véhicule, bilan, évaluations, frais et livraison FCM de fin de trajet
-porte ensuite l’estimation à **82 %**. Les validations à deux téléphones physiques,
-le back-office et le déploiement font partie du travail restant.
+porte ensuite l’estimation à **82 %**. L’administration Angular et la modération
+portent l’estimation à **87 %**. Les validations à deux téléphones physiques et
+le déploiement font partie du travail restant.
+
+### Administration Angular et modération
+
+Angular **21 LTS**, avec TypeScript et composants standalone, est choisi pour sa
+compatibilité avec Node **22.17** installé sur le poste. Le serveur de développement
+Angular relaie `/api` vers `http://127.0.0.1:8081`.
+
+Depuis la racine, lancer le backend puis ouvrir un second PowerShell pour Angular.
+
+```powershell
+.\scripts\start-backend.ps1 -Port 8081
+```
+
+```powershell
+cd admin-web
+npm ci
+npm start
+```
+
+Ouvrir [l’administration locale](http://127.0.0.1:4200). Si npm 10.9.2 échoue avec
+`edgesOut`, utiliser `npx --yes npm@11 ci`, puis `npm start`.
+
+Le compte doit posséder le rôle `ADMIN` dans PostgreSQL. Pour préparer un compte
+sur une nouvelle installation, l’inscrire dans l’application puis exécuter depuis
+la racine du dépôt la commande suivante avec son adresse réelle.
+
+```powershell
+.\scripts\grant-admin.ps1 -Email administrateur@emsi-edu.ma
+```
+
+Cette procédure cible le conteneur local `emsidrive-postgres` et enregistre l’octroi
+dans l’historique. L’inscription publique crée toujours un compte étudiant.
+Sur le poste de développement actuel, un compte dédié `admin.local@emsi-edu.ma`
+est prêt. Son mot de passe aléatoire est conservé dans
+`%LOCALAPPDATA%\EMSIDrive\admin-login.txt`, à l’extérieur du dépôt.
+
+Les rubriques **Vue d’ensemble**, **Utilisateurs**, **Trajets**, **Signalements** et
+**Historique** utilisent les données réelles. Les listes sont paginées par 20.
+Les trajets se filtrent par type, campus, état et date à Marrakech. Les indicateurs
+sont cumulés et les trajets terminés comptent les offres terminées.
+
+Dans le mobile, ouvrir une annonce d’un autre étudiant puis **Signaler un problème**,
+ou utiliser le drapeau en haut d’un trajet accepté. Choisir le motif et décrire
+les faits. **Profil → Mes signalements** affiche les 100 derniers dossiers envoyés.
+Le serveur déduit la personne concernée et vérifie la participation au trajet.
+Un identifiant d’envoi stable permet de réessayer après une coupure réseau.
+
+Un administrateur peut passer un dossier en examen, le résoudre, le classer ou
+le rouvrir avec une note. Les décisions et changements d’accès sont historisés
+dans la même transaction. Une révision empêche l’écrasement d’une décision concurrente.
+Les comptes administrateur sont protégés contre la suspension dans cette interface.
+Un administrateur impliqué dans un dossier doit en confier l’examen à un autre.
+
+La suspension invalide les jetons d’accès existants et révoque les sessions,
+les liens biométriques et les appareils de notification. Les annonces de ce compte
+sortent des listes publiques et leur acceptation est bloquée côté serveur.
+Après réactivation, une nouvelle connexion est nécessaire.
+
+Le back-office s’exécute localement. La validation visuelle automatisée a été
+interrompue par l’outil de contrôle de Chrome. Le contrôle manuel du rendu et le
+déploiement HTTPS restent à effectuer.
 
 ### Gérer ses véhicules
 
@@ -263,6 +327,12 @@ compatible avec [pubspec.yaml](./mobile/pubspec.yaml), et un téléphone Android
 
 Pour une copie clonée du dépôt, les commandes suivantes permettent de récupérer la
 branche [`develop`](https://github.com/medhamza47/EMSIDrive/tree/develop).
+
+L’étape Angular et modération est publiée sur `feature/system-notifications`.
+Pour contribuer à cette version avant son intégration dans `develop`, utiliser
+`git switch --track origin/feature/system-notifications` après `git fetch origin`,
+ou `git switch feature/system-notifications` si la branche existe déjà localement,
+puis `git pull --ff-only`.
 
 ```bash
 git fetch origin
@@ -563,14 +633,16 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 | Serveur | `mvn clean verify` depuis `backend/`, avec Docker pour les tests d’intégration PostgreSQL. |
 | Parcours à deux comptes | `mvn -Dtest=RideMarketplaceIntegrationTest test` depuis `backend/`. Le test couvre les deux types d’annonce, les accès privés, les notifications, le chat et la position. |
 | Mobile | `flutter analyze` puis `flutter test` depuis `mobile/`. Les tests couvrent aussi la confirmation des cours, les champs incertains et les réponses vides. |
+| Administration | `npm run build` puis `npm test -- --watch=false` depuis `admin-web/`. |
 
 ### Validation du 22 novembre 2026
 
-- `mvn clean test` passe avec **123 tests backend**, dont quatre tests
-  PostgreSQL de la file push et trois nouveaux parcours de bilan, frais, avis et
-  véhicule d’offre. Les tests couvrent aussi les soumissions concurrentes.
-- `flutter test` passe avec **217 tests Flutter**, dont huit tests de
-  notifications et trois tests de gestion des véhicules, couvrant le parcours
+- `mvn test` passe avec **128 tests backend**, dont cinq parcours PostgreSQL de
+  modération, de contrôle des rôles, de suspension et de confidentialité. Les tests
+  couvrent aussi la file push, le bilan, les frais, les avis, les véhicules des
+  offres et les soumissions concurrentes.
+- `flutter test` passe avec **220 tests Flutter**, dont trois tests de signalements,
+  huit tests de notifications et trois tests de gestion des véhicules, couvrant le parcours
   HTTP, la confirmation de suppression, la reprise après erreur et le changement
   de compte.
 - Trois tests supplémentaires couvrent le bilan réel via HTTP, l’évaluation,
@@ -579,6 +651,8 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 - Les **20 tests ciblés** `VehicleServiceTest` et `ProfileVehicleIntegrationTest`
   passent, avec contrôle des propriétaires et persistance PostgreSQL.
 - `flutter analyze` ne signale aucun problème.
+- `npm run build` réussit et **11 tests Angular** passent, dont l’authentification,
+  les renouvellements concurrents, les indicateurs et les formulaires de modération.
 - Le projet Firebase et les paramètres locaux sont installés. L’inscription de
   l’émulateur et la réception d’un envoi FCM direct en arrière-plan sont validées.
 - Un trajet de démonstration du 22 novembre est conservé dans l’historique local

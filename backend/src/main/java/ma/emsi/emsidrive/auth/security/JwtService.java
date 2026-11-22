@@ -51,6 +51,7 @@ public class JwtService {
                 .claim(CLAIM_TYPE, TYPE_ACCESS)
                 .claim(CLAIM_EMAIL, email)
                 .claim(CLAIM_ROLE, role.name())
+                .claim("issuedMillis", now.toEpochMilli())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(accessTokenTtl)))
                 .signWith(key)

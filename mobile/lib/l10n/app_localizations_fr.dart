@@ -1572,4 +1572,97 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripYourShare => 'Votre contribution';
+
+  @override
+  String get reportTitle => 'Signaler un problème';
+
+  @override
+  String get reportHint =>
+      'Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.';
+
+  @override
+  String get reportCategory => 'Motif';
+
+  @override
+  String get reportHarassment => 'Harcèlement';
+
+  @override
+  String get reportNoShow => 'Absence au rendez-vous';
+
+  @override
+  String get reportUnsafeDriving => 'Conduite dangereuse';
+
+  @override
+  String get reportFakeProfile => 'Faux profil';
+
+  @override
+  String get reportPayment => 'Partage des frais';
+
+  @override
+  String get reportOther => 'Autre';
+
+  @override
+  String get reportDescription => 'Description';
+
+  @override
+  String get reportDescriptionHint => 'Explique ce qui s’est passé…';
+
+  @override
+  String get reportRequired => 'Décris le problème avant de l’envoyer.';
+
+  @override
+  String get reportTooLong =>
+      'Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.';
+
+  @override
+  String get reportSessionChanged =>
+      'Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.';
+
+  @override
+  String get reportSend => 'Envoyer le signalement';
+
+  @override
+  String get reportSent => 'Signalement envoyé';
+
+  @override
+  String get reportSentHint =>
+      'Tu peux suivre son traitement dans Profil → Mes signalements.';
+
+  @override
+  String get reportClose => 'Fermer';
+
+  @override
+  String get reportFailed =>
+      'L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.';
+
+  @override
+  String get reportRetryHint =>
+      'Les informations sont conservées pour réessayer le même envoi sans créer de doublon.';
+
+  @override
+  String reportReference(String id) {
+    return 'Référence $id';
+  }
+
+  @override
+  String get myReports => 'Mes signalements';
+
+  @override
+  String get myReportsHint =>
+      'Les 100 derniers signalements que tu as envoyés et leur état de traitement.';
+
+  @override
+  String get myReportsEmpty => 'Tu n’as envoyé aucun signalement.';
+
+  @override
+  String get reportOpen => 'Ouvert';
+
+  @override
+  String get reportUnderReview => 'En examen';
+
+  @override
+  String get reportResolved => 'Résolu';
+
+  @override
+  String get reportDismissed => 'Classé';
 }
