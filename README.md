@@ -25,7 +25,76 @@ notifications d’acceptation apparaissent dans l’application, avec un indicat
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
 Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
 utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
-Les notifications système et le back-office restent à réaliser.
+Les notifications système Android disposent d’une intégration Firebase à configurer.
+Le back-office reste à réaliser.
+
+## Notifications système Android
+
+L’intégration FCM couvre les acceptations, les nouveaux messages et le démarrage,
+la fin ou l’annulation d’un trajet. **Profil → Notifications du téléphone** permet
+d’autoriser ou de désactiver les alertes. Un appui ouvre le trajet du compte
+destinataire après vérification de la session. Au premier plan, une bannière
+propose d’ouvrir le trajet.
+
+Firebase est absent de l’environnement actuel. L’envoi réel reste en attente
+d’activation. Le réglage indique cette configuration manquante et les notifications
+dans l’application continuent à fonctionner.
+
+### Activation
+
+1. Créer un projet Firebase et ajouter l’application Android
+   `ma.emsi.emsidrive.emsidrive_mobile`.
+2. Placer le fichier téléchargé dans `mobile/android/app/google-services.json`.
+   Gradle active le plugin Google Services lorsque ce fichier existe.
+3. Activer l’API Firebase Cloud Messaging HTTP v1. Dans les réglages du projet,
+   ouvrir **Comptes de service** et générer une clé pour le backend. Conserver
+   cette clé hors du dépôt et de l’application Android.
+4. Définir les variables dans le PowerShell qui démarre le backend, en adaptant
+   le chemin de la clé. Redémarrer le backend s’il fonctionne déjà.
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = 'C:\secrets\firebase-service-account.json'
+$env:PUSH_ENABLED = 'true'
+.\scripts\start-backend.ps1 -Port 8081
+```
+
+5. Compiler ou lancer Android avec Firebase activé.
+
+```powershell
+cd mobile
+flutter run -d emulator-5554 --dart-define=PUSH_ENABLED=true --dart-define=API_BASE_URL=http://10.0.2.2:8081
+```
+
+6. Se connecter, ouvrir **Profil**, activer les notifications et accepter
+   l’autorisation Android. Sur téléphone physique, remplacer `10.0.2.2` par
+   l’adresse réseau du PC ou celle du backend hébergé.
+
+### Livraison et tests
+
+V25 ajoute les appareils et une file PostgreSQL, alimentée dans la transaction
+de chaque événement. Les anciennes alertes ne sont pas envoyées à un nouvel
+appareil. Le serveur traite la file toutes les cinq secondes, réessaie les échecs
+au maximum cinq fois et expire les envois après une heure. Les alertes lues sont
+écartées. Le tag Android reprend l’identifiant de notification pour remplacer
+les doublons dans le volet système. Une interruption après un envoi peut provoquer
+un réessai.
+
+Le mobile utilise les identifiants d’installation renvoyés par `register()` et
+le SDK Admin utilise `setFid()`. Les alertes affichent un texte générique. Le chat
+et le GPS restent dans l’API authentifiée. L’inscription dépend d’un jeton de
+renouvellement actif, conservé lors de sa rotation. La déconnexion serveur bloque
+les envois suivants. Le mobile retire aussi son inscription et un changement de
+compte invalide les anciens envois en attente.
+
+Les tests automatisés utilisent un expéditeur simulé. La réception FCM réelle
+reste à valider après configuration sur deux appareils, au premier plan, en
+arrière-plan et après fermeture normale. Android suspend les messages après un
+arrêt forcé jusqu’à la réouverture manuelle. Le push iOS nécessite sa configuration
+Firebase/APNs et une validation sur appareil.
+
+Les étapes s’appuient sur les guides officiels de
+[réception Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages)
+et de [configuration Admin](https://firebase.google.com/docs/admin/setup).
 
 ## Modifications intégrées le 8 novembre 2026
 
@@ -392,7 +461,16 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 | Parcours à deux comptes | `mvn -Dtest=RideMarketplaceIntegrationTest test` depuis `backend/`. Le test couvre les deux types d’annonce, les accès privés, les notifications, le chat et la position. |
 | Mobile | `flutter analyze` puis `flutter test` depuis `mobile/`. Les tests couvrent aussi la confirmation des cours, les champs incertains et les réponses vides. |
 
-### Dernière validation : connexion par empreinte
+### Validation du 22 novembre 2026
+
+- `mvn clean test` passe avec **120 tests backend**, dont quatre nouveaux tests
+  PostgreSQL de la file push.
+- `flutter test` passe avec **211 tests Flutter**, dont huit nouveaux tests de
+  consentement, inscription, déconnexion et gestion des erreurs de notifications.
+- `flutter analyze` ne signale aucun problème.
+- L’envoi Firebase réel attend la création du projet et l’ajout des paramètres.
+
+### Validation précédente de la connexion par empreinte
 
 Vérifications effectuées le **15 novembre 2026** :
 

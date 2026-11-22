@@ -107,7 +107,9 @@ public class AuthService {
         stored.setRevokedAt(Instant.now());
         refreshTokenRepository.save(stored);
 
-        return issueTokens(user);
+        AuthResponse response = issueTokens(user);
+        refreshTokenRepository.rotatePushSession(tokenHash, TokenHasher.sha256Hex(response.refreshToken()));
+        return response;
     }
 
     /**

@@ -34,6 +34,8 @@ spring:
     baseline-on-migrate: true
 
 app:
+  push:
+    enabled: ${PUSH_ENABLED:false}
   schedule:
     groq-api-key: ${GROQ_API_KEY:}
     groq-model: ${GROQ_MODEL:qwen/qwen3.8-27b}

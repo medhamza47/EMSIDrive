@@ -76,6 +76,8 @@ class RideMarketplaceIntegrationTest {
         assertThat(accepted.path("is_driver").asBoolean()).isFalse();
         exchange(HttpMethod.GET, trip, other, null, HttpStatus.NOT_FOUND);
         exchange(HttpMethod.POST, trip + "/messages", driver, Map.of("body", "On my way"), HttpStatus.OK);
+        assertThat(exchange(HttpMethod.GET, "/notifications", passenger, null, HttpStatus.OK).get(0)
+                .path("title").asText()).isEqualTo("CHAT_MESSAGE");
         assertThat(exchange(HttpMethod.GET, trip + "/messages", passenger, null, HttpStatus.OK).get(0)
                 .path("body").asText()).isEqualTo("On my way");
         exchange(HttpMethod.GET, trip + "/messages", other, null, HttpStatus.NOT_FOUND);

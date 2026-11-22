@@ -15,6 +15,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
 
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 
+    @Modifying(flushAutomatically = true)
+    @Query(value = "UPDATE push_devices SET session_hash = :newHash WHERE session_hash = :oldHash", nativeQuery = true)
+    int rotatePushSession(@Param("oldHash") String oldHash, @Param("newHash") String newHash);
+
     @Modifying
     @Query("UPDATE RefreshToken t SET t.revokedAt = :revokedAt WHERE t.user.id = :userId AND t.revokedAt IS NULL")
     int revokeAllForUser(@Param("userId") UUID userId, @Param("revokedAt") Instant revokedAt);

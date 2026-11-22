@@ -381,6 +381,11 @@ public class RideMarketplace {
         }
         jdbc.update("INSERT INTO ride_messages (booking_id, sender_id, body) VALUES (?, ?, ?)",
                 id, user, body.strip());
+        Object recipient = user.equals(booking.get("driver_id")) ? booking.get("passenger_id") : booking.get("driver_id");
+        jdbc.update("""
+                INSERT INTO notifications(user_id, type, title, body, reference_type, reference_id)
+                VALUES (?, 'BOOKING', 'CHAT_MESSAGE', '', 'BOOKING', ?)
+                """, recipient, id);
     }
 
     @Transactional
@@ -404,7 +409,7 @@ public class RideMarketplace {
         return jdbc.queryForList("""
                 SELECT id, title, body, reference_id AS booking_id, read_at IS NOT NULL AS seen
                 FROM notifications WHERE user_id = ? AND reference_type = 'BOOKING'
-                    AND title IN ('REQUEST_ACCEPTED', 'OFFER_ACCEPTED', 'TRIP_CANCELLED', 'TRIP_STARTED', 'TRIP_COMPLETED')
+                    AND title IN ('REQUEST_ACCEPTED', 'OFFER_ACCEPTED', 'TRIP_CANCELLED', 'TRIP_STARTED', 'TRIP_COMPLETED', 'CHAT_MESSAGE')
                 ORDER BY created_at DESC LIMIT 100
                 """, user);
     }

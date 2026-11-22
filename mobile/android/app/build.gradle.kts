@@ -4,6 +4,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase remains optional for local builds without a configured project.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "ma.emsi.emsidrive.emsidrive_mobile"
     compileSdk = flutter.compileSdkVersion

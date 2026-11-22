@@ -1397,4 +1397,36 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get biometricEnabledMessage => 'Connexion par empreinte activée.';
+
+  @override
+  String get pushSettingTitle => 'Notifications du téléphone';
+
+  @override
+  String get pushSettingEnable => 'Activer les notifications';
+
+  @override
+  String get pushSettingDescription =>
+      'Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.';
+
+  @override
+  String get pushSettingUnavailable =>
+      'La configuration Firebase doit être ajoutée à cette version de l’application.';
+
+  @override
+  String get pushSettingDenied =>
+      'Autorisez les notifications dans les paramètres Android, puis réessayez.';
+
+  @override
+  String get pushSettingError =>
+      'Activation incomplète. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get pushForegroundNotice => 'Nouvelle activité sur votre trajet.';
+
+  @override
+  String get pushOpen => 'Ouvrir';
+
+  @override
+  String get pushChatMessage =>
+      'Vous avez reçu un nouveau message dans le chat du trajet.';
 }

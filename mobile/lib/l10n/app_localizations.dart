@@ -2559,6 +2559,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Connexion par empreinte activée.'**
   String get biometricEnabledMessage;
+
+  /// No description provided for @pushSettingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications du téléphone'**
+  String get pushSettingTitle;
+
+  /// No description provided for @pushSettingEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les notifications'**
+  String get pushSettingEnable;
+
+  /// No description provided for @pushSettingDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.'**
+  String get pushSettingDescription;
+
+  /// No description provided for @pushSettingUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La configuration Firebase doit être ajoutée à cette version de l’application.'**
+  String get pushSettingUnavailable;
+
+  /// No description provided for @pushSettingDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez les notifications dans les paramètres Android, puis réessayez.'**
+  String get pushSettingDenied;
+
+  /// No description provided for @pushSettingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activation incomplète. Vérifiez votre connexion et réessayez.'**
+  String get pushSettingError;
+
+  /// No description provided for @pushForegroundNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle activité sur votre trajet.'**
+  String get pushForegroundNotice;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get pushOpen;
+
+  /// No description provided for @pushChatMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez reçu un nouveau message dans le chat du trajet.'**
+  String get pushChatMessage;
 }
 
 class _AppLocalizationsDelegate

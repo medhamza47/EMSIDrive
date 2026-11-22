@@ -34,4 +34,8 @@ Thumbs.db
 # Environment / secrets
 .env
 .env.local
+google-services.json
+GoogleService-Info.plist
+firebase-service-account*.json
+**/*firebase-adminsdk*.json
 *.log

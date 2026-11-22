@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../notifications/presentation/push_setting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -150,6 +151,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
         const _BiometricSetting(),
+        const PushSetting(),
         OutlineButton(
           label: l.signOutLabel,
           icon: Icons.logout,

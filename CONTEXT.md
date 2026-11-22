@@ -7,6 +7,29 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Intégration des notifications système du 22 novembre 2026
+
+- V25 crée `push_devices` et `push_deliveries`. Un trigger lie la file à la
+  transaction d’insertion des notifications de trajet, y compris `CHAT_MESSAGE`.
+- `PUT /api/v1/me/push-devices` inscrit un identifiant d’installation FCM avec le
+  refresh token actif du même compte. `DELETE` retire uniquement l’appareil du
+  compte authentifié. La rotation transfère le lien vers le nouveau refresh token.
+- `PushDeliveryWorker` verrouille les envois et appareils avec `SKIP LOCKED`,
+  vérifie le compte, la génération et la session, puis envoie via `PushSender`.
+  Réessais bornés à cinq, expiration après une heure, suppression des cibles FCM
+  désinscrites. Un expéditeur simulé permet les tests sans compte Firebase.
+- Flutter utilise `PushService`, `PushHost` et `PushSetting`. Inscription après
+  consentement, réessai au retour au premier plan, validation des UUID et du compte
+  pour les liens, retrait lors de la déconnexion. Les textes sont dans `app_fr.arb`.
+- Le plugin Google Services Android est conditionnel au fichier local
+  `mobile/android/app/google-services.json`. Le SDK Flutter utilise `register()`
+  et `onRegistered`, le SDK Admin 9.12 utilise `setFid()`.
+- L’activation demande `PUSH_ENABLED=true` côté serveur avec des credentials ADC,
+  et `--dart-define=PUSH_ENABLED=true` côté Android. Les fichiers Firebase et clés
+  de service sont exclus du dépôt. Les commandes figurent dans le README.
+- Aucun projet Firebase n’est encore configuré. La réception réelle sur Android
+  reste à vérifier après configuration. Le push iOS attend sa configuration APNs.
+
 **EMSIDrive** est une plateforme de covoiturage réservée aux étudiants de l'**EMSI Marrakech**.
 
 Elle permet à un étudiant de publier ou de demander un trajet, de trouver des conducteurs proches,

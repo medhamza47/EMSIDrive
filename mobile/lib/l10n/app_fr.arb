@@ -779,5 +779,14 @@
   },
   "biometricOfferAccept": "Activer",
   "biometricOfferLater": "Plus tard",
-  "biometricEnabledMessage": "Connexion par empreinte activée."
+  "biometricEnabledMessage": "Connexion par empreinte activée.",
+  "pushSettingTitle": "Notifications du téléphone",
+  "pushSettingEnable": "Activer les notifications",
+  "pushSettingDescription": "Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.",
+  "pushSettingUnavailable": "La configuration Firebase doit être ajoutée à cette version de l’application.",
+  "pushSettingDenied": "Autorisez les notifications dans les paramètres Android, puis réessayez.",
+  "pushSettingError": "Activation incomplète. Vérifiez votre connexion et réessayez.",
+  "pushForegroundNotice": "Nouvelle activité sur votre trajet.",
+  "pushOpen": "Ouvrir",
+  "pushChatMessage": "Vous avez reçu un nouveau message dans le chat du trajet."
 }
