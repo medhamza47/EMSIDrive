@@ -48,6 +48,10 @@ class RideListing {
       canEdit = json['can_edit'] as bool? ?? false,
       canCancel = json['can_cancel'] as bool? ?? false,
       vehicle = json['vehicle_preference'] as String? ?? 'ANY',
+      vehicleId = json['vehicle_id'] as String?,
+      vehicleDetails = RideVehicleDetails.fromJson(json),
+      authorRating = (json['author_rating'] as num?)?.toDouble(),
+      authorRatingCount = (json['author_rating_count'] as num?)?.toInt() ?? 0,
       path = RidePath.fromJson(json);
 
   final String id;
@@ -62,6 +66,10 @@ class RideListing {
   final bool canEdit;
   final bool canCancel;
   final String vehicle;
+  final String? vehicleId;
+  final RideVehicleDetails? vehicleDetails;
+  final double? authorRating;
+  final int authorRatingCount;
   final RidePath path;
 }
 
@@ -111,6 +119,7 @@ class AcceptedRide {
       liveAccuracy = (json['live_accuracy'] as num?)?.toDouble(),
       liveHeading = (json['live_heading'] as num?)?.toDouble(),
       status = json['status'] as String? ?? 'CONFIRMED',
+      vehicleDetails = RideVehicleDetails.fromJson(json),
       path = RidePath.fromJson(json),
       live = json['live_latitude'] == null
           ? null
@@ -151,6 +160,7 @@ class AcceptedRide {
   final String status;
   bool get active =>
       stage.active && (status == 'CONFIRMED' || status == 'ONGOING');
+  final RideVehicleDetails? vehicleDetails;
   final RidePath path;
   final LatLng? live;
   final RideStage stage;
@@ -164,6 +174,22 @@ class AcceptedRide {
           now.difference(liveUpdatedAt!).inSeconds < 30
       ? live
       : null;
+}
+
+class RideVehicleDetails {
+  const RideVehicleDetails(this.brand, this.model, this.color);
+  static RideVehicleDetails? fromJson(Map<String, dynamic> json) =>
+      json['vehicle_brand'] == null
+      ? null
+      : RideVehicleDetails(
+          json['vehicle_brand'] as String,
+          json['vehicle_model'] as String? ?? '',
+          json['vehicle_color'] as String?,
+        );
+  final String brand, model;
+  final String? color;
+  String get label =>
+      [brand, model, if (color?.isNotEmpty == true) color!].join(' · ');
 }
 
 class RideMessage {

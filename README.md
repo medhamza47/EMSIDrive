@@ -12,11 +12,16 @@ l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 | Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
+| Véhicules | **Profil → Mes véhicules** permet de consulter, ajouter, modifier et supprimer ses véhicules avec confirmation. Type, marque, modèle, couleur facultative et places passagers sont enregistrés par compte via l’API existante. |
 | Planning et lecture sur téléphone | Sur Android 8+, lecture JPEG/PNG/PDF sur l’appareil avec PP-OCRv6 Small embarqué, sans clé ni appel IA externe. Le mode **En ligne** conserve l’import en arrière-plan avec reprise depuis Planning ou Profil. Les deux modes demandent de vérifier les horaires avant l’enregistrement. |
 | Carte de Marrakech | Choix du sens **Vers l’EMSI** ou **Depuis l’EMSI**, puis du campus **Targa** ou **Centre**. Pour l’autre extrémité, l’étudiant place un repère sur la carte ou utilise **Ma position**. L’aperçu routier affiche le tracé, la distance et la durée estimée. |
 | Annonces | **Trajets** sépare les **Demandes**, les **Offres** et **Mes trajets**. La publication et l’acceptation passent par l’API. La fiche d’une annonce affiche le tracé avant l’acceptation. |
 | Acceptation | L’API réserve la place et crée, dans la même transaction, une notification pour l’auteur de l’annonce. Les deux participants retrouvent le trajet dans **Mes trajets** et peuvent s’écrire dans un chat privé. |
 | Suivi | Depuis un trajet accepté, le conducteur peut activer **Partager ma position**. Le passager voit le repère s’actualiser sur sa carte toutes les quelques secondes. |
+| Bilan et évaluations | Un trajet terminé propose **Voir le bilan et évaluer**. Le bilan privé affiche l’itinéraire, la durée réelle disponible et les participants. Chacun peut noter son partenaire de 1 à 5 avec un commentaire facultatif. La moyenne et le nombre d’avis apparaissent sur le profil et sur les annonces. |
+| Frais | Après la fin du trajet, le conducteur peut confirmer un total en MAD. Le serveur conserve une répartition par place occupée, conducteur compris, avec un arrondi exact au centime. |
+| Administration Angular | Connexion administrateur, indicateurs réels, recherche et consultation des comptes, suspension/réactivation motivée, supervision des trajets filtrés et historique des décisions. |
+| Signalements | Envoi depuis une annonce ou un trajet accepté, suivi dans **Profil → Mes signalements**, examen et décision dans le back-office. |
 
 Le point en ville est arrondi dans l’annonce publique. Les coordonnées exactes, le chat
 et la position du conducteur sont accessibles aux participants via le trajet accepté.
@@ -25,9 +30,240 @@ arrière-plan. Le serveur masque une position datant de plus de 30 secondes. Les
 notifications d’acceptation apparaissent dans l’application, avec un indicateur de non-lu.
 
 L’accueil affiche le nom du compte et ses prochains trajets confirmés depuis l’API.
-Certains anciens écrans issus des maquettes, le partage des frais et les évaluations
-utilisent encore des interactions simulées. L’API de gestion des véhicules existe.
-Les notifications système et le back-office restent à réaliser.
+Certains anciens écrans de recherche de conducteurs issus des maquettes utilisent
+encore des interactions simulées. Les accès aux frais et aux évaluations ouvrent
+désormais l’historique des trajets réels.
+Les notifications système Android disposent d’une intégration Firebase configurée localement.
+Le back-office Angular est relié à la même API et à la même base PostgreSQL.
+
+### Suivi de l’avancement
+
+Estimation fonctionnelle établie le 22 novembre 2026, sur le périmètre global
+mobile, API, administration et mise en ligne. Chaque ligne représente une part
+du projet, appréciée selon les fonctions réalisées et les validations restantes.
+Les pondérations sont une estimation de travail et pourront être révisées si le
+périmètre change. Après chaque tâche terminée, mettre cette grille à jour et
+communiquer le pourcentage au demandeur.
+
+| Domaine | Points réalisés | Poids |
+| --- | --- | --- |
+| Comptes et profil | 15 | 15 |
+| Demandes, offres et cycle du trajet | 20 | 20 |
+| Cartes et suivi GPS | 8 | 10 |
+| Chat privé | 8 | 10 |
+| Notifications | 8 | 10 |
+| Planning, import et suggestions | 9 | 10 |
+| Gestion des véhicules | 5 | 5 |
+| Évaluations et partage des frais | 5 | 5 |
+| Back-office | 5 | 5 |
+| Qualité, validation sur appareils et déploiement | 4 | 10 |
+| **Total** | **87** | **100** |
+
+La gestion mobile des véhicules a fait passer l’estimation de **70 % à 74 %**.
+Le parcours véhicule, bilan, évaluations, frais et livraison FCM de fin de trajet
+porte ensuite l’estimation à **82 %**. L’administration Angular et la modération
+portent l’estimation à **87 %**. Les validations à deux téléphones physiques et
+le déploiement font partie du travail restant.
+
+### Administration Angular et modération
+
+Angular **21 LTS**, avec TypeScript et composants standalone, est choisi pour sa
+compatibilité avec Node **22.17** installé sur le poste. Le serveur de développement
+Angular relaie `/api` vers `http://127.0.0.1:8081`.
+
+Depuis la racine, lancer le backend puis ouvrir un second PowerShell pour Angular.
+
+```powershell
+.\scripts\start-backend.ps1 -Port 8081
+```
+
+```powershell
+cd admin-web
+npm ci
+npm start
+```
+
+Ouvrir [l’administration locale](http://127.0.0.1:4200). Si npm 10.9.2 échoue avec
+`edgesOut`, utiliser `npx --yes npm@11 ci`, puis `npm start`.
+
+Le compte doit posséder le rôle `ADMIN` dans PostgreSQL. Pour préparer un compte
+sur une nouvelle installation, l’inscrire dans l’application puis exécuter depuis
+la racine du dépôt la commande suivante avec son adresse réelle.
+
+```powershell
+.\scripts\grant-admin.ps1 -Email administrateur@emsi-edu.ma
+```
+
+Cette procédure cible le conteneur local `emsidrive-postgres` et enregistre l’octroi
+dans l’historique. L’inscription publique crée toujours un compte étudiant.
+Sur le poste de développement actuel, un compte dédié `admin.local@emsi-edu.ma`
+est prêt. Son mot de passe aléatoire est conservé dans
+`%LOCALAPPDATA%\EMSIDrive\admin-login.txt`, à l’extérieur du dépôt.
+
+Les rubriques **Vue d’ensemble**, **Utilisateurs**, **Trajets**, **Signalements** et
+**Historique** utilisent les données réelles. Les listes sont paginées par 20.
+Les trajets se filtrent par type, campus, état et date à Marrakech. Les indicateurs
+sont cumulés et les trajets terminés comptent les offres terminées.
+
+Dans le mobile, ouvrir une annonce d’un autre étudiant puis **Signaler un problème**,
+ou utiliser le drapeau en haut d’un trajet accepté. Choisir le motif et décrire
+les faits. **Profil → Mes signalements** affiche les 100 derniers dossiers envoyés.
+Le serveur déduit la personne concernée et vérifie la participation au trajet.
+Un identifiant d’envoi stable permet de réessayer après une coupure réseau.
+
+Un administrateur peut passer un dossier en examen, le résoudre, le classer ou
+le rouvrir avec une note. Les décisions et changements d’accès sont historisés
+dans la même transaction. Une révision empêche l’écrasement d’une décision concurrente.
+Les comptes administrateur sont protégés contre la suspension dans cette interface.
+Un administrateur impliqué dans un dossier doit en confier l’examen à un autre.
+
+La suspension invalide les jetons d’accès existants et révoque les sessions,
+les liens biométriques et les appareils de notification. Les annonces de ce compte
+sortent des listes publiques et leur acceptation est bloquée côté serveur.
+Après réactivation, une nouvelle connexion est nécessaire.
+
+Le back-office s’exécute localement. La validation visuelle automatisée a été
+interrompue par l’outil de contrôle de Chrome. Le contrôle manuel du rendu et le
+déploiement HTTPS restent à effectuer.
+
+### Gérer ses véhicules
+
+Ouvrir **Profil → Mes véhicules → Ajouter un véhicule**. Choisir voiture ou moto,
+renseigner la marque, le modèle, la couleur facultative et de 1 à 8 places
+passagers, puis enregistrer. Chaque carte propose la modification et la
+suppression avec confirmation. En cas d’échec d’enregistrement, les champs
+restent remplis pour permettre un nouvel essai. Un changement de compte recharge
+la liste et bloque l’enregistrement d’un formulaire ouvert sur l’ancien compte.
+
+La publication d’une offre propose les véhicules du compte. Le serveur vérifie
+leur propriétaire, leur état actif, le type et la capacité. Les annonces et les
+trajets conservent la marque, le modèle et la couleur enregistrés lors de la
+publication, même si le véhicule est ensuite modifié ou supprimé. Les anciennes
+offres et les clients qui omettent `vehicleId` restent compatibles.
+
+### Terminer, évaluer et partager les frais
+
+Depuis **Mes trajets**, le conducteur démarre puis termine le trajet. Dans
+**Historique**, ouvrir le trajet puis **Voir le bilan et évaluer**. Le bilan
+regroupe le conducteur et les réservations terminées de la même offre. La durée
+provient des heures serveur de début et de fin et reste absente si un ancien
+trajet ne dispose pas de ces heures.
+
+Chaque auteur peut publier une seule évaluation définitive par réservation.
+Le serveur déduit le destinataire à partir des participants et refuse les avis
+avant la fin du trajet. Un nouvel envoi identique est accepté sans créer de
+doublon. Un avis différent après publication est refusé.
+
+Seul le conducteur renseigne les frais après la fin du trajet. Le montant est
+compris entre 0 et 99 999,99 MAD, avec deux décimales maximum. La répartition est
+définitive après confirmation. Chaque place occupée porte le même poids, avec
+une place pour le conducteur. Une réservation de trois places prend en charge
+trois parts. Les centimes restants sont affectés d’abord au conducteur puis aux
+passagers, dans un ordre stable. La somme des contributions égale le total.
+L’application conserve un récapitulatif de contributions à régler entre
+participants. Le règlement effectif reste à organiser entre eux.
+
+V26 ajoute les informations historiques du véhicule et une contrainte unique
+pour les nouvelles évaluations marketplace. Les tables `ratings`, `fuel_splits`
+et `fuel_shares` existantes sont réutilisées. Les mutations verrouillent le
+trajet dans le même ordre que son cycle de vie, pour sérialiser les doubles
+soumissions et conserver le partage des frais dans une seule transaction.
+
+Les nouvelles routes authentifiées sont `GET /api/v1/marketplace/trips/{id}/summary`,
+`PUT /api/v1/marketplace/trips/{id}/review` et
+`PUT /api/v1/marketplace/trips/{id}/costs`. Le bilan est réservé aux participants
+d’une réservation terminée. Les accès historiques `/rides/fuel` et `/rides/review`
+redirigent vers l’historique pour choisir le trajet concerné.
+
+## Notifications système Android
+
+L’intégration FCM couvre les acceptations, les nouveaux messages et le démarrage,
+la fin ou l’annulation d’un trajet. **Profil → Notifications du téléphone** permet
+d’autoriser ou de désactiver les alertes. Un appui ouvre le trajet du compte
+destinataire après vérification de la session. Au premier plan, une bannière
+propose d’ouvrir le trajet.
+
+Le projet Firebase **EMSIDrive** (`emsidrive-a62d1`) est configuré localement avec
+l’application Android et Cloud Messaging HTTP v1 activé. Le fichier Android est
+ignoré par Git et la clé privée du serveur reste hors du dépôt.
+
+Au démarrage, Android essaie de charger sa configuration Firebase. Une version
+sans fichier Firebase affiche la configuration manquante dans le profil et garde
+les notifications dans l’application. `--dart-define=PUSH_ENABLED=false` désactive
+explicitement cette intégration pour une compilation.
+
+### Activation
+
+1. Créer un projet Firebase et ajouter l’application Android
+   `ma.emsi.emsidrive.emsidrive_mobile`.
+2. Placer le fichier téléchargé dans `mobile/android/app/google-services.json`.
+   Gradle active le plugin Google Services lorsque ce fichier existe.
+3. Activer l’API Firebase Cloud Messaging HTTP v1. Dans les réglages du projet,
+   ouvrir **Comptes de service** et générer une clé pour le backend. Conserver
+   cette clé hors du dépôt et de l’application Android.
+4. Définir les variables dans le PowerShell qui démarre le backend, en adaptant
+   le chemin de la clé. Redémarrer le backend s’il fonctionne déjà.
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS = 'C:\secrets\firebase-service-account.json'
+$env:PUSH_ENABLED = 'true'
+.\scripts\start-backend.ps1 -Port 8081
+```
+
+5. Compiler ou lancer Android avec Firebase activé.
+
+```powershell
+cd mobile
+flutter run -d emulator-5554 --dart-define=PUSH_ENABLED=true --dart-define=API_BASE_URL=http://10.0.2.2:8081
+```
+
+6. Se connecter, ouvrir **Profil**, activer les notifications et accepter
+   l’autorisation Android. Sur téléphone physique, remplacer `10.0.2.2` par
+   l’adresse réseau du PC ou celle du backend hébergé.
+
+Sur le PC configuré, la clé serveur est conservée dans
+`%LOCALAPPDATA%\EMSIDrive\firebase-service-account.json`. Le script
+`start-backend.ps1` la détecte et active l’envoi. Le paramètre
+`-FirebaseCredentials 'chemin-du-fichier.json'` permet d’utiliser un autre fichier.
+Le backend doit être redémarré après un changement de configuration. Les collègues
+doivent installer leur configuration locale avant de tester Firebase.
+
+### Livraison et tests
+
+V25 ajoute les appareils et une file PostgreSQL, alimentée dans la transaction
+de chaque événement. Les anciennes alertes ne sont pas envoyées à un nouvel
+appareil. Le serveur traite la file toutes les cinq secondes, réessaie les échecs
+au maximum cinq fois et expire les envois après une heure. Les alertes lues sont
+écartées. Le tag Android reprend l’identifiant de notification pour remplacer
+les doublons dans le volet système. Une interruption après un envoi peut provoquer
+un réessai.
+
+Le mobile utilise les identifiants d’installation renvoyés par `register()` et
+le SDK Admin utilise `setFid()`. Les alertes affichent un texte générique. Le chat
+et le GPS restent dans l’API authentifiée. L’inscription dépend d’un jeton de
+renouvellement actif, conservé lors de sa rotation. La déconnexion serveur bloque
+les envois suivants. Le mobile retire aussi son inscription et un changement de
+compte invalide les anciens envois en attente.
+
+Le manifeste Android active `firebase_messaging_installation_id_enabled`, requis
+par le SDK pour `register()` et `onRegistered`. Après un changement du manifeste,
+recompiler et réinstaller l’application. Un rechargement Flutter ne suffit pas.
+
+Les tests automatisés utilisent un expéditeur simulé. Le 22 novembre 2026,
+l’activation a inscrit l’émulateur Pixel 5 dans `push_devices`. Un envoi direct
+par le SDK Admin et les credentials locaux a affiché « Test des notifications
+réussi. » dans Android, application en arrière-plan. Un second essai avec le
+conducteur via l’API et le passager dans l’émulateur a validé les événements de
+chat, démarrage et fin via la file PostgreSQL et le worker FCM. La notification
+« Trajet terminé » a été affichée en arrière-plan et a rouvert le trajet. Les
+essais sur deux téléphones physiques et après fermeture normale restent à
+effectuer. Android suspend les messages après un
+arrêt forcé jusqu’à la réouverture manuelle. Le push iOS nécessite sa configuration
+Firebase/APNs et une validation sur appareil.
+
+Les étapes s’appuient sur les guides officiels de
+[réception Flutter](https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages)
+et de [configuration Admin](https://firebase.google.com/docs/admin/setup).
 
 ## Analyse avancee avec PaddleOCR-VL
 
@@ -133,6 +369,10 @@ compatible avec [pubspec.yaml](./mobile/pubspec.yaml), et un téléphone Android
 
 Pour une copie clonée du dépôt, les commandes suivantes permettent de récupérer la
 branche [`develop`](https://github.com/medhamza47/EMSIDrive/tree/develop).
+
+Les fonctionnalités développées jusqu’au 22 novembre 2026, dont les notifications,
+les véhicules, les bilans et l’administration Angular, sont intégrées dans
+`develop`. Cette branche sert de référence commune pour les contributions.
 
 ```bash
 git fetch origin
@@ -456,8 +696,35 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 | Serveur | `mvn clean verify` depuis `backend/`, avec Docker pour les tests d’intégration PostgreSQL. |
 | Parcours à deux comptes | `mvn -Dtest=RideMarketplaceIntegrationTest test` depuis `backend/`. Le test couvre les deux types d’annonce, les accès privés, les notifications, le chat et la position. |
 | Mobile | `flutter analyze` puis `flutter test` depuis `mobile/`. Les tests couvrent aussi la confirmation des cours, les champs incertains et les réponses vides. |
+| Administration | `npm run build` puis `npm test -- --watch=false` depuis `admin-web/`. |
 
-### Dernière validation : connexion par empreinte
+### Validation du 22 novembre 2026
+
+- `mvn test` passe avec **128 tests backend**, dont cinq parcours PostgreSQL de
+  modération, de contrôle des rôles, de suspension et de confidentialité. Les tests
+  couvrent aussi la file push, le bilan, les frais, les avis, les véhicules des
+  offres et les soumissions concurrentes.
+- `flutter test` passe avec **220 tests Flutter**, dont trois tests de signalements,
+  huit tests de notifications et trois tests de gestion des véhicules, couvrant le parcours
+  HTTP, la confirmation de suppression, la reprise après erreur et le changement
+  de compte.
+- Trois tests supplémentaires couvrent le bilan réel via HTTP, l’évaluation,
+  la confirmation des frais, la reprise après erreur et la compatibilité des
+  anciennes données.
+- Les **20 tests ciblés** `VehicleServiceTest` et `ProfileVehicleIntegrationTest`
+  passent, avec contrôle des propriétaires et persistance PostgreSQL.
+- `flutter analyze` ne signale aucun problème.
+- `npm run build` réussit et **11 tests Angular** passent, dont l’authentification,
+  les renouvellements concurrents, les indicateurs et les formulaires de modération.
+- Le projet Firebase et les paramètres locaux sont installés. L’inscription de
+  l’émulateur et la réception d’un envoi FCM direct en arrière-plan sont validées.
+- Un trajet de démonstration du 22 novembre est conservé dans l’historique local
+  pour présenter le bilan et la répartition de 10,01 MAD. Le conducteur de test
+  utilise l’API, le passager utilise l’émulateur. La position GPS de ce parcours
+  est une coordonnée de test envoyée à l’API. Les capteurs de deux téléphones
+  physiques restent à vérifier ensemble.
+
+### Validation précédente de la connexion par empreinte
 
 Vérifications effectuées le **15 novembre 2026** :
 

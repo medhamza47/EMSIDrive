@@ -14,6 +14,10 @@ String tripStageLabel(AppLocalizations l, RideStage stage) => switch (stage) {
 
 String rideNoticeLabel(AppLocalizations l, RideNotice notice) =>
     switch (notice.title) {
+      'CHAT_MESSAGE' => l.pushChatMessage,
+      'TRIP_CANCELLED' => l.rideNoticeCancelled,
+      'TRIP_STARTED' => l.rideNoticeStarted,
+      'TRIP_COMPLETED' => l.rideNoticeCompleted,
       'REQUEST_ACCEPTED' => l.requestAcceptedNotice(notice.accepter),
       'OFFER_ACCEPTED' => l.offerAcceptedNotice(notice.accepter),
       'BOOKING_CONFIRMED' => l.tripBookingConfirmed,

@@ -34,6 +34,8 @@ spring:
     baseline-on-migrate: true
 
 app:
+  push:
+    enabled: ${PUSH_ENABLED:false}
   schedule:
     openrouter-api-key: ${OPENROUTER_API_KEY:}
     openrouter-model: ${OPENROUTER_MODEL:particle-ai/particle-1:free}

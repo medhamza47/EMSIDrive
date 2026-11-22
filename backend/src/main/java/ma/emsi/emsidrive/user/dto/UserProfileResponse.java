@@ -21,9 +21,15 @@ public record UserProfileResponse(
         UserRole role,
         boolean enabled,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        Double rating,
+        long ratingCount) {
 
     public static UserProfileResponse from(User user) {
+        return from(user, null, 0);
+    }
+
+    public static UserProfileResponse from(User user, Double rating, long ratingCount) {
         return new UserProfileResponse(
                 user.getId(),
                 user.getEmail(),
@@ -37,6 +43,6 @@ public record UserProfileResponse(
                 user.getRole(),
                 user.isEnabled(),
                 user.getCreatedAt(),
-                user.getUpdatedAt());
+                user.getUpdatedAt(), rating, ratingCount);
     }
 }

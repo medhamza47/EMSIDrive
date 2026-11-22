@@ -1820,4 +1820,272 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get timetableLocalFailed =>
       'La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement.';
+
+  @override
+  String get pushSettingTitle => 'Notifications du téléphone';
+
+  @override
+  String get pushSettingEnable => 'Activer les notifications';
+
+  @override
+  String get pushSettingDescription =>
+      'Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.';
+
+  @override
+  String get pushSettingUnavailable =>
+      'La configuration Firebase doit être ajoutée à cette version de l’application.';
+
+  @override
+  String get pushSettingDenied =>
+      'Autorisez les notifications dans les paramètres Android, puis réessayez.';
+
+  @override
+  String get pushSettingError =>
+      'Activation incomplète. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get pushForegroundNotice => 'Nouvelle activité sur votre trajet.';
+
+  @override
+  String get pushOpen => 'Ouvrir';
+
+  @override
+  String get pushChatMessage =>
+      'Vous avez reçu un nouveau message dans le chat du trajet.';
+
+  @override
+  String get vehiclesTitle => 'Mes véhicules';
+
+  @override
+  String get vehiclesDescription =>
+      'Gérez les véhicules associés à votre compte conducteur.';
+
+  @override
+  String get vehiclesEmpty => 'Vous n’avez pas encore ajouté de véhicule.';
+
+  @override
+  String get vehiclesAdd => 'Ajouter un véhicule';
+
+  @override
+  String get vehiclesEdit => 'Modifier le véhicule';
+
+  @override
+  String get vehiclesDelete => 'Supprimer le véhicule';
+
+  @override
+  String vehiclesDeleteConfirm(String name) {
+    return 'Supprimer $name de votre compte ?';
+  }
+
+  @override
+  String get vehiclesCancel => 'Annuler';
+
+  @override
+  String get vehiclesType => 'Type de véhicule';
+
+  @override
+  String get vehiclesBrand => 'Marque';
+
+  @override
+  String get vehiclesModel => 'Modèle';
+
+  @override
+  String get vehiclesColor => 'Couleur (facultative)';
+
+  @override
+  String get vehiclesSeats => 'Places passagers';
+
+  @override
+  String vehiclesSeatCount(int count) {
+    return '$count place(s) passager(s)';
+  }
+
+  @override
+  String get vehiclesRequired => 'Ce champ est obligatoire.';
+
+  @override
+  String get vehiclesSave => 'Enregistrer le véhicule';
+
+  @override
+  String get tripVehicleHint =>
+      'Choisissez votre véhicule pour que les passagers puissent le reconnaître.';
+
+  @override
+  String get tripVehicleLabel => 'Véhicule de cette offre';
+
+  @override
+  String get tripVehicleUnspecified => 'Véhicule non renseigné';
+
+  @override
+  String tripRatingLabel(String rating, int count) {
+    return '★ $rating/5 · $count avis';
+  }
+
+  @override
+  String get tripSummaryTitle => 'Bilan du trajet';
+
+  @override
+  String get tripSummaryOpen => 'Voir le bilan et évaluer';
+
+  @override
+  String get tripParticipants => 'Participants';
+
+  @override
+  String get tripDriver => 'Conducteur';
+
+  @override
+  String tripDuration(int minutes) {
+    return 'Durée réelle · $minutes min';
+  }
+
+  @override
+  String tripReviewTitle(String name) {
+    return 'Évaluer $name';
+  }
+
+  @override
+  String get tripReviewHint =>
+      'Une seule évaluation définitive est autorisée par participant pour ce trajet.';
+
+  @override
+  String tripReviewStars(int score) {
+    return '$score étoiles';
+  }
+
+  @override
+  String tripReviewSaved(int score) {
+    return 'Votre évaluation a été enregistrée · $score/5';
+  }
+
+  @override
+  String get tripReviewComment => 'Commentaire (facultatif)';
+
+  @override
+  String get tripReviewSubmit => 'Envoyer mon évaluation';
+
+  @override
+  String get tripCostsTitle => 'Partage des frais';
+
+  @override
+  String get tripCostsRule =>
+      'Les frais en MAD sont répartis par place occupée, conducteur compris. Une réservation de plusieurs places prend en charge ces places. Les centimes restants sont répartis en commençant par le conducteur. Le montant est définitif après confirmation.';
+
+  @override
+  String get tripCostsAmount => 'Frais totaux du trajet';
+
+  @override
+  String get tripCostsInvalid =>
+      'Saisissez un montant de 0 à 99 999,99 MAD, avec deux décimales maximum.';
+
+  @override
+  String get tripCostsPublish => 'Confirmer le partage';
+
+  @override
+  String get tripCostConfirm =>
+      'Publier définitivement ce montant et sa répartition entre les participants ?';
+
+  @override
+  String tripCostsTotal(String amount) {
+    return 'Total du trajet · $amount MAD';
+  }
+
+  @override
+  String get tripCostsWaiting =>
+      'Le conducteur pourra renseigner les frais de ce trajet.';
+
+  @override
+  String get tripYourShare => 'Votre contribution';
+
+  @override
+  String get reportTitle => 'Signaler un problème';
+
+  @override
+  String get reportHint =>
+      'Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.';
+
+  @override
+  String get reportCategory => 'Motif';
+
+  @override
+  String get reportHarassment => 'Harcèlement';
+
+  @override
+  String get reportNoShow => 'Absence au rendez-vous';
+
+  @override
+  String get reportUnsafeDriving => 'Conduite dangereuse';
+
+  @override
+  String get reportFakeProfile => 'Faux profil';
+
+  @override
+  String get reportPayment => 'Partage des frais';
+
+  @override
+  String get reportOther => 'Autre';
+
+  @override
+  String get reportDescription => 'Description';
+
+  @override
+  String get reportDescriptionHint => 'Explique ce qui s’est passé…';
+
+  @override
+  String get reportRequired => 'Décris le problème avant de l’envoyer.';
+
+  @override
+  String get reportTooLong =>
+      'Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.';
+
+  @override
+  String get reportSessionChanged =>
+      'Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.';
+
+  @override
+  String get reportSend => 'Envoyer le signalement';
+
+  @override
+  String get reportSent => 'Signalement envoyé';
+
+  @override
+  String get reportSentHint =>
+      'Tu peux suivre son traitement dans Profil → Mes signalements.';
+
+  @override
+  String get reportClose => 'Fermer';
+
+  @override
+  String get reportFailed =>
+      'L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.';
+
+  @override
+  String get reportRetryHint =>
+      'Les informations sont conservées pour réessayer le même envoi sans créer de doublon.';
+
+  @override
+  String reportReference(String id) {
+    return 'Référence $id';
+  }
+
+  @override
+  String get myReports => 'Mes signalements';
+
+  @override
+  String get myReportsHint =>
+      'Les 100 derniers signalements que tu as envoyés et leur état de traitement.';
+
+  @override
+  String get myReportsEmpty => 'Tu n’as envoyé aucun signalement.';
+
+  @override
+  String get reportOpen => 'Ouvert';
+
+  @override
+  String get reportUnderReview => 'En examen';
+
+  @override
+  String get reportResolved => 'Résolu';
+
+  @override
+  String get reportDismissed => 'Classé';
 }

@@ -977,5 +977,148 @@
   "timetableLocalAmbiguous": "Les horaires lus sont contradictoires ou se chevauchent. Essayez une photo plus nette, l’analyse en ligne ou la saisie manuelle.",
   "timetableLocalMemory": "Cette image utilise trop de mémoire. Recadrez la photo autour du tableau puis réessayez.",
   "timetableLocalBusy": "La lecture précédente se termine. Patientez quelques instants puis réessayez.",
-  "timetableLocalFailed": "La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement."
+  "timetableLocalFailed": "La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement.",
+  "pushSettingTitle": "Notifications du téléphone",
+  "pushSettingEnable": "Activer les notifications",
+  "pushSettingDescription": "Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.",
+  "pushSettingUnavailable": "La configuration Firebase doit être ajoutée à cette version de l’application.",
+  "pushSettingDenied": "Autorisez les notifications dans les paramètres Android, puis réessayez.",
+  "pushSettingError": "Activation incomplète. Vérifiez votre connexion et réessayez.",
+  "pushForegroundNotice": "Nouvelle activité sur votre trajet.",
+  "pushOpen": "Ouvrir",
+  "pushChatMessage": "Vous avez reçu un nouveau message dans le chat du trajet.",
+  "vehiclesTitle": "Mes véhicules",
+  "vehiclesDescription": "Gérez les véhicules associés à votre compte conducteur.",
+  "vehiclesEmpty": "Vous n’avez pas encore ajouté de véhicule.",
+  "vehiclesAdd": "Ajouter un véhicule",
+  "vehiclesEdit": "Modifier le véhicule",
+  "vehiclesDelete": "Supprimer le véhicule",
+  "vehiclesDeleteConfirm": "Supprimer {name} de votre compte ?",
+  "@vehiclesDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vehiclesCancel": "Annuler",
+  "vehiclesType": "Type de véhicule",
+  "vehiclesBrand": "Marque",
+  "vehiclesModel": "Modèle",
+  "vehiclesColor": "Couleur (facultative)",
+  "vehiclesSeats": "Places passagers",
+  "vehiclesSeatCount": "{count} place(s) passager(s)",
+  "@vehiclesSeatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vehiclesRequired": "Ce champ est obligatoire.",
+  "vehiclesSave": "Enregistrer le véhicule",
+  "tripVehicleHint": "Choisissez votre véhicule pour que les passagers puissent le reconnaître.",
+  "tripVehicleLabel": "Véhicule de cette offre",
+  "tripVehicleUnspecified": "Véhicule non renseigné",
+  "tripRatingLabel": "★ {rating}/5 · {count} avis",
+  "@tripRatingLabel": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tripSummaryTitle": "Bilan du trajet",
+  "tripSummaryOpen": "Voir le bilan et évaluer",
+  "tripParticipants": "Participants",
+  "tripDriver": "Conducteur",
+  "tripDuration": "Durée réelle · {minutes} min",
+  "@tripDuration": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tripReviewTitle": "Évaluer {name}",
+  "@tripReviewTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tripReviewHint": "Une seule évaluation définitive est autorisée par participant pour ce trajet.",
+  "tripReviewStars": "{score} étoiles",
+  "@tripReviewStars": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "tripReviewSaved": "Votre évaluation a été enregistrée · {score}/5",
+  "@tripReviewSaved": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "tripReviewComment": "Commentaire (facultatif)",
+  "tripReviewSubmit": "Envoyer mon évaluation",
+  "tripCostsTitle": "Partage des frais",
+  "tripCostsRule": "Les frais en MAD sont répartis par place occupée, conducteur compris. Une réservation de plusieurs places prend en charge ces places. Les centimes restants sont répartis en commençant par le conducteur. Le montant est définitif après confirmation.",
+  "tripCostsAmount": "Frais totaux du trajet",
+  "tripCostsInvalid": "Saisissez un montant de 0 à 99 999,99 MAD, avec deux décimales maximum.",
+  "tripCostsPublish": "Confirmer le partage",
+  "tripCostConfirm": "Publier définitivement ce montant et sa répartition entre les participants ?",
+  "tripCostsTotal": "Total du trajet · {amount} MAD",
+  "@tripCostsTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "tripCostsWaiting": "Le conducteur pourra renseigner les frais de ce trajet.",
+  "tripYourShare": "Votre contribution",
+  "reportTitle": "Signaler un problème",
+  "reportHint": "Décris les faits concernant ce trajet ou cette personne. Ton signalement sera examiné par un administrateur.",
+  "reportCategory": "Motif",
+  "reportHarassment": "Harcèlement",
+  "reportNoShow": "Absence au rendez-vous",
+  "reportUnsafeDriving": "Conduite dangereuse",
+  "reportFakeProfile": "Faux profil",
+  "reportPayment": "Partage des frais",
+  "reportOther": "Autre",
+  "reportDescription": "Description",
+  "reportDescriptionHint": "Explique ce qui s’est passé…",
+  "reportRequired": "Décris le problème avant de l’envoyer.",
+  "reportTooLong": "Raccourcis la description à 1 000 caractères maximum, les émojis pouvant en compter plusieurs.",
+  "reportSessionChanged": "Le compte a changé. Rouvre le trajet pour envoyer un signalement avec ton compte actuel.",
+  "reportSend": "Envoyer le signalement",
+  "reportSent": "Signalement envoyé",
+  "reportSentHint": "Tu peux suivre son traitement dans Profil → Mes signalements.",
+  "reportClose": "Fermer",
+  "reportFailed": "L’envoi n’a pas pu être confirmé. Réessaie avec une connexion active.",
+  "reportRetryHint": "Les informations sont conservées pour réessayer le même envoi sans créer de doublon.",
+  "reportReference": "Référence {id}",
+  "@reportReference": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "myReports": "Mes signalements",
+  "myReportsHint": "Les 100 derniers signalements que tu as envoyés et leur état de traitement.",
+  "myReportsEmpty": "Tu n’as envoyé aucun signalement.",
+  "reportOpen": "Ouvert",
+  "reportUnderReview": "En examen",
+  "reportResolved": "Résolu",
+  "reportDismissed": "Classé"
 }

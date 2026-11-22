@@ -17,14 +17,20 @@ import 'trip_status.dart';
 import 'ride_lifecycle.dart';
 import 'ride_request_screen.dart';
 import '../../home/application/home_controller.dart';
+import '../../reports/presentation/report_screens.dart';
 
 String rideDeparture(DateTime date) =>
     DateFormat.MMMEd('fr').add_Hm().format(date);
 
 class MarketplaceBoard extends ConsumerStatefulWidget {
-  const MarketplaceBoard({required this.initialTab, super.key});
+  const MarketplaceBoard({
+    required this.initialTab,
+    this.initialHistory = false,
+    super.key,
+  });
 
   final int initialTab;
+  final bool initialHistory;
 
   @override
   ConsumerState<MarketplaceBoard> createState() => _MarketplaceBoardState();
@@ -34,7 +40,7 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
   late int _tab = widget.initialTab;
   late Future<List<Object>> _items = _load();
   bool _mine = false;
-  bool _history = false;
+  late bool _history = widget.initialHistory;
 
   Future<List<Object>> _load() {
     final api = ref.read(marketplaceApiProvider);
@@ -355,6 +361,15 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                 listing.path.title,
                 rideDeparture(listing.path.departure),
               ),
+              if (listing.vehicleDetails != null)
+                Text(listing.vehicleDetails!.label),
+              if (listing.authorRating != null)
+                Text(
+                  l.tripRatingLabel(
+                    listing.authorRating!.toStringAsFixed(1),
+                    listing.authorRatingCount,
+                  ),
+                ),
               if (listing.notes case final notes? when notes.isNotEmpty)
                 Text(notes),
               if (!listing.own) Text(l.approximatePickup),
@@ -380,6 +395,21 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
                   onPressed: _accepting ? null : () => _cancelListing(listing),
                   icon: const Icon(Icons.cancel_outlined),
                   label: Text(l.rideCancelListing),
+                ),
+              if (!listing.own)
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.flag_outlined),
+                  label: Text(l.reportTitle),
+                  onPressed: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) => ReportScreen(
+                        contextData: {
+                          'kind': listing.kind.name.toUpperCase(),
+                          'listingId': listing.id,
+                        },
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ],

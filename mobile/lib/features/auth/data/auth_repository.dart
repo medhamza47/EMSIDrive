@@ -12,10 +12,15 @@ import 'token_storage.dart';
 /// normalizes every transport failure into an [AppFailure] so callers only deal
 /// with one error taxonomy.
 class AuthRepository {
-  const AuthRepository({required this._api, required this._tokenStorage});
+  const AuthRepository({
+    required this._api,
+    required this._tokenStorage,
+    this.beforeSignOut,
+  });
 
   final AuthApi _api;
   final TokenStorage _tokenStorage;
+  final Future<void> Function()? beforeSignOut;
 
   /// Authenticates a student and stores the returned tokens.
   ///
@@ -52,6 +57,11 @@ class AuthRepository {
   /// The server call is best effort: offline, the phone still signs out and
   /// the refresh token simply expires on its own.
   Future<void> signOut() async {
+    try {
+      await beforeSignOut?.call();
+    } catch (_) {
+      // Local logout still completes when push registration is unavailable.
+    }
     try {
       final refresh = await _tokenStorage.readRefreshToken();
       if (refresh != null && refresh.isNotEmpty) await _api.logout(refresh);

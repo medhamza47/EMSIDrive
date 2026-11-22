@@ -13,6 +13,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BiometricDeviceRepository extends JpaRepository<BiometricDevice, UUID> {
 
+    @Query("SELECT d.user.id FROM BiometricDevice d WHERE d.id = :id")
+    Optional<UUID> findOwner(@Param("id") UUID id);
+
     /** Locks the row so two logins with the same key cannot both rotate it. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT d FROM BiometricDevice d JOIN FETCH d.user WHERE d.id = :id")

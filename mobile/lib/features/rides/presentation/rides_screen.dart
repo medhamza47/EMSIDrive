@@ -7,9 +7,14 @@ import '../../../shared/widgets/flow_page.dart';
 import 'marketplace_screens.dart';
 
 class RidesScreen extends StatelessWidget {
-  const RidesScreen({this.initialTab = 1, super.key});
+  const RidesScreen({
+    this.initialTab = 1,
+    this.initialHistory = false,
+    super.key,
+  });
 
   final int initialTab;
+  final bool initialHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,10 @@ class RidesScreen extends StatelessWidget {
     return FlowPage(
       title: l.navRides,
       children: [
-        MarketplaceBoard(initialTab: initialTab),
+        MarketplaceBoard(
+          initialTab: initialTab,
+          initialHistory: initialHistory,
+        ),
         ExpansionTile(
           title: Text(l.ridesTools),
           tilePadding: EdgeInsets.zero,

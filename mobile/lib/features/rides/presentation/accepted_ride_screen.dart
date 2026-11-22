@@ -5,8 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/routes.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/primary_button.dart';
 import '../../auth/data/session_id_provider.dart';
 import '../../notifications/data/ride_notices_provider.dart';
 import '../application/active_rides_provider.dart';
@@ -19,6 +23,7 @@ import 'marketplace_map.dart';
 import 'marketplace_screens.dart';
 import 'trip_status.dart';
 import '../../home/application/home_controller.dart';
+import '../../reports/presentation/report_screens.dart';
 
 class AcceptedRideScreen extends ConsumerStatefulWidget {
   const AcceptedRideScreen({required this.id, super.key});
@@ -370,6 +375,17 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
                 onPressed: () => _call(ride),
                 icon: const Icon(Icons.call),
               ),
+            if (ride != null)
+              IconButton(
+                tooltip: l.reportTitle,
+                icon: const Icon(Icons.flag_outlined),
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ReportScreen(contextData: {'bookingId': ride.id}),
+                  ),
+                ),
+              ),
           ],
           bottom: TabBar(
             labelColor: colors.primary,
@@ -514,6 +530,13 @@ class _AcceptedRideScreenState extends ConsumerState<AcceptedRideScreen>
               ride.stage != RideStage.completed,
         ),
         const SizedBox(height: 8),
+        if (ride.vehicleDetails != null) Text(ride.vehicleDetails!.label),
+        if (ride.status == 'COMPLETED')
+          PrimaryButton(
+            label: l.tripSummaryOpen,
+            icon: Icons.receipt_long_outlined,
+            onPressed: () => context.push(AppRoutes.tripSummary(ride.id)),
+          ),
         if (ride.stage.active)
           Row(
             children: [

@@ -60,6 +60,7 @@ class MarketplaceApi {
     required String vehicle,
     required String notes,
     RideListing? editing,
+    String? vehicleId,
   }) async {
     await _request<Object>(
       editing == null ? 'POST' : 'PUT',
@@ -67,7 +68,15 @@ class MarketplaceApi {
           ? '/listings'
           : '/listings/${kind.name.toUpperCase()}/${editing.id}',
       data: editing == null
-          ? _listingInput(kind, trip, departure, seats, vehicle, notes)
+          ? _listingInput(
+              kind,
+              trip,
+              departure,
+              seats,
+              vehicle,
+              notes,
+              vehicleId,
+            )
           : {
               'revision': editing.revision,
               'listing': _listingInput(
@@ -77,6 +86,7 @@ class MarketplaceApi {
                 seats,
                 vehicle,
                 notes,
+                vehicleId,
               ),
             },
     );
@@ -89,6 +99,7 @@ class MarketplaceApi {
     int seats,
     String vehicle,
     String notes,
+    String? vehicleId,
   ) => {
     'kind': kind.name.toUpperCase(),
     'campus': trip.campus.name.toUpperCase(),
@@ -98,6 +109,7 @@ class MarketplaceApi {
     'seats': seats,
     'vehicle': vehicle,
     'notes': notes,
+    'vehicleId': ?vehicleId,
   };
 
   Future<void> cancelListing(RideListing listing) async {
@@ -109,6 +121,21 @@ class MarketplaceApi {
 
   Future<void> performAction(String id, String action) async {
     await _request<Object>('POST', '/trips/$id/actions/$action');
+  }
+
+  Future<Map<String, dynamic>> summary(String id) async =>
+      (await _request<Map<String, dynamic>>('GET', '/trips/$id/summary'))!;
+
+  Future<void> review(String id, int score, String comment) async {
+    await _request<Object>(
+      'PUT',
+      '/trips/$id/review',
+      data: {'score': score, 'comment': comment},
+    );
+  }
+
+  Future<void> costs(String id, String total) async {
+    await _request<Object>('PUT', '/trips/$id/costs', data: {'total': total});
   }
 
   Future<String> accept(RideListing listing) async =>

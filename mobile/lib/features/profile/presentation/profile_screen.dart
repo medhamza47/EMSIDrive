@@ -11,6 +11,8 @@ import '../../../shared/widgets/outline_button.dart';
 import '../../../shared/widgets/avatar.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/form_section.dart';
+import '../../notifications/presentation/push_setting.dart';
+import '../../reports/presentation/report_screens.dart';
 import '../application/profile_controller.dart';
 import 'profile_edit_screen.dart';
 import '../../auth/application/biometric_settings_controller.dart';
@@ -144,6 +146,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
+                          if (profile.rating != null)
+                            Text(
+                              l.tripRatingLabel(
+                                profile.rating!.toStringAsFixed(1),
+                                profile.ratingCount,
+                              ),
+                            ),
                           if (profile.major?.isNotEmpty ?? false)
                             Chip(label: Text(profile.major!)),
                         ],
@@ -277,6 +286,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
         const _BiometricSetting(),
+        OutlineButton(
+          label: l.vehiclesTitle,
+          icon: Icons.directions_car_outlined,
+          onPressed: () => context.push(AppRoutes.vehicles),
+        ),
+        const PushSetting(),
+        OutlineButton(
+          label: l.myReports,
+          icon: Icons.flag_outlined,
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute(builder: (_) => const MyReportsScreen()),
+          ),
+        ),
         OutlineButton(
           label: l.signOutLabel,
           icon: Icons.logout,
