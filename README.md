@@ -15,9 +15,9 @@ Cette version unifie l’ensemble des travaux de l’équipe (**Hamza, Nabil, Yo
 2. **Suivi GPS en direct, cycle de vie étendu & contact rapide** :
    - Partage de position GPS conducteur en arrière-plan (`driver_tracking_provider.dart`), calcul dynamique de l’ETA routier (OSRM), étapes guidées (*Confirmé → En route → Au rendez-vous → En cours → Terminé*), barre de trajet actif permanente (`active_ride_bar.dart`), chat privé et boutons d’appel téléphonique / **WhatsApp** direct.
 3. **Fusion complète avec les fonctionnalités de `develop`** :
-   - **Back-office Web Angular 21 (`admin-web/`)** : tableau de bord, gestion des comptes, supervision des trajets, traitement des signalements et journal d’audit (proxy configuré sur le port `8080`).
+   - **Back-office Web Angular 21 (`admin-web/`)** : tableau de bord, gestion des comptes, supervision des trajets, traitement des signalements et journal d’audit (proxy configuré sur le port `8081`).
    - **Gestion des véhicules (`vehicles_screen.dart`)**, **Bilan de fin de trajet, évaluations & partage des frais d’essence (`trip_summary_screen.dart`)** et **Notifications Push Android (Firebase)**.
-   - **Migrations Flyway harmonisées (`V1` à `V29`)** dans `backend/src/main/resources/db/migration/` pour éviter tout conflit de version en base PostgreSQL.
+   - **Migrations Flyway harmonisées (`V1` à `V30`)** dans `backend/src/main/resources/db/migration/` pour éviter tout conflit de version en base PostgreSQL.
 4. **Présentation officielle du projet (`presentation/`)** :
    - Diaporama PowerPoint 15 slides (`presentation/EMSIDrive_Presentation.pptx` et version interactive `presentation/EMSIDrive_Presentation.html`) accompagné des captures d’écran réelles dans `presentation/screenshots/`.
 
