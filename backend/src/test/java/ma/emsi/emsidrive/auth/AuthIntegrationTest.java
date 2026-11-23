@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * migrations and the JPA mappings are exercised together with the HTTP layer.
  */
 @Testcontainers
+@org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthIntegrationTest {
 

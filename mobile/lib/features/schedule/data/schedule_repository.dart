@@ -25,6 +25,17 @@ abstract interface class ScheduleRepository {
   Future<Timetable> save(Timetable timetable);
   Future<void> delete();
   Future<List<ScheduleSuggestion>> suggestions(int commuteMinutes);
+  Future<ScheduleImportJob> startImport(
+    Uint8List bytes,
+    String filename,
+    String group,
+    int revision,
+    CancelToken cancel,
+  );
+  Future<ScheduleImportJob?> latestImport();
+  Future<void> dismissImport(String id);
+  Future<ScheduleTravelPreferences?> travelPreferences();
+  Future<void> saveTravelPreferences(ScheduleTravelPreferences preferences);
 }
 
 class HttpScheduleRepository implements ScheduleRepository {
@@ -71,7 +82,7 @@ class HttpScheduleRepository implements ScheduleRepository {
       'POST',
       '/schedules/analyze',
       data: data,
-      timeout: const Duration(seconds: 100),
+      timeout: Duration.zero,
       cancelToken: cancel,
     );
     return Timetable.fromJson(
@@ -99,10 +110,61 @@ class HttpScheduleRepository implements ScheduleRepository {
     () async =>
         (await _api.request<List<dynamic>>(
               'GET',
-              '/schedules/suggestions',
+              '/schedules/matches',
               query: {'commuteMinutes': commuteMinutes},
             ))!
             .map((s) => ScheduleSuggestion.fromJson(s as Map<String, dynamic>))
             .toList(),
   );
+
+  @override
+  Future<ScheduleImportJob> startImport(
+    Uint8List bytes,
+    String filename,
+    String group,
+    int revision,
+    CancelToken cancel,
+  ) => _guard(() async {
+    final json = await _api.request<Map<String, dynamic>>(
+      'POST',
+      '/schedules/imports',
+      data: FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: filename),
+        'group': group,
+        'revision': revision,
+      }),
+      cancelToken: cancel,
+      timeout: const Duration(seconds: 40),
+    );
+    return ScheduleImportJob.fromJson(json!);
+  });
+  @override
+  Future<ScheduleImportJob?> latestImport() => _guard(() async {
+    final json = await _api.request<Map<String, dynamic>>(
+      'GET',
+      '/schedules/imports/latest',
+    );
+    return json == null ? null : ScheduleImportJob.fromJson(json);
+  });
+  @override
+  Future<void> dismissImport(String id) => _guard(() async {
+    await _api.request<Object>('DELETE', '/schedules/imports/$id');
+  });
+  @override
+  Future<ScheduleTravelPreferences?> travelPreferences() => _guard(() async {
+    final json = await _api.request<Map<String, dynamic>>(
+      'GET',
+      '/schedules/travel-preferences',
+    );
+    return json == null ? null : ScheduleTravelPreferences.fromJson(json);
+  });
+  @override
+  Future<void> saveTravelPreferences(ScheduleTravelPreferences preferences) =>
+      _guard(() async {
+        await _api.request<Object>(
+          'PUT',
+          '/schedules/travel-preferences',
+          data: preferences.toJson(),
+        );
+      });
 }

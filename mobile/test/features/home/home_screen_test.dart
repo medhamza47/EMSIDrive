@@ -56,6 +56,8 @@ void main() {
     testWidgets('lists the upcoming trips with their status', (tester) async {
       await _pumpHome(tester, _StubHomeRepository());
       final l10n = l10nOf();
+      await tester.drag(find.byType(ListView), const Offset(0, -350));
+      await tester.pumpAndSettle();
 
       expect(find.text(l10n.homeUpcomingTripsTitle), findsOneWidget);
       expect(
@@ -87,6 +89,8 @@ void main() {
       );
       final l10n = l10nOf();
 
+      await tester.drag(find.byType(ListView), const Offset(0, -350));
+      await tester.pumpAndSettle();
       expect(find.text(l10n.homeNoUpcomingTripsTitle), findsOneWidget);
       expect(find.text(l10n.homeNoUpcomingTripsMessage), findsOneWidget);
       expect(find.text(l10n.tripStatusConfirmed), findsNothing);

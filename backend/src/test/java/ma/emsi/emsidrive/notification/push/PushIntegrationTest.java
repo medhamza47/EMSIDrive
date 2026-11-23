@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Testcontainers
+@org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PushIntegrationTest {
     @Container
@@ -61,10 +62,30 @@ class PushIntegrationTest {
     }
 
     private UUID notice(JsonNode user) {
+        return notice(user, "CHAT_MESSAGE");
+    }
+
+    private UUID notice(JsonNode user, String title) {
         return jdbc.queryForObject("""
                 INSERT INTO notifications(user_id, type, title, body, reference_type, reference_id)
-                VALUES (?, 'BOOKING', 'CHAT_MESSAGE', '', 'BOOKING', ?) RETURNING id
-                """, UUID.class, UUID.fromString(user.path("user").path("id").asText()), UUID.randomUUID());
+                VALUES (?, 'BOOKING', ?, '', 'BOOKING', ?) RETURNING id
+                """, UUID.class, UUID.fromString(user.path("user").path("id").asText()), title, UUID.randomUUID());
+    }
+
+    @Test
+    void newTrackingEventsRemainConnectedToSystemPush() {
+        var user = account();
+        register(user, UUID.randomUUID().toString());
+        var sender = sender(PushSender.Result.SENT);
+        var worker = new PushDeliveryWorker(jdbc, transactions, sender);
+        for (String event : java.util.List.of("BOOKING_CONFIRMED", "RIDE_EN_ROUTE", "RIDE_ARRIVED",
+                "RIDE_IN_PROGRESS", "RIDE_COMPLETED", "RIDE_CANCELLED", "RIDE_MESSAGE")) {
+            UUID notification = notice(user, event);
+            assertThat(pending(notification)).isEqualTo(1);
+            worker.dispatch();
+            assertThat(pending(notification)).isZero();
+            verify(sender).send(anyString(), eq(notification), any(), any(), eq(event));
+        }
     }
 
     private int pending(UUID notice) {

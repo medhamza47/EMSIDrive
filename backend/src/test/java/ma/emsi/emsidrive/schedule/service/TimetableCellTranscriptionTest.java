@@ -32,4 +32,22 @@ class TimetableCellTranscriptionTest {
         assertThat(root.path("slots").get(0).path("startTime").asText()).isEqualTo("09:00");
         assertThat(root.path("slots").get(0).path("timeEvidence").path("source").asText()).isEqualTo("EXPLICIT");
     }
+
+    @Test void fridayPrintedRowHoursOverrideGenericHeadersAndPreserveTheMeasuredSpan() throws Exception {
+        var input = (com.fasterxml.jackson.databind.node.ObjectNode) mapper.readTree(valid.replace("Lundi", "Vendredi"));
+        input.set("columns", mapper.readTree("[[\"13:00\",\"14:30\"],[\"14:30\",\"16:00\"],[\"16:00\",\"17:30\"]]"));
+        input.putObject("rowColumns").set("1", mapper.readTree("[[\"15:00\",\"16:30\"],[\"16:30\",\"18:00\"],[\"18:00\",\"19:30\"]]"));
+        var normalized = new TimetableCellTranscription(mapper).normalize(input, grid, batch);
+        var analyzer = new GroqScheduleAnalyzer(mapper, "unused", "vision", "http://localhost");
+        var document = new ScheduleDocumentReader.Document(ma.emsi.emsidrive.schedule.entity.ScheduleSource.IMAGE, List.of());
+        var friday = analyzer.parse(normalized.toString(), document).slots().get(0);
+        assertThat(friday.startTime()).isEqualTo("15:00");
+        assertThat(friday.endTime()).isEqualTo("18:00");
+        assertThat(friday.needsReview()).isFalse();
+        input.remove("rowColumns");
+        var uncertain = analyzer.parse(new TimetableCellTranscription(mapper).normalize(input, grid, batch).toString(), document);
+        assertThat(uncertain.slots().get(0).startTime()).isEqualTo("13:00");
+        assertThat(uncertain.slots().get(0).needsReview()).isTrue();
+        assertThat(uncertain.warnings()).anyMatch(w -> w.contains("vendredi"));
+    }
 }

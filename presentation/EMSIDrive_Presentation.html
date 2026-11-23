@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EMSIDrive — Présentation (15 Pages)</title>
+  <style>
+    :root {
+      --bg: #F4F7F4;
+      --surface: #FFFFFF;
+      --forest: #073A2B;
+      --green: #015629;
+      --lime: #B9ED72;
+      --lime-soft: #E8F5E0;
+      --ink: #12241B;
+      --muted: #5F7367;
+      --border: #D6E1D8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg); color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 68px;
+      padding: 0 56px; display: flex; align-items: center; justify-content: space-between; z-index: 30;
+    }
+    .brand { font-size: 24px; font-weight: 800; color: var(--forest); }
+    body.dark-slide .brand { color: #FFFFFF; }
+    .authors { display: flex; gap: 8px; }
+    .author-tag {
+      font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 99px;
+      background: var(--surface); border: 1px solid var(--border); color: var(--forest);
+    }
+    body.dark-slide .author-tag {
+      background: rgba(255,255,255,0.1); border-color: var(--lime); color: #FFFFFF;
+    }
+    .deck { position: relative; width: 100vw; height: 100vh; }
+    .slide {
+      position: absolute; inset: 0; padding: 84px 56px 76px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 42px; align-items: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: var(--bg);
+    }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide.forest { background: var(--forest); color: #FFFFFF; }
+    .slide.full { grid-template-columns: 1fr; }
+    .slide.wide { grid-template-columns: 0.78fr 1.22fr; }
+    .copy { display: flex; flex-direction: column; gap: 18px; }
+    h1 { font-size: 62px; font-weight: 800; line-height: 1.05; }
+    h2 { font-size: 40px; font-weight: 800; line-height: 1.1; }
+    .tech-bar {
+      padding: 14px 18px; border-radius: 14px; background: var(--lime-soft);
+      border: 1px solid var(--border); font-size: 16px; font-weight: 700; color: var(--green);
+    }
+    .forest .tech-bar {
+      background: rgba(255,255,255,0.08); border-color: var(--lime); color: var(--lime);
+    }
+    .list { display: flex; flex-direction: column; gap: 12px; }
+    .item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; border-radius: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 19px; font-weight: 700; color: var(--ink);
+    }
+    .forest .item {
+      background: rgba(255,255,255,0.08); border-color: rgba(185,237,114,0.4); color: #FFFFFF;
+    }
+    .num {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--green); color: #FFFFFF;
+      display: grid; place-items: center; font-size: 16px; font-weight: 800; flex: none;
+    }
+    .forest .num { background: var(--lime); color: var(--forest); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .box-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .forest .box-card {
+      background: rgba(255,255,255,0.08); border-color: var(--lime); color: #FFFFFF;
+    }
+    .box-card h3 { font-size: 22px; font-weight: 800; }
+    .box-card p { font-size: 15px; color: var(--muted); line-height: 1.45; }
+    .forest .box-card p { color: #E2F2E8; }
+    .stage {
+      height: 100%; max-height: calc(100vh - 165px);
+      background: #E2EDE5; border: 1px solid var(--border);
+      border-radius: 28px; padding: 22px;
+      display: flex; align-items: center; justify-content: center; gap: 22px;
+    }
+    .forest .stage { background: #0E4E3A; border-color: var(--lime); }
+    .phone {
+      height: 100%; max-height: 630px; aspect-ratio: 1080/2280;
+      background: #0F1713; border-radius: 38px; padding: 9px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
+    }
+    .phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 30px; display: block; }
+    .web-shot {
+      width: 100%; height: 100%; max-height: 560px;
+      background: #073A2B; border-radius: 18px; padding: 8px;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
+    }
+    .web-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; border-radius: 12px; display: block; }
+    .team-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 8px; }
+    .member {
+      background: rgba(255,255,255,0.08); border: 1.5px solid var(--lime);
+      border-radius: 16px; padding: 18px; text-align: center; font-size: 22px; font-weight: 800;
+    }
+    .bottombar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 62px;
+      padding: 0 56px; display: flex; align-items: center; justify-content: space-between; z-index: 30;
+    }
+    .btn {
+      height: 38px; padding: 0 16px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--forest); font-weight: 700; cursor: pointer;
+    }
+  </style>
+</head>
+<body class="dark-slide">
+  <header class="topbar">
+    <div class="brand">EMSIDrive</div>
+    <div class="authors">
+      <span class="author-tag">Hamza</span>
+      <span class="author-tag">Nabil</span>
+      <span class="author-tag">Youssef</span>
+      <span class="author-tag">Ali</span>
+    </div>
+  </header>
+
+  <main class="deck">
+    <!-- 1 -->
+    <section class="slide forest active" data-dark="true">
+      <div class="copy">
+        <h1>EMSIDrive</h1>
+        <p style="font-size: 24px; font-weight: 700; color: var(--lime);">Application de Covoiturage pour les Étudiants de l'EMSI</p>
+        <div class="tech-bar">Technologies : Flutter • Spring Boot • PostgreSQL • Angular • IA &amp; OCR</div>
+        <div class="team-row">
+          <div class="member">Hamza</div>
+          <div class="member">Nabil</div>
+          <div class="member">Youssef</div>
+          <div class="member">Ali</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/02_accueil.png" alt="Accueil Clair" /></div>
+        <div class="phone"><img src="screenshots/02_accueil_dark.png" alt="Accueil Sombre" /></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide full" data-dark="false">
+      <div class="copy">
+        <h2>Sommaire</h2>
+        <div class="grid-2">
+          <div class="box-card"><h3>1. Présentation &amp; Architecture</h3><p>Objectif du projet et technologies utilisées</p></div>
+          <div class="box-card"><h3>2. Compte Étudiant &amp; Véhicules</h3><p>Connexion sécurisée, profil et ajout de véhicules</p></div>
+          <div class="box-card"><h3>3. Lecture de l'Emploi du Temps</h3><p>Analyse automatique sur le téléphone (OCR) et en ligne (IA)</p></div>
+          <div class="box-card"><h3>4. Recherche &amp; Réservation de Trajet</h3><p>Carte de Marrakech, offres, demandes et compatibilité</p></div>
+          <div class="box-card"><h3>5. Suivi GPS, Frais &amp; Espace Admin</h3><p>Position en direct, partage d'essence et site administrateur</p></div>
+          <div class="box-card"><h3>6. Perspectives Futures &amp; Conclusion</h3><p>Scan de la carte d'étudiant, paiement mobile et bilan</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide full" data-dark="false">
+      <div class="copy">
+        <h2>Architecture &amp; Technologies</h2>
+        <div class="grid-2">
+          <div class="box-card"><h3>Application Mobile — Flutter (Dart)</h3><p>• Application Android fluide<br>• Mode clair et mode sombre<br>• Carte interactive de Marrakech</p></div>
+          <div class="box-card"><h3>Serveur Backend — Spring Boot (Java 21)</h3><p>• API REST sécurisée par JWT<br>• Gestion des trajets et réservations<br>• Notifications push avec Firebase</p></div>
+          <div class="box-card"><h3>Base de Données — PostgreSQL (Docker)</h3><p>• Stockage des comptes et trajets<br>• Historique des messages et avis<br>• Base de données sous Docker</p></div>
+          <div class="box-card"><h3>IA &amp; Administration — PaddleOCR, OpenRouter &amp; Angular</h3><p>• Lecture d'emploi du temps sur téléphone (PaddleOCR)<br>• Analyse IA en ligne (OpenRouter / PaddleOCR-VL)<br>• Site Web Admin en Angular 21</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Connexion &amp; Sécurité</h2>
+        <div class="tech-bar">Technologies : Spring Security • JWT • Empreinte Digitale</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Inscription réservée aux étudiants (@emsi-edu.ma)</div>
+          <div class="item"><span class="num">2</span>Connexion rapide avec l'empreinte du téléphone</div>
+          <div class="item"><span class="num">3</span>Mot de passe protégé et session sécurisée</div>
+          <div class="item"><span class="num">4</span>Déconnexion complète sur le téléphone et le serveur</div>
+        </div>
+      </div>
+      <div class="stage"><div class="phone"><img src="screenshots/01_connexion.png" alt="Connexion" /></div></div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Accueil de l'Application</h2>
+        <div class="tech-bar">Technologies : Flutter 3 • Riverpod • Material Design</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Bouton rapide pour chercher un trajet</div>
+          <div class="item"><span class="num">2</span>Bouton rapide pour proposer un trajet</div>
+          <div class="item"><span class="num">3</span>Accès direct à mon planning de la semaine</div>
+          <div class="item"><span class="num">4</span>Disponible en thème clair et en thème sombre</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/02_accueil.png" alt="Clair" /></div>
+        <div class="phone"><img src="screenshots/02_accueil_dark.png" alt="Sombre" /></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Profil Étudiant &amp; Mes Véhicules</h2>
+        <div class="tech-bar">Technologies : Spring Boot API • PostgreSQL</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Informations de l'étudiant : filière, année et téléphone</div>
+          <div class="item"><span class="num">2</span>Choix du campus habituel (EMSI Targa ou Centre)</div>
+          <div class="item"><span class="num">3</span>Ajout d'une voiture ou d'une moto sur son compte</div>
+          <div class="item"><span class="num">4</span>Indication de la marque, couleur et nombre de places</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/15_profil_etudiant.png" alt="Profil" /></div>
+        <div class="phone"><img src="screenshots/05_detail_conducteur.png" alt="Véhicules" /></div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide forest" data-dark="true">
+      <div class="copy">
+        <h2>Lecture de l'Emploi du Temps</h2>
+        <div class="tech-bar">Technologies : PaddleOCR (Sur Téléphone) • OpenRouter IA (En Ligne)</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Import d'une photo ou d'un fichier PDF</div>
+          <div class="item"><span class="num">2</span>Mode « Sur ce téléphone » : fonctionne sans internet</div>
+          <div class="item"><span class="num">3</span>Mode « En ligne » : analyse par IA en arrière-plan</div>
+          <div class="item"><span class="num">4</span>Détection automatique des jours et des heures de cours</div>
+        </div>
+      </div>
+      <div class="stage"><div class="phone"><img src="screenshots/09_import_emploi_du_temps.png" alt="Import" /></div></div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Mon Planning de la Semaine</h2>
+        <div class="tech-bar">Technologies : Flutter • API Planning • PostgreSQL</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Calcul de l'heure d'arrivée et de départ chaque jour</div>
+          <div class="item"><span class="num">2</span>Prise en compte des horaires spéciaux du vendredi</div>
+          <div class="item"><span class="num">3</span>Possibilité de modifier ou corriger un créneau</div>
+          <div class="item"><span class="num">4</span>Affichage clair de toute la semaine du lundi au dimanche</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/10_creneaux_ia_ocr.png" alt="Créneaux" /></div>
+        <div class="phone"><img src="screenshots/11_suggestions_matching.png" alt="Planning" /></div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Publier ou Chercher un Trajet</h2>
+        <div class="tech-bar">Technologies : OpenStreetMap • Calcul d'Itinéraire OSRM</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Choix du sens : Vers l'EMSI ou Depuis l'EMSI</div>
+          <div class="item"><span class="num">2</span>Sélection du point de départ sur la carte de Marrakech</div>
+          <div class="item"><span class="num">3</span>Affichage du trajet, de la distance et de la durée</div>
+          <div class="item"><span class="num">4</span>Suggestions des conducteurs ayant les mêmes horaires</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/03_demande_trajet.png" alt="Demande" /></div>
+        <div class="phone"><img src="screenshots/12_compatibilite_horaire.png" alt="Matching" /></div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Annonces : Demandes &amp; Offres</h2>
+        <div class="tech-bar">Technologies : Spring Boot • Base de Données PostgreSQL</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Trois onglets simples : Demandes, Offres et Mes trajets</div>
+          <div class="item"><span class="num">2</span>Affichage du conducteur, du véhicule et de l'heure</div>
+          <div class="item"><span class="num">3</span>Acceptation d'un trajet en un seul clic</div>
+          <div class="item"><span class="num">4</span>Mise à jour immédiate du nombre de places restantes</div>
+        </div>
+      </div>
+      <div class="stage"><div class="phone"><img src="screenshots/04_conducteurs_proches.png" alt="Annonces" /></div></div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide forest" data-dark="true">
+      <div class="copy">
+        <h2>Suivi GPS en Direct &amp; Chat</h2>
+        <div class="tech-bar">Technologies : GPS Android • Carte Live • Appel &amp; WhatsApp</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Position du conducteur en direct sur la carte</div>
+          <div class="item"><span class="num">2</span>Affichage du temps restant avant l'arrivée (en minutes)</div>
+          <div class="item"><span class="num">3</span>Suivi étape par étape jusqu'à l'arrivée au campus</div>
+          <div class="item"><span class="num">4</span>Chat privé dans l'application, appel ou WhatsApp</div>
+        </div>
+      </div>
+      <div class="stage"><div class="phone"><img src="screenshots/06_suivi_gps_direct.png" alt="Suivi GPS" /></div></div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-dark="false">
+      <div class="copy">
+        <h2>Partage des Frais, Avis &amp; Alertes</h2>
+        <div class="tech-bar">Technologies : Spring Boot • Notifications Push Firebase</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Division automatique des frais d'essence entre passagers</div>
+          <div class="item"><span class="num">2</span>Résumé de fin de trajet avec la durée et les participants</div>
+          <div class="item"><span class="num">3</span>Note sur 5 étoiles et commentaire pour le conducteur</div>
+          <div class="item"><span class="num">4</span>Notifications sur le téléphone à chaque message ou trajet</div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phone"><img src="screenshots/07_partage_frais.png" alt="Frais" /></div>
+        <div class="phone"><img src="screenshots/13_notifications_push.png" alt="Notifications" /></div>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide wide" data-dark="false">
+      <div class="copy">
+        <h2>Espace Web Administrateur</h2>
+        <div class="tech-bar">Technologies : Angular 21 • TypeScript • Spring Boot Admin</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Tableau de bord avec le nombre d'étudiants et de trajets</div>
+          <div class="item"><span class="num">2</span>Gestion et vérification des comptes étudiants</div>
+          <div class="item"><span class="num">3</span>Suivi des trajets sur les campus Centre et Targa</div>
+          <div class="item"><span class="num">4</span>Traitement des signalements envoyés depuis l'application</div>
+        </div>
+      </div>
+      <div class="stage"><div class="web-shot"><img src="screenshots/14_admin_backoffice.png" alt="Admin" /></div></div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide forest full" data-dark="true">
+      <div class="copy">
+        <h2>Perspectives &amp; Futures Actions</h2>
+        <div class="grid-2">
+          <div class="box-card"><h3>1. Analyser la Carte d'Étudiant EMSI</h3><p style="color:var(--lime);font-weight:700;">Technologie : OCR &amp; Caméra</p><p>Scanner la carte d'étudiant avec le téléphone lors de l'inscription pour remplir et vérifier automatiquement le nom, la filière et le matricule.</p></div>
+          <div class="box-card"><h3>2. Vérifier le Permis de Conduire</h3><p style="color:var(--lime);font-weight:700;">Technologie : Reconnaissance d'Image IA</p><p>Scanner le permis de conduire et l'assurance du véhicule pour valider automatiquement les profils conducteurs.</p></div>
+          <div class="box-card"><h3>3. Paiement Mobile dans l'Application</h3><p style="color:var(--lime);font-weight:700;">Technologie : Paiement par Carte / Portefeuille</p><p>Payer sa part des frais d'essence directement dans l'application à la fin du trajet.</p></div>
+          <div class="box-card"><h3>4. Déploiement dans Tous les Campus EMSI</h3><p style="color:var(--lime);font-weight:700;">Technologie : Cloud &amp; Bilan Carbone CO₂</p><p>Calculer le CO₂ économisé grâce au covoiturage et ouvrir l'application aux campus de Casablanca, Rabat et Tanger.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide wide" data-dark="false">
+      <div class="copy">
+        <h2>Conclusion &amp; Démonstration</h2>
+        <div class="tech-bar">Technologies : Application Mobile • Serveur API • Site Admin</div>
+        <div class="list">
+          <div class="item"><span class="num">1</span>Application mobile et site administrateur 100% fonctionnels</div>
+          <div class="item"><span class="num">2</span>Lecture de l'emploi du temps sur le téléphone et en ligne</div>
+          <div class="item"><span class="num">3</span>Plus de 148 tests automatiques validés sur le projet</div>
+          <div class="item"><span class="num">4</span>Merci de votre attention — Hamza, Nabil, Youssef &amp; Ali</div>
+        </div>
+      </div>
+      <div class="stage"><div class="web-shot"><img src="screenshots/16_admin_reports.png" alt="Signalements" /></div></div>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <div id="count" style="font-weight: 800;">1 / 15</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="go(1)">Sommaire</button>
+      <button class="btn" onclick="go(cur-1)">← Précédent</button>
+      <button class="btn" onclick="go(cur+1)">Suivant →</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let cur = 0;
+    function go(n) {
+      if (n < 0) n = slides.length - 1;
+      if (n >= slides.length) n = 0;
+      slides[cur].classList.remove('active');
+      cur = n;
+      slides[cur].classList.add('active');
+      document.getElementById('count').textContent = (cur + 1) + ' / ' + slides.length;
+      document.body.classList.toggle('dark-slide', slides[cur].getAttribute('data-dark') === 'true');
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') go(cur + 1);
+      if (e.key === 'ArrowLeft') go(cur - 1);
+    });
+  </script>
+</body>
+</html>

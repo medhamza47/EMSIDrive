@@ -7,9 +7,17 @@ import 'package:emsidrive_mobile/core/router/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:emsidrive_mobile/features/rides/application/driver_tracking_provider.dart';
 
 import '../../helpers/fake_http_adapter.dart';
 import '../../helpers/pump_app.dart';
+
+class TestLocations extends DriverLocationSource {
+  @override
+  Future<Stream<Position>> open(String title, String text) async =>
+      const Stream.empty();
+}
 
 void main() {
   for (final isDriver in [true, false]) {
@@ -22,6 +30,7 @@ void main() {
         StorageKeys.accessToken: 'test-token',
       });
       var status = 'CONFIRMED';
+      var stage = 'CONFIRMED';
       final adapter = FakeHttpAdapter((options) async {
         if (options.path.endsWith('/messages')) {
           return ResponseBody.fromString(
@@ -32,19 +41,21 @@ void main() {
             },
           );
         }
-        if (options.path.contains('/actions/')) {
-          status = switch (options.path.split('/').last) {
-            'START' => 'ONGOING',
-            'COMPLETE' => 'COMPLETED',
-            _ => 'CANCELLED',
+        if (options.path.endsWith('/state')) {
+          stage = (options.data as Map)['state'] as String;
+          status = switch (stage) {
+            'COMPLETED' => 'COMPLETED',
+            'CANCELLED' => 'CANCELLED',
+            'CONFIRMED' => 'CONFIRMED',
+            _ => 'ONGOING',
           };
-          return jsonResponse({});
         }
         return jsonResponse({
           'id': 'demo-trip',
           'partner': 'Partenaire Demo',
           'is_driver': isDriver,
           'status': status,
+          'tracking_state': stage,
           'origin_latitude': 31.632123,
           'origin_longitude': -8.011123,
           'destination_latitude': 31.6529961,
@@ -59,33 +70,36 @@ void main() {
         initialLocation: AppRoutes.acceptedRide('demo-trip'),
         overrides: [
           dioClientProvider.overrideWithValue(dioWithAdapter(adapter)),
+          driverLocationSourceProvider.overrideWithValue(TestLocations()),
         ],
       );
       final l = l10nOf();
+      // Cancelling remains optional until the user confirms it.
+      await tester.ensureVisible(find.text(l.tripCancelAction));
+      await tester.tap(find.text(l.tripCancelAction));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.timetableCancel));
+      await tester.pumpAndSettle();
+      expect(status, 'CONFIRMED');
       if (isDriver) {
-        await tester.ensureVisible(find.text(l.rideStart));
-        await tester.tap(find.text(l.rideStart));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text(l.rideKeep));
-        await tester.pumpAndSettle();
-        expect(status, 'CONFIRMED');
-        await tester.tap(find.text(l.rideStart));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text(l.rideConfirm));
-        await tester.pumpAndSettle();
-        expect(status, 'ONGOING');
-        expect(find.text(l.rideStatusOngoing), findsOneWidget);
-        expect(find.text(l.rideCancelBooking), findsNothing);
-        await tester.ensureVisible(find.text(l.rideComplete));
-        await tester.tap(find.text(l.rideComplete));
+        for (final label in [
+          l.tripStartDriving,
+          l.tripMarkArrived,
+          l.tripStartJourney,
+          l.tripFinishJourney,
+        ]) {
+          await tester.ensureVisible(find.text(label));
+          await tester.tap(find.text(label));
+          await tester.pumpAndSettle();
+          expect(stage, isNot('CONFIRMED'), reason: 'progress after $label');
+        }
       } else {
-        expect(find.text(l.rideStart), findsNothing);
-        await tester.ensureVisible(find.text(l.rideCancelBooking));
-        await tester.tap(find.text(l.rideCancelBooking));
+        expect(find.text(l.tripStartDriving), findsNothing);
+        await tester.tap(find.text(l.tripCancelAction));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, l.tripCancelAction));
+        await tester.pumpAndSettle();
       }
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.rideConfirm));
-      await tester.pumpAndSettle();
       expect(status, isDriver ? 'COMPLETED' : 'CANCELLED');
       await tester.tap(find.text(l.rideChat));
       await tester.pumpAndSettle();

@@ -32,7 +32,7 @@ public class ScheduleService {
         var slots = jdbc.query("SELECT * FROM schedule_slots WHERE schedule_id = ? ORDER BY weekday, start_time, id",
                 (rs, i) -> new Slot(rs.getString("label"), rs.getString("location"), rs.getInt("weekday"),
                         rs.getTime("start_time").toLocalTime(), rs.getTime("end_time").toLocalTime(),
-                        Campus.valueOf(rs.getString("campus"))), id);
+                        rs.getString("campus") == null ? null : Campus.valueOf(rs.getString("campus"))), id);
         return new ScheduleResponse(id, (String) row.get("name"), ScheduleSource.valueOf((String) row.get("source")),
                 ((Date) row.get("valid_from")).toLocalDate(), ((Date) row.get("valid_until")).toLocalDate(),
                 ((Number) row.get("revision")).intValue(), slots);
@@ -62,8 +62,13 @@ public class ScheduleService {
             jdbc.update("""
                     INSERT INTO schedule_slots (schedule_id, label, location, weekday, start_time, end_time, campus)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, id, slot.label().strip(), slot.location(), slot.weekday(), Time.valueOf(slot.startTime()),
-                    Time.valueOf(slot.endTime()), slot.campus().name());
+                    """, id, slot.label() == null || slot.label().isBlank() ? "Séance" : slot.label().strip(),
+                    null, slot.weekday(), Time.valueOf(slot.startTime()),
+                    Time.valueOf(slot.endTime()), slot.campus() == null ? null : slot.campus().name());
+        }
+        if (request.analysisJobId() != null) {
+            jdbc.update("UPDATE schedule_import_jobs SET status = 'DISMISSED', result = NULL, updated_at = now() WHERE id = ? AND user_id = ? AND status = 'SUCCEEDED'",
+                    request.analysisJobId(), user);
         }
         return current(user);
     }
@@ -103,6 +108,8 @@ public class ScheduleService {
     @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public List<Suggestion> suggestions(UUID user, int commuteMinutes, int marginMinutes) {
         var schedule = current(user);
+        String preference = jdbc.queryForObject("SELECT preferred_campus FROM users WHERE id = ?", String.class, user);
+        Campus preferredCampus = preference == null ? null : Campus.valueOf(preference);
         var now = Instant.now();
         var candidates = jdbc.queryForList("""
                 SELECT o.id, o.departure_time, o.origin_label, o.destination_label
@@ -124,8 +131,8 @@ public class ScheduleService {
                     .sorted(Comparator.comparing(Slot::startTime)).toList();
             if (day.isEmpty()) continue;
             Slot first = day.get(0), last = day.get(day.size() - 1);
-            boolean toCampus = campusLabel(first.campus()).equals(row.get("destination_label"));
-            boolean fromCampus = campusLabel(last.campus()).equals(row.get("origin_label"));
+            boolean toCampus = matchesCampus(first.campus() == null ? preferredCampus : first.campus(), row.get("destination_label"));
+            boolean fromCampus = matchesCampus(last.campus() == null ? preferredCampus : last.campus(), row.get("origin_label"));
             if (!toCampus && !fromCampus) continue;
             LocalTime course = toCampus ? first.startTime() : last.endTime();
             long gap = Duration.between(departure, date.atTime(course).atZone(ZONE)).toMinutes();
@@ -142,4 +149,9 @@ public class ScheduleService {
         return toCampus ? gap >= commute + margin && gap <= commute + margin + 60 : gap <= 0 && gap >= -60;
     }
     private String campusLabel(Campus campus) { return "EMSI Marrakech " + (campus == Campus.TARGA ? "Targa" : "Centre"); }
+    private boolean matchesCampus(Campus campus, Object label) {
+        return campus == null
+                ? campusLabel(Campus.TARGA).equals(label) || campusLabel(Campus.CENTRE).equals(label)
+                : campusLabel(campus).equals(label);
+    }
 }

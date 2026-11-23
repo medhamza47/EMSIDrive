@@ -32,10 +32,13 @@ public class FirebasePushConfiguration {
         return (token, notice, user, booking, event) -> {
             String title = switch (event) {
                 case "REQUEST_ACCEPTED", "OFFER_ACCEPTED" -> "Trajet accepté";
-                case "TRIP_STARTED" -> "Trajet démarré";
-                case "TRIP_COMPLETED" -> "Trajet terminé";
-                case "TRIP_CANCELLED" -> "Trajet annulé";
-                case "CHAT_MESSAGE" -> "Nouveau message";
+                case "BOOKING_CONFIRMED" -> "Réservation confirmée";
+                case "RIDE_EN_ROUTE" -> "Le conducteur est en route";
+                case "RIDE_ARRIVED" -> "Le conducteur est arrivé";
+                case "TRIP_STARTED", "RIDE_IN_PROGRESS" -> "Trajet démarré";
+                case "TRIP_COMPLETED", "RIDE_COMPLETED" -> "Trajet terminé";
+                case "TRIP_CANCELLED", "RIDE_CANCELLED" -> "Trajet annulé";
+                case "CHAT_MESSAGE", "RIDE_MESSAGE" -> "Nouveau message";
                 default -> "EMSIDrive";
             };
             var message = Message.builder().setFid(token)

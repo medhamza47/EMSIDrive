@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Fingerprint login and server logout against a real PostgreSQL instance. */
 @Testcontainers
+@org.springframework.test.annotation.DirtiesContext(classMode = org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BiometricLoginIntegrationTest {
 

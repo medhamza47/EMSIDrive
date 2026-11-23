@@ -19,7 +19,8 @@ class FakeNotificationsRepository implements NotificationsRepository {
       AppNotification(
         id: 'notif-1',
         title: 'Trajet confirmé',
-        message: 'Salma B. a accepté votre demande pour Guéliz vers EMSI Marrakech.',
+        message:
+            'Salma B. a accepté votre demande pour Guéliz vers EMSI Marrakech.',
         timeLabel: 'Il y a 12 min',
       ),
       AppNotification(

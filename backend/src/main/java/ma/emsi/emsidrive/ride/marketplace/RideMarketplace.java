@@ -2,6 +2,7 @@ package ma.emsi.emsidrive.ride.marketplace;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -12,6 +13,8 @@ import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.Kind;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.ListingInput;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.Point;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.Vehicle;
+import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.TripState;
+import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.LiveLocation;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.ListingUpdate;
 import ma.emsi.emsidrive.ride.marketplace.RideMarketplaceController.TripAction;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,18 +24,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RideMarketplace {
     private static final String TRIP_COLUMNS = """
-            b.id, o.driver_id = ? AS is_driver, o.started_at, o.completed_at, b.cancelled_at,
+            b.id, b.ride_offer_id, b.ride_request_id, b.passenger_id, o.driver_id, o.driver_id = ? AS is_driver,
+            o.started_at, o.completed_at, b.cancelled_at,
             o.vehicle_id, o.vehicle_brand, o.vehicle_model, o.vehicle_color, o.vehicle_preference,
             CASE WHEN b.status = 'CONFIRMED' AND o.status = 'ONGOING' THEN 'ONGOING'
                  ELSE b.status END AS status,
             CASE WHEN b.passenger_id = ? THEN driver.full_name ELSE passenger.full_name END AS partner,
+            CASE WHEN b.status='CONFIRMED' THEN
+                CASE WHEN o.driver_id = ? THEN passenger.phone_number ELSE driver.phone_number END
+                END AS partner_phone,
             o.origin_label, o.destination_label, o.origin_latitude, o.origin_longitude,
             o.destination_latitude, o.destination_longitude,
             extract(epoch FROM o.departure_time) * 1000 AS departure,
-            CASE WHEN b.status = 'CONFIRMED' AND b.live_at > now() - interval '30 seconds'
-                 THEN b.live_latitude END AS live_latitude,
-            CASE WHEN b.status = 'CONFIRMED' AND b.live_at > now() - interval '30 seconds'
-                 THEN b.live_longitude END AS live_longitude
+            b.tracking_state, extract(epoch FROM b.tracking_updated_at)*1000 AS state_updated_at,
+            extract(epoch FROM b.live_captured_at)*1000 AS live_updated_at,
+            b.live_accuracy, b.live_heading,
+            CASE WHEN b.status='CONFIRMED' AND b.live_at > now() - interval '30 seconds'
+                AND b.live_captured_at > now() - interval '30 seconds' THEN b.live_latitude END AS live_latitude,
+            CASE WHEN b.status='CONFIRMED' AND b.live_at > now() - interval '30 seconds'
+                AND b.live_captured_at > now() - interval '30 seconds' THEN b.live_longitude END AS live_longitude
             """;
     private static final String TRIP_FROM = """
             FROM bookings b JOIN ride_offers o ON o.id = b.ride_offer_id
@@ -265,6 +275,7 @@ public class RideMarketplace {
                 INSERT INTO notifications (user_id, type, title, body, reference_type, reference_id)
                 SELECT ?, 'BOOKING', ?, full_name, 'BOOKING', ? FROM users WHERE id = ?
                 """, owner, kind == Kind.REQUEST ? "REQUEST_ACCEPTED" : "OFFER_ACCEPTED", booking, user);
+        notify(user, booking, "BOOKING_CONFIRMED", owner);
         return booking;
     }
 
@@ -276,12 +287,12 @@ public class RideMarketplace {
         String statusFilter = history ? " AND b.status IN ('CANCELLED', 'COMPLETED', 'NO_SHOW')"
                 : " AND b.status = 'CONFIRMED'";
         return jdbc.queryForList("SELECT " + TRIP_COLUMNS + TRIP_FROM + statusFilter
-                + " ORDER BY o.departure_time DESC, b.id LIMIT 100", user, user, user, user);
+                + " ORDER BY o.departure_time DESC, b.id LIMIT 100", user, user, user, user, user);
     }
 
     public Map<String, Object> trip(UUID user, UUID id) {
         return first(jdbc.queryForList("SELECT " + TRIP_COLUMNS + TRIP_FROM + " AND b.id = ?",
-                user, user, user, user, id));
+                user, user, user, user, user, id));
     }
 
     @Transactional(readOnly = true)
@@ -420,6 +431,8 @@ public class RideMarketplace {
                 throw ApiException.conflict("INVALID_TRANSITION", "Ride cannot be started");
             }
             jdbc.update("UPDATE ride_offers SET status = 'ONGOING', started_at = now(), updated_at = now() WHERE id = ?", offer);
+            jdbc.update("UPDATE bookings SET tracking_state = 'EN_ROUTE', tracking_updated_at = now(), updated_at = now() "
+                    + "WHERE ride_offer_id = ? AND status = 'CONFIRMED'", offer);
             notifyPassengers(user, offer, "TRIP_STARTED");
         } else {
             if (!"ONGOING".equals(offerStatus)) {
@@ -432,8 +445,9 @@ public class RideMarketplace {
                     WHERE id IN (SELECT ride_request_id FROM bookings WHERE ride_offer_id = ? AND status = 'CONFIRMED')
                     """, offer);
             jdbc.update("""
-                    UPDATE bookings SET status = 'COMPLETED', live_latitude = NULL, live_longitude = NULL,
-                        live_at = NULL, updated_at = now() WHERE ride_offer_id = ? AND status = 'CONFIRMED'
+                    UPDATE bookings SET status = 'COMPLETED', tracking_state = 'COMPLETED', tracking_updated_at = now(),
+                        live_latitude = NULL, live_longitude = NULL, live_at = NULL, live_captured_at = NULL,
+                        live_accuracy = NULL, live_heading = NULL, updated_at = now() WHERE ride_offer_id = ? AND status = 'CONFIRMED'
                     """, offer);
         }
     }
@@ -465,8 +479,9 @@ public class RideMarketplace {
                     """, booking.get("seats_booked"), offer);
         }
         jdbc.update("""
-                UPDATE bookings SET status = 'CANCELLED', cancelled_at = now(), updated_at = now(),
-                    live_latitude = NULL, live_longitude = NULL, live_at = NULL WHERE id = ?
+                UPDATE bookings SET status = 'CANCELLED', tracking_state = 'CANCELLED', tracking_updated_at = now(),
+                    cancelled_at = now(), updated_at = now(), live_latitude = NULL, live_longitude = NULL,
+                    live_at = NULL, live_captured_at = NULL, live_accuracy = NULL, live_heading = NULL WHERE id = ?
                 """, id);
         Object recipient = actor.equals(booking.get("driver_id")) ? booking.get("passenger_id") : booking.get("driver_id");
         jdbc.update("""
@@ -522,35 +537,101 @@ public class RideMarketplace {
         }
         jdbc.update("INSERT INTO ride_messages (booking_id, sender_id, body) VALUES (?, ?, ?)",
                 id, user, body.strip());
-        Object recipient = user.equals(booking.get("driver_id")) ? booking.get("passenger_id") : booking.get("driver_id");
-        jdbc.update("""
-                INSERT INTO notifications(user_id, type, title, body, reference_type, reference_id)
-                VALUES (?, 'BOOKING', 'CHAT_MESSAGE', '', 'BOOKING', ?)
-                """, recipient, id);
+        var ride = trip(user, id);
+        notify((UUID) ride.get(Boolean.TRUE.equals(ride.get("is_driver")) ? "passenger_id" : "driver_id"),
+                id, "CHAT_MESSAGE", user);
     }
 
     @Transactional
-    public void location(UUID user, UUID id, Point point) {
-        var booking = lockTrip(user, id);
-        if (!user.equals(booking.get("driver_id"))) {
+    public void location(UUID user, UUID id, LiveLocation point) {
+        var ride = lockTrip(user, id);
+        if (!user.equals(ride.get("driver_id"))) {
             throw ApiException.forbidden("DRIVER_REQUIRED", "Only the driver can share a location");
         }
         if (point == null) {
-            jdbc.update("UPDATE bookings SET live_latitude = NULL, live_longitude = NULL, live_at = NULL WHERE id = ?", id);
+            jdbc.update("UPDATE bookings SET live_latitude=NULL,live_longitude=NULL,live_at=NULL,live_captured_at=NULL,live_accuracy=NULL,live_heading=NULL WHERE ride_offer_id=?", ride.get("ride_offer_id"));
         } else {
-            if (!"CONFIRMED".equals(booking.get("status"))) {
-                throw ApiException.conflict("TRIP_CLOSED", "Location sharing is stopped for a closed ride");
-            }
-            jdbc.update("UPDATE bookings SET live_latitude = ?, live_longitude = ?, live_at = now() WHERE id = ?",
-                    point.latitude(), point.longitude(), id);
+            var now = Instant.now();
+            var capturedAt = point.capturedAt() == null ? now : point.capturedAt();
+            if (capturedAt.isBefore(now.minusSeconds(30)) || capturedAt.isAfter(now.plusSeconds(10)))
+                throw ApiException.badRequest("LOCATION_STALE", "A recent GPS fix is required");
+            if (!"CONFIRMED".equals(ride.get("status")) || java.util.Set.of("COMPLETED", "CANCELLED").contains(ride.get("tracking_state")))
+                throw ApiException.conflict("TRIP_CLOSED", "Trip is no longer active");
+            jdbc.update("""
+                    UPDATE bookings SET live_latitude=?,live_longitude=?,live_at=now(),live_captured_at=?,live_accuracy=?,live_heading=?
+                    WHERE ride_offer_id=? AND status='CONFIRMED' AND (live_captured_at IS NULL OR live_captured_at<=?)
+                    """, point.latitude(), point.longitude(), java.sql.Timestamp.from(capturedAt), point.accuracy(), point.heading(),
+                    ride.get("ride_offer_id"), java.sql.Timestamp.from(capturedAt));
         }
+    }
+
+    @Transactional
+    public Map<String, Object> transition(UUID user, UUID id, TripState next) {
+        var initial = trip(user, id);
+        var locked = lockTrip(user, id);
+        TripState current = TripState.valueOf((String) locked.get("tracking_state"));
+        if (next == current) return trip(user, id);
+        boolean driver = Boolean.TRUE.equals(initial.get("is_driver"));
+        if (!driver && next != TripState.CANCELLED) throw ApiException.forbidden("DRIVER_REQUIRED", "Only the driver updates trip progress");
+        boolean allowed = switch (current) {
+            case CONFIRMED -> next == TripState.EN_ROUTE || next == TripState.CANCELLED;
+            case EN_ROUTE -> next == TripState.ARRIVED || next == TripState.CANCELLED;
+            case ARRIVED -> next == TripState.IN_PROGRESS || next == TripState.CANCELLED;
+            case IN_PROGRESS -> next == TripState.COMPLETED;
+            default -> false;
+        };
+        if (!allowed) throw ApiException.conflict("TRIP_STATE_INVALID", "Invalid trip transition");
+        boolean terminal = next == TripState.COMPLETED || next == TripState.CANCELLED;
+        jdbc.update("UPDATE bookings SET tracking_state=?,tracking_updated_at=now(),status=?,updated_at=now(),cancelled_at=CASE WHEN ? THEN now() ELSE cancelled_at END WHERE id=?",
+                next.name(), terminal ? next.name() : "CONFIRMED", next == TripState.CANCELLED, id);
+        if (terminal) jdbc.update("UPDATE bookings SET live_latitude=NULL,live_longitude=NULL,live_at=NULL,live_captured_at=NULL,live_accuracy=NULL,live_heading=NULL WHERE id=?", id);
+        if (next == TripState.CANCELLED) {
+            if (locked.get("ride_request_id") == null) {
+                jdbc.update("UPDATE ride_offers SET available_seats=available_seats+?,status=CASE WHEN status='FULL' THEN 'OPEN' ELSE status END,updated_at=now() WHERE id=?",
+                        locked.get("seats_booked"), locked.get("ride_offer_id"));
+            } else {
+                jdbc.update("UPDATE ride_offers SET status='CANCELLED' WHERE id=?", locked.get("ride_offer_id"));
+                jdbc.update("UPDATE ride_requests SET status=?,updated_at=now() WHERE id=?",
+                        driver ? "PENDING" : "CANCELLED", locked.get("ride_request_id"));
+            }
+        }
+        if (next == TripState.COMPLETED && locked.get("ride_request_id") != null) {
+            jdbc.update("UPDATE ride_requests SET status='COMPLETED',updated_at=now() WHERE id=?", locked.get("ride_request_id"));
+        }
+        UUID recipient = (UUID) initial.get(driver ? "passenger_id" : "driver_id");
+        notify(recipient, id, "RIDE_" + next.name(), user);
+        if (driver) {
+            // A shared offer has one physical journey: keep its passengers in sync.
+            var others = jdbc.queryForList("SELECT id FROM bookings WHERE ride_offer_id=? AND id<>? AND status='CONFIRMED' AND tracking_state<>?",
+                    UUID.class, locked.get("ride_offer_id"), id, next.name());
+            for (UUID other : others) transition(user, other, next);
+            if (next == TripState.EN_ROUTE || next == TripState.COMPLETED || next == TripState.CANCELLED) {
+                jdbc.update("""
+                        UPDATE ride_offers SET status=?,updated_at=now(),
+                            started_at=CASE WHEN ? THEN COALESCE(started_at,now()) ELSE started_at END,
+                            completed_at=CASE WHEN ? THEN now() ELSE completed_at END WHERE id=?
+                        """, next == TripState.EN_ROUTE ? "ONGOING" : next.name(),
+                        next == TripState.EN_ROUTE, next == TripState.COMPLETED, locked.get("ride_offer_id"));
+            }
+        }
+        return trip(user, id);
+    }
+
+    private void notify(UUID recipient, UUID booking, String title, UUID actor) {
+        jdbc.update("""
+                INSERT INTO notifications(user_id,type,title,body,reference_type,reference_id)
+                SELECT ?,'RIDE_UPDATE',?,full_name,'BOOKING',? FROM users WHERE id=?
+                """, recipient, title, booking, actor);
     }
 
     public List<Map<String, Object>> notifications(UUID user) {
         return jdbc.queryForList("""
-                SELECT id, title, body, reference_id AS booking_id, read_at IS NOT NULL AS seen
+                SELECT id, title, body, reference_id AS booking_id, read_at IS NOT NULL AS seen,
+                    extract(epoch FROM created_at)*1000 AS created_at
                 FROM notifications WHERE user_id = ? AND reference_type = 'BOOKING'
-                    AND title IN ('REQUEST_ACCEPTED', 'OFFER_ACCEPTED', 'TRIP_CANCELLED', 'TRIP_STARTED', 'TRIP_COMPLETED', 'CHAT_MESSAGE')
+                    AND title IN ('REQUEST_ACCEPTED','OFFER_ACCEPTED','BOOKING_CONFIRMED','RIDE_EN_ROUTE','RIDE_ARRIVED',
+                        'RIDE_IN_PROGRESS','RIDE_COMPLETED','RIDE_CANCELLED','RIDE_MESSAGE',
+                        'TRIP_CANCELLED','TRIP_STARTED','TRIP_COMPLETED','CHAT_MESSAGE')
                 ORDER BY created_at DESC LIMIT 100
                 """, user);
     }

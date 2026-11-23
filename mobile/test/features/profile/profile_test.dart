@@ -20,6 +20,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_http_adapter.dart';
 import '../../helpers/pump_app.dart';
+import '../schedule/schedule_test.dart' show FakeSchedules;
+
+import 'package:emsidrive_mobile/features/schedule/data/schedule_repository.dart';
+import 'package:emsidrive_mobile/features/schedule/domain/schedule_models.dart';
+import 'package:emsidrive_mobile/features/schedule/presentation/schedule_screens.dart';
 
 const alice = StudentProfile(
   id: 'a',
@@ -59,6 +64,34 @@ class PendingProfiles extends Profiles {
 
 void main() {
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+  testWidgets('profile exposes saved timetable and opens its management', (
+    tester,
+  ) async {
+    final schedules = FakeSchedules()
+      ..stored = Timetable(
+        name: 'Semaine G2',
+        source: 'IMAGE',
+        validFrom: DateTime(2026, 9, 1),
+        validUntil: DateTime(2027, 1, 31),
+        slots: const [
+          CourseSlot(weekday: 1, startTime: '08:30', endTime: '11:30'),
+        ],
+      );
+    await pumpEmsiDriveApp(
+      tester,
+      initialLocation: AppRoutes.profile,
+      overrides: [
+        profileRepositoryProvider.overrideWithValue(Profiles()),
+        scheduleRepositoryProvider.overrideWithValue(schedules),
+      ],
+    );
+    await tester.ensureVisible(find.text(l10nOf().planningManage));
+    expect(find.text('Semaine G2'), findsOneWidget);
+    await tester.tap(find.text(l10nOf().planningManage));
+    await tester.pumpAndSettle();
+    expect(find.byType(ScheduleImportScreen), findsOneWidget);
+    expect(find.text(l10nOf().timetableDelete), findsOneWidget);
+  });
   test('a late response from the previous account cannot replace the current profile', () async {
     final repo = PendingProfiles(),
         tokens = TokenStorage(const FlutterSecureStorage());
@@ -140,6 +173,7 @@ void main() {
     );
     expect(find.text(alice.fullName), findsOneWidget);
     expect(find.text(alice.email), findsOneWidget);
+    await tester.ensureVisible(find.text(l10nOf().profileEdit));
     await tester.tap(find.text(l10nOf().profileEdit));
     await tester.pumpAndSettle();
     await tester.enterText(

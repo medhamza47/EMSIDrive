@@ -229,7 +229,7 @@
   "@homeSearchRideTitle": {
     "description": "Title of the home action leading to the ride search"
   },
-  "homeSearchRideSubtitle": "Consultez les offres pour rejoindre votre campus.",
+  "homeSearchRideSubtitle": "Votre campus, en bonne compagnie.",
   "@homeSearchRideSubtitle": {
     "description": "Subtitle of the home action leading to the ride search"
   },
@@ -237,7 +237,7 @@
   "@homeOfferRideTitle": {
     "description": "Title of the home action leading to publishing a ride"
   },
-  "homeOfferRideSubtitle": "Partagez votre trajet et vos places disponibles.",
+  "homeOfferRideSubtitle": "Une place à partager ?",
   "@homeOfferRideSubtitle": {
     "description": "Subtitle of the home action leading to publishing a ride"
   },
@@ -342,6 +342,9 @@
   "cancelRideRequest": "Annuler la demande",
   "demoOnlyAction": "Action indisponible dans la démonstration.",
   "fuelTitle": "Frais d’essence",
+  "fuelAmountError": "Saisissez un montant avec deux décimales maximum.",
+  "fuelRemovePassenger": "Retirer un passager",
+  "fuelAddPassenger": "Ajouter un passager",
   "fuelSummary": "Total 40 MAD, partagé entre 4 personnes",
   "yourShare": "Votre part",
   "costBreakdown": "Répartition",
@@ -602,34 +605,34 @@
       }
     }
   },
-  "timetableImportHint": "Importez un seul emploi du temps lisible, recadré sur votre groupe. JPEG, PNG ou PDF (3 pages maximum), jusqu’à 8 Mo.",
+  "timetableImportHint": "Photo ou PDF (1 à 3 pages) · 8 Mo max.",
   "timetableGroup": "Classe / groupe",
   "timetableGroupHint": "Indiquez le groupe exact si le document en contient plusieurs.",
-  "timetableAiNotice": "L’analyse transmet votre document à Groq. Vérifiez les cours extraits avant de les enregistrer. Le serveur ne conserve pas votre photo.",
-  "timetableManual": "Saisir mes cours manuellement",
+  "timetableAiNotice": "Le service en ligne reçoit votre document pour lire les horaires. Le serveur efface le document après traitement.",
+  "timetableManual": "Saisir mes horaires manuellement",
   "timetableEdit": "Modifier mon emploi du temps",
   "timetableDelete": "Supprimer mon emploi du temps",
   "timetableDeleteConfirm": "Supprimer les cours enregistrés et désactiver leurs suggestions ?",
   "timetableCancel": "Annuler",
   "timetableReload": "Actualiser",
-  "timetableReview": "Comparez chaque cours au document original. Corrigez les champs incertains et indiquez la période pendant laquelle ce planning hebdomadaire s’applique.",
+  "timetableReview": "Vérifiez les jours, horaires et dates de validité, puis cochez la confirmation pour enregistrer. Les séances complètes peuvent être confirmées ensemble ; corrigez seulement celles qui en ont besoin.",
   "timetableOriginal": "Voir la photo originale",
   "timetableName": "Nom de l’emploi du temps",
   "timetableFrom": "Valable à partir du",
   "timetableUntil": "Valable jusqu’au",
   "timetableUnknown": "À renseigner",
-  "timetableNeedsReview": "À vérifier : touchez ce cours pour le corriger et le valider.",
-  "timetableRemoveCourse": "Supprimer ce cours",
-  "timetableAddCourse": "Ajouter un cours",
+  "timetableNeedsReview": "Vérifiez cette séance. Touchez-la pour corriger ; si tout est juste, cochez la confirmation en bas.",
+  "timetableRemoveCourse": "Supprimer cette séance",
+  "timetableAddCourse": "Ajouter une séance",
   "timetableOverlap": "Des cours se chevauchent le même jour. Corrigez les horaires.",
-  "timetableIncomplete": "Renseignez le nom, des dates ordonnées (un an maximum) et tous les cours : jour, campus, heures de début et de fin. Validez chaque cours incertain.",
-  "timetableConfirm": "J’ai vérifié les cours, les horaires, les campus et les dates.",
+  "timetableIncomplete": "Renseignez le nom, la période de validité (un an maximum) et les jours et horaires des séances. Validez les horaires incertains.",
+  "timetableConfirm": "J’ai vérifié les jours, les horaires et la période de validité.",
   "timetableSave": "Enregistrer mon emploi du temps",
   "timetableThursday": "Jeudi",
   "timetableFriday": "Vendredi",
   "timetableSaturday": "Samedi",
   "timetableSunday": "Dimanche",
-  "timetableCourse": "Corriger un cours",
+  "timetableCourse": "Modifier une séance",
   "timetableSubject": "Matière",
   "timetableDay": "Jour",
   "timetableStart": "Début (HH:mm)",
@@ -638,8 +641,8 @@
   "timetableRoom": "Salle / lieu (facultatif)",
   "timetableRequired": "Champ obligatoire",
   "timetableTimeInvalid": "Utilisez HH:mm et une fin après le début.",
-  "timetableValidateCourse": "Valider ce cours",
-  "timetableMatchingHint": "Offres publiées pour les 7 prochains jours, selon votre premier et dernier cours et leur campus. Pour l’aller : durée estimée + 10 min de marge, avec jusqu’à 60 min d’avance. Pour le retour : départ dans l’heure après le dernier cours. Vérifiez le point de rendez-vous et le trajet avant de réserver.",
+  "timetableValidateCourse": "Valider la séance",
+  "timetableMatchingHint": "Offres disponibles dans les 7 prochains jours, pour votre campus et près de votre point sur la carte. Aller : arrivée avant votre premier horaire, avec la durée estimée et 10 min de marge. Retour : départ dans l’heure après votre dernier horaire. La proximité est calculée à vol d’oiseau ; vérifiez le rendez-vous et l’itinéraire avant de réserver.",
   "timetableCommute": "Durée estimée de votre trajet : {minutes} min",
   "@timetableCommute": {
     "placeholders": {
@@ -648,7 +651,7 @@
       }
     }
   },
-  "timetableNoMatches": "Aucune offre disponible ne correspond actuellement à vos horaires et à votre campus. Réessayez quand de nouveaux trajets seront publiés.",
+  "timetableNoMatches": "Aucun trajet disponible pour ces horaires pour le moment. Vous pouvez consulter les autres trajets ou revenir plus tard.",
   "timetableBeforeCourse": "Début du premier cours :",
   "timetableAfterCourse": "Fin du dernier cours :",
   "timetableFileSize": "Le fichier doit contenir entre 1 octet et 8 Mo.",
@@ -658,8 +661,8 @@
   "timetableNetworkError": "Connexion impossible ou délai dépassé. Vérifiez votre connexion puis réessayez.",
   "timetableAmbiguous": "Plusieurs groupes ou tableaux sont visibles. Recadrez votre emploi du temps ou précisez le groupe exact.",
   "timetableNotDetected": "Aucun emploi du temps exploitable détecté. Choisissez une image plus nette et bien cadrée.",
-  "timetableRateLimit": "Trop d’analyses ou service occupé. Patientez avant de réessayer ; vous pouvez aussi saisir vos cours manuellement.",
-  "timetableAiError": "L’analyse IA est momentanément indisponible. Réessayez ou saisissez vos cours manuellement.",
+  "timetableRateLimit": "Analyse occupée. Réessayez dans un instant ou saisissez vos horaires.",
+  "timetableAiError": "Les modèles d’analyse n’ont pas fourni de résultat exploitable. Réimportez votre document ou saisissez vos horaires manuellement ; votre planning enregistré reste disponible.",
   "timetableChanged": "Votre emploi du temps a changé depuis son ouverture. Revenez à l’import, actualisez puis ouvrez la dernière version.",
   "timetableNotSaved": "Enregistrez et confirmez d’abord votre emploi du temps.",
   "timetableGenericError": "L’opération a échoué. Réessayez ; votre emploi du temps enregistré reste disponible.",
@@ -684,12 +687,12 @@
   "profileSaved": "Vos informations sont enregistrées.",
   "profileSignIn": "Connectez-vous pour retrouver votre profil.",
   "profileOperationError": "Impossible de charger ou d’enregistrer vos informations. Réessayez.",
-  "planningIntro": "Vos cours et vos trajets, organisés par journée.",
+  "planningIntro": "Vos horaires de présence à l’EMSI et vos trajets, sans les matières.",
   "planningEmptyTitle": "Votre semaine commence ici",
   "planningEmptyHint": "Importez votre emploi du temps ou saisissez vos cours pour trouver des trajets adaptés à vos horaires.",
   "planningImport": "Ajouter mon emploi du temps",
   "planningManage": "Gérer mon emploi du temps",
-  "planningFreeDay": "Aucun cours enregistré pour cette journée.",
+  "planningFreeDay": "Libre",
   "homeActionsTitle": "Comment voyagez-vous ?",
   "ridesIntro": "Trouvez une place, proposez la vôtre et retrouvez vos réservations.",
   "ridesTools": "Autres outils",
@@ -757,7 +760,9 @@
   "biometricWelcomeBack": "Bon retour, {name}",
   "@biometricWelcomeBack": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "biometricSignInButton": "Se connecter avec l’empreinte",
@@ -774,12 +779,205 @@
   "biometricSwitchBody": "Ce téléphone ne sera plus lié à {email}. La connexion par empreinte devra être réactivée.",
   "@biometricSwitchBody": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "biometricOfferAccept": "Activer",
   "biometricOfferLater": "Plus tard",
   "biometricEnabledMessage": "Connexion par empreinte activée.",
+  "homeHeroTitle": "On y va ?",
+  "homePlanTitle": "Mon planning",
+  "homePlanSubtitle": "Mes horaires, mes trajets.",
+  "homeSeeAll": "Tout voir",
+  "timetableHero": "Votre emploi du temps",
+  "timetableStepImport": "1. Importer",
+  "timetableStepReview": "2. Vérifier",
+  "timetableStepRide": "3. Réserver",
+  "timetableSession": "Séance",
+  "timetableSaveAndRide": "Enregistrer et réserver un trajet",
+  "timetableAnalyzing": "L’analyse des jours et horaires de votre emploi du temps est en cours. Vous pouvez annuler l’attente à tout moment.",
+  "timetableGeminiSetup": "L’analyse attend la configuration du service sur le serveur. Vous pouvez saisir vos horaires manuellement en attendant.",
+  "importCheckStatus": "Vérifier l’état de mon import",
+  "importBackgroundTitle": "Votre planning se prépare",
+  "importBackgroundHint": "Vous pouvez quitter cet écran et utiliser l’application. Retrouvez le résultat dans Planning ou Profil, même après avoir fermé l’application.",
+  "importReadyTitle": "Votre planning numérique est prêt",
+  "importReadyHint": "Vérifiez les jours et les horaires, puis enregistrez votre présence pour trouver un trajet.",
+  "importFailedTitle": "L’import n’a pas abouti",
+  "importDismiss": "Ignorer cet import",
+  "importReviewPresence": "Vérifier mon planning numérique",
+  "importUploading": "Envoi du document… L’analyse continuera en arrière-plan.",
+  "presenceDigitalTitle": "Mes horaires de présence",
+  "presenceDigitalHint": "Pour vos trajets, nous retenons l’arrivée avant la première séance et le départ après la dernière, sans matière ni enseignant.",
+  "presenceArrival": "Arrivée avant {time}",
+  "@presenceArrival": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "presenceLeaving": "Départ après {time}",
+  "@presenceLeaving": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "matchJourneyTitle": "Près de chez vous, aux bons horaires",
+  "matchJourneyHint": "Choisissez votre campus et votre point habituel. Nous cherchons des conducteurs ayant publié une offre réservable, près de ce point et compatible avec votre planning.",
+  "matchChoosePoint": "Choisir mon point sur la carte",
+  "matchPointSelected": "Point choisi · modifier sur la carte",
+  "matchPointRequired": "Choisissez votre point de départ pour rechercher des conducteurs proches.",
+  "matchRadius": "Rayon de recherche : {meters} m",
+  "@matchRadius": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "matchSearch": "Actualiser les trajets",
+  "matchBothDirections": "Aller et retour",
+  "matchOutbound": "Vers l’EMSI",
+  "matchReturn": "Depuis l’EMSI",
+  "matchDistance": "À environ {meters} m",
+  "@matchDistance": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "matchCreateRequest": "Publier une demande de trajet",
+  "timetableSuggestedDates": "Période proposée : les 7 prochains jours. Modifiez les dates ci-dessous si votre emploi du temps s’applique plus longtemps.",
+  "timetableUseWeekPeriod": "Utiliser les 7 prochains jours",
+  "timetableMissingName": "Donnez un nom à votre emploi du temps.",
+  "timetableNoSessions": "Ajoutez au moins une séance avant d’enregistrer.",
+  "timetableTooManySessions": "Conservez au maximum 80 séances.",
+  "timetableMissingTimes": "Complétez le jour et les horaires de {count} séance(s) pour activer l’enregistrement.",
+  "@timetableMissingTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timetableInvalidDates": "Choisissez une période de validité ordonnée, d’un an maximum.",
+  "timetableProfileHint": "Consulter ou modifier mes horaires.",
+  "appearanceTitle": "Apparence",
+  "appearanceLight": "Clair",
+  "appearanceDark": "Sombre",
+  "appearanceSystem": "Auto",
+  "appearanceSaveError": "Thème appliqué, mais le choix n’a pas pu être mémorisé.",
+  "fridayStartAt15": "Commencer vendredi à 15:00",
+  "planningArrival": "Arrivée",
+  "planningLeaving": "Départ",
+  "planningReserve": "Réserver un trajet",
+  "planningReplace": "Remplacer mon emploi du temps",
+  "matchYourPoint": "Mon point de départ",
+  "matchPickupMarkers": "Points de rendez-vous approximatifs des conducteurs.",
+  "matchFilters": "Filtres et durée du trajet",
+  "matchShowOnMap": "Sur la carte",
+  "matchReserve": "Réserver",
+  "matchAddDemoRides": "Ajouter 3 trajets de test",
+  "matchDemoLabel": "Trajet de test · conducteur fictif",
+  "matchOfferCount": "{count} trajet(s) disponible(s)",
+  "@matchOfferCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchRouteFallback": "Itinéraire indisponible. Durée utilisée : {minutes} min, modifiable dans les filtres.",
+  "@matchRouteFallback": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "demoNoUpcomingDay": "Aucun horaire à venir cette semaine. Vérifiez les dates de votre planning.",
+  "tripReserved": "Réservation confirmée",
+  "tripDriverComing": "Conducteur en route",
+  "tripDriverArrived": "Conducteur au rendez-vous",
+  "tripInProgress": "Trajet en cours",
+  "tripCompleted": "Trajet terminé",
+  "tripCancelled": "Trajet annulé",
+  "tripBookingConfirmed": "Votre trajet est confirmé",
+  "tripFollow": "Suivre le trajet",
+  "tripNewMessage": "Nouveau message de {name}",
+  "@tripNewMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tripRecenter": "Recentrer la carte",
+  "tripEtaMinutes": "Environ {minutes} min",
+  "@tripEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tripEtaAt": "Arrivée estimée à {time}",
+  "@tripEtaAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tripEtaPickup": "jusqu’au point de rendez-vous",
+  "tripEtaDestination": "jusqu’à votre destination",
+  "tripEtaEstimate": "Estimation routière, hors trafic en direct.",
+  "tripEtaUnavailable": "Estimation indisponible pour le moment.",
+  "tripWaitingGps": "En attente de la position du conducteur",
+  "tripCalculatingEta": "Calcul de l’arrivée…",
+  "tripGpsFresh": "Position GPS récente · suivi en direct",
+  "tripConnectionLost": "Connexion interrompue. Actualisation automatique dès le retour du réseau.",
+  "tripCancelQuestion": "Annuler ce trajet ?",
+  "tripCancelHint": "L’autre participant sera prévenu.",
+  "tripCancelAction": "Annuler le trajet",
+  "tripUpdateError": "Impossible de modifier l’état du trajet. Réessayez.",
+  "tripStartDriving": "Partir et partager ma position",
+  "tripMarkArrived": "Je suis au rendez-vous",
+  "tripStartJourney": "Passager à bord · Continuer",
+  "tripCall": "Appeler",
+  "tripContactChoice": "Comment contacter ?",
+  "tripPhoneCall": "Appel téléphonique",
+  "tripPhoneCallHint": "Ouvrir le téléphone avec le numéro du contact.",
+  "tripWhatsApp": "WhatsApp",
+  "tripWhatsAppHint": "Ouvrir la conversation, puis toucher Appeler dans WhatsApp.",
+  "tripInternationalPhone": "Un numéro avec indicatif international est nécessaire.",
+  "tripWhatsAppFailed": "Impossible d’ouvrir WhatsApp. Essaie l’appel téléphonique.",
+  "tripPhoneMissing": "Numéro indisponible. Demande à ton contact de l’ajouter dans son profil.",
+  "tripCallFailed": "Impossible d’ouvrir le téléphone. Réessaie depuis ton application Téléphone.",
+  "tripPickupStop": "1 · Passager",
+  "tripFinalStop": "2 · Destination",
+  "tripPickupInstruction": "D’abord, rejoindre le passager au point de rendez-vous.",
+  "tripDestinationInstruction": "Passager à bord : continuer vers la destination.",
+  "tripFinishJourney": "Terminer le trajet",
+  "tripGpsNotificationTitle": "EMSIDrive · partage de position",
+  "tripGpsNotificationBody": "Vos passagers suivent votre arrivée. Revenez dans EMSIDrive pour arrêter le partage.",
+  "tripSharingDisclosure": "Partage avec vos passagers pendant le trajet, même écran éteint sur Android. Vous pouvez l’arrêter ici.",
+  "timetableLocalMode": "Sur ce téléphone",
+  "timetableServerMode": "En ligne",
+  "timetableLocalHint": "Hors ligne · Document privé",
+  "timetableServerHint": "Connexion requise pour analyser",
+  "timetableLocalRunning": "Lecture en cours… Gardez cet écran ouvert.",
+  "timetableLocalReview": "Vérifiez les horaires avant de confirmer.",
+  "timetableLocalNotDetected": "Les jours ou les en-têtes horaires ne sont pas assez lisibles. Essayez une photo plus nette et droite, l’analyse en ligne ou la saisie manuelle.",
+  "timetableLocalAmbiguous": "Les horaires lus sont contradictoires ou se chevauchent. Essayez une photo plus nette, l’analyse en ligne ou la saisie manuelle.",
+  "timetableLocalMemory": "Cette image utilise trop de mémoire. Recadrez la photo autour du tableau puis réessayez.",
+  "timetableLocalBusy": "La lecture précédente se termine. Patientez quelques instants puis réessayez.",
+  "timetableLocalFailed": "La lecture sur le téléphone a échoué. Vous pouvez réessayer, choisir En ligne ou saisir vos horaires manuellement.",
   "pushSettingTitle": "Notifications du téléphone",
   "pushSettingEnable": "Activer les notifications",
   "pushSettingDescription": "Recevez les acceptations, les messages et les changements de trajet même lorsque l’application est fermée.",
@@ -796,7 +994,13 @@
   "vehiclesEdit": "Modifier le véhicule",
   "vehiclesDelete": "Supprimer le véhicule",
   "vehiclesDeleteConfirm": "Supprimer {name} de votre compte ?",
-  "@vehiclesDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@vehiclesDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "vehiclesCancel": "Annuler",
   "vehiclesType": "Type de véhicule",
   "vehiclesBrand": "Marque",
@@ -804,27 +1008,66 @@
   "vehiclesColor": "Couleur (facultative)",
   "vehiclesSeats": "Places passagers",
   "vehiclesSeatCount": "{count} place(s) passager(s)",
-  "@vehiclesSeatCount": {"placeholders": {"count": {"type": "int"}}},
+  "@vehiclesSeatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "vehiclesRequired": "Ce champ est obligatoire.",
   "vehiclesSave": "Enregistrer le véhicule",
   "tripVehicleHint": "Choisissez votre véhicule pour que les passagers puissent le reconnaître.",
   "tripVehicleLabel": "Véhicule de cette offre",
   "tripVehicleUnspecified": "Véhicule non renseigné",
   "tripRatingLabel": "★ {rating}/5 · {count} avis",
-  "@tripRatingLabel": {"placeholders": {"rating": {"type": "String"}, "count": {"type": "int"}}},
+  "@tripRatingLabel": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "tripSummaryTitle": "Bilan du trajet",
   "tripSummaryOpen": "Voir le bilan et évaluer",
   "tripParticipants": "Participants",
   "tripDriver": "Conducteur",
   "tripDuration": "Durée réelle · {minutes} min",
-  "@tripDuration": {"placeholders": {"minutes": {"type": "int"}}},
+  "@tripDuration": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "tripReviewTitle": "Évaluer {name}",
-  "@tripReviewTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@tripReviewTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tripReviewHint": "Une seule évaluation définitive est autorisée par participant pour ce trajet.",
   "tripReviewStars": "{score} étoiles",
-  "@tripReviewStars": {"placeholders": {"score": {"type": "int"}}},
+  "@tripReviewStars": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
   "tripReviewSaved": "Votre évaluation a été enregistrée · {score}/5",
-  "@tripReviewSaved": {"placeholders": {"score": {"type": "int"}}},
+  "@tripReviewSaved": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
   "tripReviewComment": "Commentaire (facultatif)",
   "tripReviewSubmit": "Envoyer mon évaluation",
   "tripCostsTitle": "Partage des frais",
@@ -834,7 +1077,13 @@
   "tripCostsPublish": "Confirmer le partage",
   "tripCostConfirm": "Publier définitivement ce montant et sa répartition entre les participants ?",
   "tripCostsTotal": "Total du trajet · {amount} MAD",
-  "@tripCostsTotal": {"placeholders": {"amount": {"type": "String"}}},
+  "@tripCostsTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "tripCostsWaiting": "Le conducteur pourra renseigner les frais de ce trajet.",
   "tripYourShare": "Votre contribution",
   "reportTitle": "Signaler un problème",

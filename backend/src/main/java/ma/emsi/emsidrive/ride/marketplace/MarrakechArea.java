@@ -8,7 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 @Component
-class MarrakechArea {
+public class MarrakechArea {
     private final JsonNode features;
 
     MarrakechArea(ObjectMapper mapper) throws IOException {
@@ -17,7 +17,7 @@ class MarrakechArea {
         }
     }
 
-    boolean contains(Point point) {
+    public boolean contains(Point point) {
         for (var feature : features) {
             var rings = feature.required("geometry").required("coordinates");
             if (!insideRing(rings.get(0), point)) {

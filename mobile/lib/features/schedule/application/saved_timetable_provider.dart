@@ -8,3 +8,9 @@ final savedTimetableProvider = FutureProvider.autoDispose<Timetable?>((ref) {
   ref.watch(sessionIdProvider);
   return ref.watch(scheduleRepositoryProvider).current();
 });
+
+final scheduleTravelPreferencesProvider =
+    FutureProvider.autoDispose<ScheduleTravelPreferences?>((ref) {
+      ref.watch(sessionIdProvider);
+      return ref.watch(scheduleRepositoryProvider).travelPreferences();
+    });
