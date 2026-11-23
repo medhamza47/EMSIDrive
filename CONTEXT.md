@@ -7,6 +7,20 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Configuration locale OpenRouter du 23 novembre 2026
+
+- Les trois paramètres OpenRouter sont configurés dans `backend/.env.local`,
+  ignoré par Git. Le modèle est `particle-ai/particle-1:free`, avec un délai
+  de réponse de 120 secondes. La clé reste uniquement sur le poste.
+- Le catalogue du fournisseur confirme la prise en charge des images et un
+  appel texte authentifié a réussi. Le backend a été redémarré sur 8081.
+- Les trois tests ciblés `OpenRouterScheduleAnalyzerTest` et
+  `ScheduleAnalyzerTest` passent. L’essai réel via `/api/v1/schedules/analyze`
+  avec l’image de démonstration a reçu successivement une limitation 429
+  (`SCHEDULE_AI_RATE_LIMIT`), puis une réponse rejetée par la validation
+  (`SCHEDULE_AI_INVALID`, HTTP 502). L’analyse complète en ligne reste donc
+  à valider avec ce fournisseur. L’estimation globale reste à 87 %.
+
 ### Intégration d’équipe du 23 novembre 2026
 
 - La branche `feature/full-integration-ocr-presentation` est intégrée dans `develop`.

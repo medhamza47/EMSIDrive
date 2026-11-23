@@ -31,6 +31,12 @@ OPENROUTER_MODEL=particle-ai/particle-1:free
 OPENROUTER_TIMEOUT_SECONDS=120
 ```
 
+Après modification, redémarrez le backend pour charger ces paramètres. Sur ce
+poste, l’API utilisée par l’émulateur écoute sur `8081`. Si elle est déjà démarrée,
+arrêtez son processus avant de relancer `scripts/start-backend.ps1 -Port 8081`.
+Une réponse `SCHEDULE_AI_RATE_LIMIT` indique une limitation du fournisseur
+OpenRouter. Réessayez ultérieurement ou utilisez le mode « Sur ce téléphone ».
+
 ## État du projet
 
 ### Mise à jour du 23 novembre 2026
