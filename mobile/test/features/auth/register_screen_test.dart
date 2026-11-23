@@ -9,9 +9,11 @@ import 'package:emsidrive_mobile/features/auth/data/auth_repository_provider.dar
 import 'package:emsidrive_mobile/features/auth/data/dto/auth_requests.dart';
 import 'package:emsidrive_mobile/features/auth/data/dto/auth_response_dto.dart';
 import 'package:emsidrive_mobile/features/auth/data/token_storage.dart';
+import 'package:emsidrive_mobile/features/auth/presentation/email_verification_screen.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/login_screen.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/register_screen.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/widgets/auth_error_banner.dart';
+import 'package:emsidrive_mobile/features/auth/presentation/widgets/email_code_widgets.dart';
 import 'package:emsidrive_mobile/l10n/app_localizations.dart';
 import 'package:emsidrive_mobile/shared/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +49,16 @@ void main() {
       tester,
       overrides: repositoryOverrides(api),
       initialLocation: AppRoutes.register,
+    );
+  }
+
+  Future<void> openRegisterScreenAt(WidgetTester tester, String location) async {
+    await tester.binding.setSurfaceSize(const Size(720, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpEmsiDriveApp(
+      tester,
+      overrides: repositoryOverrides(FakeAuthApi()),
+      initialLocation: location,
     );
   }
 
@@ -95,6 +107,7 @@ void main() {
       expect(find.text(l10n.validationFullNameRequired), findsOneWidget);
       expect(find.text(l10n.validationEmailRequired), findsOneWidget);
       expect(find.text(l10n.validationPasswordRequired), findsOneWidget);
+      expect(api.registrationCodeRequests, isEmpty);
       expect(api.registerRequests, isEmpty);
     });
 
@@ -112,10 +125,11 @@ void main() {
         ),
         findsOneWidget,
       );
+      expect(api.registrationCodeRequests, isEmpty);
       expect(api.registerRequests, isEmpty);
     });
 
-    testWidgets('creates the account, stores the tokens and lands on the home tab', (
+    testWidgets('emails a code, then creates the account with it and lands on the home tab', (
       tester,
     ) async {
       final api = FakeAuthApi();
@@ -125,7 +139,18 @@ void main() {
       await tapSubmit(tester);
       await tester.pumpAndSettle();
 
+      expect(api.registrationCodeRequests, hasLength(1));
+      expect(api.registrationCodeRequests.single.verificationCode, isNull);
+      expect(api.registerRequests, isEmpty);
+      expect(find.byType(EmailVerificationScreen), findsOneWidget);
+      expect(find.text(l10n.verifyEmailSubtitle('yassine.elamrani@emsi-edu.ma')), findsOneWidget);
+
+      await tester.enterText(input(0), '482913');
+      await tester.tap(find.widgetWithText(FilledButton, l10n.verifyEmailSubmitLabel));
+      await tester.pumpAndSettle();
+
       expect(api.registerRequests, hasLength(1));
+      expect(api.registerRequests.single.verificationCode, '482913');
       expect(api.registerRequests.single.email, 'yassine.elamrani@emsi-edu.ma');
       expect(api.registerRequests.single.fullName, 'Yassine El Amrani');
       expect(api.registerRequests.single.password, 'secret123');
@@ -146,8 +171,8 @@ void main() {
       await tapSubmit(tester);
       await tester.pumpAndSettle();
 
-      expect(api.registerRequests, hasLength(1));
-      expect(api.registerRequests.single.phoneNumber, isNull);
+      expect(api.registrationCodeRequests, hasLength(1));
+      expect(api.registrationCodeRequests.single.phoneNumber, isNull);
     });
 
     testWidgets('shows the French banner when the email is already used', (tester) async {
@@ -215,10 +240,84 @@ void main() {
             .onPressed,
         isNull,
       );
-      expect(api.registerRequests, hasLength(1));
+      expect(api.registrationCodeRequests, hasLength(1));
 
       pending.complete(authResponse());
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('explains a rejected code and keeps the account uncreated', (tester) async {
+      final api = FakeAuthApi(
+        registerError: const ApiFailure(
+          message: 'The code is invalid or expired',
+          code: AuthErrorCodes.invalidVerificationCode,
+          statusCode: 400,
+        ),
+      );
+      await openRegisterScreen(tester, api);
+      await fillForm(tester);
+      await tapSubmit(tester);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(input(0), '000000');
+      await tester.tap(find.widgetWithText(FilledButton, l10n.verifyEmailSubmitLabel));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.invalidVerificationCodeErrorMessage), findsOneWidget);
+      expect(find.byType(EmailVerificationScreen), findsOneWidget);
+      expect(await storage.read(key: StorageKeys.accessToken), isNull);
+    });
+
+    testWidgets('checks the code format before calling the API', (tester) async {
+      final api = FakeAuthApi();
+      await openRegisterScreen(tester, api);
+      await fillForm(tester);
+      await tapSubmit(tester);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(input(0), '12');
+      await tester.tap(find.widgetWithText(FilledButton, l10n.verifyEmailSubmitLabel));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.validationResetCodeInvalid), findsOneWidget);
+      expect(api.registerRequests, isEmpty);
+    });
+
+    testWidgets('going back keeps the form to fix the address', (tester) async {
+      final api = FakeAuthApi();
+      await openRegisterScreen(tester, api);
+      await fillForm(tester);
+      await tapSubmit(tester);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(l10n.verifyEmailChangeAddressLabel));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RegisterScreen), findsOneWidget);
+      expect(tester.widget<TextFormField>(input(0)).controller!.text, 'Yassine El Amrani');
+      expect(tester.widget<TextFormField>(input(1)).controller!.text, 'yassine.elamrani@emsi-edu.ma');
+    });
+
+    testWidgets('resends the code after the cooldown', (tester) async {
+      final api = FakeAuthApi();
+      await openRegisterScreen(tester, api);
+      await fillForm(tester);
+      await tapSubmit(tester);
+      await tester.pumpAndSettle();
+
+      await tester.pump(const Duration(seconds: codeResendCooldownSeconds));
+      await tester.pump();
+      await tester.tap(find.widgetWithText(TextButton, l10n.resendCodeLabel));
+      await tester.pumpAndSettle();
+
+      expect(api.registrationCodeRequests, hasLength(2));
+      expect(find.text(l10n.verifyEmailCodeResentMessage), findsOneWidget);
+    });
+
+    testWidgets('the code screen needs the form, else registration starts again', (tester) async {
+      await openRegisterScreenAt(tester, AppRoutes.verifyEmail);
+
+      expect(find.byType(RegisterScreen), findsOneWidget);
     });
 
     testWidgets('returns to the login screen from the back button', (tester) async {

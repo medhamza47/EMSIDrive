@@ -9,4 +9,8 @@ abstract final class AuthErrorCodes {
   static const String invalidCredentials = 'INVALID_CREDENTIALS';
   static const String emailAlreadyUsed = 'EMAIL_ALREADY_USED';
   static const String accountDisabled = 'ACCOUNT_DISABLED';
+  static const String invalidResetCode = 'INVALID_RESET_CODE';
+  static const String invalidVerificationCode = 'INVALID_VERIFICATION_CODE';
+  static const String emailVerificationRequired = 'EMAIL_VERIFICATION_REQUIRED';
+  static const String verificationCodeLimit = 'VERIFICATION_CODE_LIMIT';
 }

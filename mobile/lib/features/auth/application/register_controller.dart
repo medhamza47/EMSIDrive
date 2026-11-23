@@ -20,6 +20,7 @@ class RegisterController extends _$RegisterController {
     required String password,
     required String fullName,
     String? phoneNumber,
+    String? verificationCode,
   }) async {
     if (state.isSubmitting) {
       return;
@@ -31,6 +32,7 @@ class RegisterController extends _$RegisterController {
         password: password,
         fullName: fullName,
         phoneNumber: phoneNumber,
+        verificationCode: verificationCode,
       );
       if (ref.mounted) {
         ref.read(biometricOfferProvider.notifier).request(session.user.email);

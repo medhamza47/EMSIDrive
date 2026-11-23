@@ -220,11 +220,113 @@ abstract class AppLocalizations {
   /// **'Mot de passe oublié ?'**
   String get forgotPasswordLabel;
 
-  /// Shown when the user taps the password reset link, which is not implemented yet
+  /// Title of the forgot password screen
   ///
   /// In fr, this message translates to:
-  /// **'La réinitialisation du mot de passe sera disponible prochainement.'**
-  String get forgotPasswordUnavailableMessage;
+  /// **'Mot de passe oublié'**
+  String get forgotPasswordTitle;
+
+  /// Explanation under the forgot password title
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez votre adresse EMSI. Nous vous enverrons un code à 6 chiffres pour choisir un nouveau mot de passe.'**
+  String get forgotPasswordSubtitle;
+
+  /// Button sending the reset code
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le code'**
+  String get forgotPasswordSubmitLabel;
+
+  /// Title of the reset password screen
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get resetPasswordTitle;
+
+  /// Explanation under the reset password title; never confirms the account exists
+  ///
+  /// In fr, this message translates to:
+  /// **'Si un compte existe pour {email}, un code à 6 chiffres vient d’y être envoyé. Il est valable 15 minutes.'**
+  String resetPasswordSubtitle(String email);
+
+  /// Warning that a reset ends every session
+  ///
+  /// In fr, this message translates to:
+  /// **'Après le changement, tous vos appareils seront déconnectés et la connexion par empreinte devra être réactivée.'**
+  String get resetPasswordSignOutNote;
+
+  /// Label of the reset code field
+  ///
+  /// In fr, this message translates to:
+  /// **'Code reçu par e-mail'**
+  String get resetCodeLabel;
+
+  /// Hint of the reset code field
+  ///
+  /// In fr, this message translates to:
+  /// **'6 chiffres'**
+  String get resetCodeHint;
+
+  /// Label of the new password field
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get newPasswordLabel;
+
+  /// Label of the password confirmation field
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get confirmPasswordLabel;
+
+  /// Button applying the new password
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe'**
+  String get resetPasswordSubmitLabel;
+
+  /// Button asking for a new reset code
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get resendCodeLabel;
+
+  /// Disabled resend button while the cooldown runs
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code dans {seconds} s'**
+  String resendCodeCountdown(int seconds);
+
+  /// Snackbar after asking for a new code
+  ///
+  /// In fr, this message translates to:
+  /// **'Si un compte existe, un nouveau code vient d’être envoyé.'**
+  String get resetCodeResentMessage;
+
+  /// Snackbar after a successful reset
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.'**
+  String get resetPasswordSuccessMessage;
+
+  /// Validation message for a code that is not 6 digits
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez les 6 chiffres du code.'**
+  String get validationResetCodeInvalid;
+
+  /// Validation message when the confirmation differs
+  ///
+  /// In fr, this message translates to:
+  /// **'Les deux mots de passe ne correspondent pas.'**
+  String get validationPasswordMismatch;
+
+  /// Banner when the server rejects the reset code
+  ///
+  /// In fr, this message translates to:
+  /// **'Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.'**
+  String get invalidResetCodeErrorMessage;
 
   /// Label of the submit button on the login screen
   ///
@@ -309,6 +411,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre compte a été créé. Bienvenue sur EMSIDrive !'**
   String get registerSuccessMessage;
+
+  /// Title of the email confirmation screen shown during registration
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre e-mail'**
+  String get verifyEmailTitle;
+
+  /// Explanation under the email confirmation title
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le pour créer votre compte. Il est valable 15 minutes.'**
+  String verifyEmailSubtitle(String email);
+
+  /// Button creating the account with the emailed code
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer et créer mon compte'**
+  String get verifyEmailSubmitLabel;
+
+  /// Link going back to the registration form
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l’adresse e-mail'**
+  String get verifyEmailChangeAddressLabel;
+
+  /// Snackbar after asking for a new registration code
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau code vient d’être envoyé.'**
+  String get verifyEmailCodeResentMessage;
+
+  /// Banner when the server rejects the registration code
+  ///
+  /// In fr, this message translates to:
+  /// **'Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.'**
+  String get invalidVerificationCodeErrorMessage;
+
+  /// Banner when the hourly code limit is reached
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de codes demandés pour cette adresse. Réessayez dans une heure.'**
+  String get verificationCodeLimitErrorMessage;
 
   /// Validation message when the email field is empty
   ///

@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/data/dto/auth_requests.dart';
+import '../../features/auth/presentation/email_verification_screen.dart';
+import '../../features/auth/presentation/password_reset_screens.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/biometric_offer_host.dart';
 import '../../features/auth/presentation/session_screen.dart';
@@ -62,8 +65,7 @@ GoRouter createAppRouter({
         ? null
         : (_, state) {
             final path = state.uri.path;
-            final authenticating =
-                path == AppRoutes.login || path == AppRoutes.register;
+            final authenticating = AppRoutes.signedOutOnly.contains(path);
             switch (session.status) {
               case SessionStatus.restoring || SessionStatus.unavailable:
                 if (path == AppRoutes.session) return null;
@@ -85,11 +87,8 @@ GoRouter createAppRouter({
                       !uri.hasScheme &&
                       !uri.hasAuthority &&
                       uri.path.startsWith('/') &&
-                      ![
-                        AppRoutes.session,
-                        AppRoutes.login,
-                        AppRoutes.register,
-                      ].contains(uri.path)) {
+                      uri.path != AppRoutes.session &&
+                      !AppRoutes.signedOutOnly.contains(uri.path)) {
                     return uri.toString();
                   }
                   return AppRoutes.home;
@@ -109,6 +108,29 @@ GoRouter createAppRouter({
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.verifyEmail,
+        // The form only lives in memory: without it, start the registration again.
+        redirect: (_, state) =>
+            state.extra is RegisterRequestDto ? null : AppRoutes.register,
+        builder: (_, state) =>
+            EmailVerificationScreen(form: state.extra! as RegisterRequestDto),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (_, state) => ForgotPasswordScreen(
+          initialEmail: state.uri.queryParameters['email'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        redirect: (_, state) =>
+            (state.uri.queryParameters['email'] ?? '').isEmpty
+            ? AppRoutes.forgotPassword
+            : null,
+        builder: (_, state) =>
+            ResetPasswordScreen(email: state.uri.queryParameters['email']!),
       ),
       GoRoute(
         path: '/trip/:id',

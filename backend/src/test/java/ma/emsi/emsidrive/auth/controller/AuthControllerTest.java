@@ -49,6 +49,9 @@ class AuthControllerTest {
     @MockitoBean
     private ma.emsi.emsidrive.auth.service.BiometricDeviceService biometricDeviceService;
 
+    @MockitoBean
+    private ma.emsi.emsidrive.auth.service.PasswordResetService passwordResetService;
+
     private static AuthResponse sampleAuthResponse() {
         return AuthResponse.bearer(
                 "access-token",
@@ -154,5 +157,51 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(new RefreshTokenRequest("stale-token"))))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("INVALID_REFRESH_TOKEN"));
+    }
+
+    @Test
+    void forgotPasswordAlwaysAnswers202() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/password/forgot")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + EMAIL + "\"}"))
+                .andExpect(status().isAccepted());
+        org.mockito.Mockito.verify(passwordResetService).requestReset(EMAIL);
+    }
+
+    @Test
+    void resetPasswordRejectsMalformedCodeAndShortPassword() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/password/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + EMAIL + "\",\"code\":\"12ab\",\"newPassword\":\"short\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.details.length()").value(2));
+        org.mockito.Mockito.verifyNoInteractions(passwordResetService);
+    }
+
+    @Test
+    void resetPasswordAnswers204() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/password/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + EMAIL + "\",\"code\":\"123456\",\"newPassword\":\"NewStrongPass1!\"}"))
+                .andExpect(status().isNoContent());
+        org.mockito.Mockito.verify(passwordResetService).resetPassword(EMAIL, "123456", "NewStrongPass1!");
+    }
+
+    @Test
+    void registrationCodeValidatesTheFormThenAnswers202() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register/code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new RegisterRequest(EMAIL, "StrongPass123!", "Sara El Idrissi", null))))
+                .andExpect(status().isAccepted());
+        org.mockito.Mockito.verify(authService).requestRegistrationCode(any(RegisterRequest.class));
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new RegisterRequest(EMAIL, "StrongPass123!", "Sara El Idrissi", null, "12ab"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details[0].field").value("verificationCode"));
     }
 }

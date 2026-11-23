@@ -9,8 +9,11 @@ import ma.emsi.emsidrive.auth.dto.RefreshTokenRequest;
 import ma.emsi.emsidrive.auth.dto.RegisterRequest;
 import ma.emsi.emsidrive.auth.dto.BiometricDtos.DeviceKeyRequest;
 import ma.emsi.emsidrive.auth.dto.BiometricDtos.LoginResponse;
+import ma.emsi.emsidrive.auth.dto.PasswordResetDtos.ForgotPasswordRequest;
+import ma.emsi.emsidrive.auth.dto.PasswordResetDtos.ResetPasswordRequest;
 import ma.emsi.emsidrive.auth.service.AuthService;
 import ma.emsi.emsidrive.auth.service.BiometricDeviceService;
+import ma.emsi.emsidrive.auth.service.PasswordResetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,14 +28,27 @@ public class AuthController {
 
     private final AuthService authService;
     private final BiometricDeviceService biometricDeviceService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthService authService, BiometricDeviceService biometricDeviceService) {
+    public AuthController(
+            AuthService authService,
+            BiometricDeviceService biometricDeviceService,
+            PasswordResetService passwordResetService) {
         this.authService = authService;
         this.biometricDeviceService = biometricDeviceService;
+        this.passwordResetService = passwordResetService;
+    }
+
+    @PostMapping("/register/code")
+    @Operation(summary = "Check the registration form and email a 6-digit code to the address",
+            description = "202 when the code is sent, or when the previous one was sent less than a minute ago")
+    public ResponseEntity<Void> registrationCode(@Valid @RequestBody RegisterRequest request) {
+        authService.requestRegistrationCode(request);
+        return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new student account")
+    @Operation(summary = "Register a new student account with the emailed verification code")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
@@ -66,6 +82,21 @@ public class AuthController {
     @Operation(summary = "Unlink a phone from fingerprint login")
     public ResponseEntity<Void> biometricRevoke(@Valid @RequestBody DeviceKeyRequest request) {
         biometricDeviceService.revoke(request.deviceId(), request.deviceKey());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/forgot")
+    @Operation(summary = "Email a password reset code",
+            description = "Always 202, whether or not the email belongs to an account")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/password/reset")
+    @Operation(summary = "Set a new password with the emailed code and end every session")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request.email(), request.code(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
 }

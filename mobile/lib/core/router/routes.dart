@@ -6,7 +6,30 @@ abstract final class AppRoutes {
   // Authentication (outside the bottom navigation shell).
   static const String login = '/login';
   static const String register = '/register';
+
+  /// Registration code screen; needs the form as `extra`.
+  static const String verifyEmail = '/register/verify';
   static const String session = '/session';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
+
+  /// Signed out screens: reachable without a session, left once signed in.
+  static const Set<String> signedOutOnly = <String>{
+    login,
+    register,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+  };
+
+  /// Forgot password screen, with the login email prefilled when known.
+  static String forgotPasswordFor(String email) => email.isEmpty
+      ? forgotPassword
+      : Uri(path: forgotPassword, queryParameters: {'email': email}).toString();
+
+  /// Code entry screen for the reset requested for [email].
+  static String resetPasswordFor(String email) =>
+      Uri(path: resetPassword, queryParameters: {'email': email}).toString();
 
   // Shell (bottom navigation) destinations.
   static const String home = '/home';

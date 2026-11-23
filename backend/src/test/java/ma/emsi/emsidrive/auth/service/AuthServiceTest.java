@@ -52,6 +52,9 @@ class AuthServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Mock
+    private EmailVerificationService emailVerification;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final List<RefreshToken> persistedRefreshTokens = new ArrayList<>();
@@ -66,7 +69,7 @@ class AuthServiceTest {
                 List.of("EMSI-EDU.MA "));
         jwtService = new JwtService(properties);
         authService = new AuthService(
-                userRepository, refreshTokenRepository, passwordEncoder, jwtService, properties);
+                userRepository, refreshTokenRepository, passwordEncoder, jwtService, emailVerification, properties);
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> {
             persistedRefreshTokens.add(invocation.getArgument(0));
             return invocation.getArgument(0);

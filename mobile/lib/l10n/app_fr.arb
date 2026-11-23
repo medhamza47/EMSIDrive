@@ -84,9 +84,87 @@
   "@forgotPasswordLabel": {
     "description": "Link opening the password reset flow"
   },
-  "forgotPasswordUnavailableMessage": "La réinitialisation du mot de passe sera disponible prochainement.",
-  "@forgotPasswordUnavailableMessage": {
-    "description": "Shown when the user taps the password reset link, which is not implemented yet"
+  "forgotPasswordTitle": "Mot de passe oublié",
+  "@forgotPasswordTitle": {
+    "description": "Title of the forgot password screen"
+  },
+  "forgotPasswordSubtitle": "Saisissez votre adresse EMSI. Nous vous enverrons un code à 6 chiffres pour choisir un nouveau mot de passe.",
+  "@forgotPasswordSubtitle": {
+    "description": "Explanation under the forgot password title"
+  },
+  "forgotPasswordSubmitLabel": "Envoyer le code",
+  "@forgotPasswordSubmitLabel": {
+    "description": "Button sending the reset code"
+  },
+  "resetPasswordTitle": "Nouveau mot de passe",
+  "@resetPasswordTitle": {
+    "description": "Title of the reset password screen"
+  },
+  "resetPasswordSubtitle": "Si un compte existe pour {email}, un code à 6 chiffres vient d’y être envoyé. Il est valable 15 minutes.",
+  "@resetPasswordSubtitle": {
+    "description": "Explanation under the reset password title; never confirms the account exists",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetPasswordSignOutNote": "Après le changement, tous vos appareils seront déconnectés et la connexion par empreinte devra être réactivée.",
+  "@resetPasswordSignOutNote": {
+    "description": "Warning that a reset ends every session"
+  },
+  "resetCodeLabel": "Code reçu par e-mail",
+  "@resetCodeLabel": {
+    "description": "Label of the reset code field"
+  },
+  "resetCodeHint": "6 chiffres",
+  "@resetCodeHint": {
+    "description": "Hint of the reset code field"
+  },
+  "newPasswordLabel": "Nouveau mot de passe",
+  "@newPasswordLabel": {
+    "description": "Label of the new password field"
+  },
+  "confirmPasswordLabel": "Confirmer le mot de passe",
+  "@confirmPasswordLabel": {
+    "description": "Label of the password confirmation field"
+  },
+  "resetPasswordSubmitLabel": "Changer le mot de passe",
+  "@resetPasswordSubmitLabel": {
+    "description": "Button applying the new password"
+  },
+  "resendCodeLabel": "Renvoyer le code",
+  "@resendCodeLabel": {
+    "description": "Button asking for a new reset code"
+  },
+  "resendCodeCountdown": "Renvoyer le code dans {seconds} s",
+  "@resendCodeCountdown": {
+    "description": "Disabled resend button while the cooldown runs",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resetCodeResentMessage": "Si un compte existe, un nouveau code vient d’être envoyé.",
+  "@resetCodeResentMessage": {
+    "description": "Snackbar after asking for a new code"
+  },
+  "resetPasswordSuccessMessage": "Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.",
+  "@resetPasswordSuccessMessage": {
+    "description": "Snackbar after a successful reset"
+  },
+  "validationResetCodeInvalid": "Saisissez les 6 chiffres du code.",
+  "@validationResetCodeInvalid": {
+    "description": "Validation message for a code that is not 6 digits"
+  },
+  "validationPasswordMismatch": "Les deux mots de passe ne correspondent pas.",
+  "@validationPasswordMismatch": {
+    "description": "Validation message when the confirmation differs"
+  },
+  "invalidResetCodeErrorMessage": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.",
+  "@invalidResetCodeErrorMessage": {
+    "description": "Banner when the server rejects the reset code"
   },
   "loginSubmitLabel": "Se connecter",
   "@loginSubmitLabel": {
@@ -143,6 +221,39 @@
   "registerSuccessMessage": "Votre compte a été créé. Bienvenue sur EMSIDrive !",
   "@registerSuccessMessage": {
     "description": "Confirmation shown after a successful registration"
+  },
+  "verifyEmailTitle": "Vérifiez votre e-mail",
+  "@verifyEmailTitle": {
+    "description": "Title of the email confirmation screen shown during registration"
+  },
+  "verifyEmailSubtitle": "Nous avons envoyé un code à 6 chiffres à {email}. Saisissez-le pour créer votre compte. Il est valable 15 minutes.",
+  "@verifyEmailSubtitle": {
+    "description": "Explanation under the email confirmation title",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailSubmitLabel": "Confirmer et créer mon compte",
+  "@verifyEmailSubmitLabel": {
+    "description": "Button creating the account with the emailed code"
+  },
+  "verifyEmailChangeAddressLabel": "Modifier l’adresse e-mail",
+  "@verifyEmailChangeAddressLabel": {
+    "description": "Link going back to the registration form"
+  },
+  "verifyEmailCodeResentMessage": "Un nouveau code vient d’être envoyé.",
+  "@verifyEmailCodeResentMessage": {
+    "description": "Snackbar after asking for a new registration code"
+  },
+  "invalidVerificationCodeErrorMessage": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.",
+  "@invalidVerificationCodeErrorMessage": {
+    "description": "Banner when the server rejects the registration code"
+  },
+  "verificationCodeLimitErrorMessage": "Trop de codes demandés pour cette adresse. Réessayez dans une heure.",
+  "@verificationCodeLimitErrorMessage": {
+    "description": "Banner when the hourly code limit is reached"
   },
   "validationEmailRequired": "L'adresse email est obligatoire.",
   "@validationEmailRequired": {

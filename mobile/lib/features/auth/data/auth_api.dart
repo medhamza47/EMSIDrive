@@ -73,6 +73,34 @@ class AuthApi {
     );
   }
 
+  /// `POST /auth/password/forgot` — always 202, whether or not the email
+  /// belongs to an account, so the answer never reveals who is registered.
+  Future<void> requestPasswordReset(String email) async {
+    await _dio.post<void>(
+      '/auth/password/forgot',
+      data: {'email': email.trim()},
+    );
+  }
+
+  /// `POST /auth/password/reset` — 204 on success, 400 `INVALID_RESET_CODE`
+  /// when the code is wrong, expired, already used or locked.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    await _dio.post<void>(
+      '/auth/password/reset',
+      data: {'email': email.trim(), 'code': code.trim(), 'newPassword': newPassword},
+    );
+  }
+
+  /// `POST /auth/register/code` — 202 once the form is valid and a 6-digit
+  /// code is on its way to the email. Same errors as `register` for the form.
+  Future<void> requestRegistrationCode(RegisterRequestDto request) async {
+    await _dio.post<void>('/auth/register/code', data: request.toJson());
+  }
+
   /// `POST /auth/register` — 201 on success.
   Future<AuthResponseDto> register(RegisterRequestDto request) async {
     final response = await _dio.post<Map<String, dynamic>>(

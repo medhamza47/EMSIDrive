@@ -33,12 +33,20 @@ class AuthRepository {
     );
   }
 
+  /// Checks the registration form on the server and emails a code proving
+  /// the address exists. No account is created yet.
+  Future<void> requestRegistrationCode(RegisterRequestDto form) =>
+      _guard(() => _api.requestRegistrationCode(form));
+
   /// Creates a student account and stores the returned tokens.
+  ///
+  /// [verificationCode] is the code emailed by [requestRegistrationCode].
   Future<AuthSession> register({
     required String email,
     required String password,
     required String fullName,
     String? phoneNumber,
+    String? verificationCode,
   }) {
     return _authenticate(
       () => _api.register(
@@ -47,10 +55,30 @@ class AuthRepository {
           password: password,
           fullName: fullName,
           phoneNumber: phoneNumber,
+          verificationCode: verificationCode,
         ),
       ),
     );
   }
+
+  /// Asks the server to email a password reset code to [email].
+  ///
+  /// Succeeds for any well formed address: the server never says whether an
+  /// account exists. Throws an [AppFailure] when the request cannot complete.
+  Future<void> requestPasswordReset(String email) =>
+      _guard(() => _api.requestPasswordReset(email));
+
+  /// Sets [newPassword] with the emailed [code].
+  ///
+  /// The server then ends every session of the account, fingerprint links
+  /// included, so the student signs in again with the new password.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) => _guard(
+    () => _api.resetPassword(email: email, code: code, newPassword: newPassword),
+  );
 
   /// Ends the session on the server, then removes the stored tokens.
   ///
@@ -73,6 +101,16 @@ class AuthRepository {
 
   /// Reads the stored access token, used to restore a session at startup.
   Future<String?> readAccessToken() => _tokenStorage.readAccessToken();
+
+  Future<void> _guard(Future<void> Function() request) async {
+    try {
+      await request();
+    } on AppFailure {
+      rethrow;
+    } catch (error) {
+      throw ErrorMapper.map(error);
+    }
+  }
 
   Future<AuthSession> _authenticate(
     Future<AuthResponseDto> Function() request,

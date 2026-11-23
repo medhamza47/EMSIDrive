@@ -21,6 +21,7 @@ class RegisterRequestDto {
     required this.password,
     required this.fullName,
     this.phoneNumber,
+    this.verificationCode,
   });
 
   /// Maximum accepted by `RegisterRequest.fullName`.
@@ -37,6 +38,18 @@ class RegisterRequestDto {
   final String fullName;
   final String? phoneNumber;
 
+  /// Code emailed by `POST /auth/register/code`; absent when asking for it.
+  final String? verificationCode;
+
+  /// Same form carrying the emailed [code].
+  RegisterRequestDto withCode(String code) => RegisterRequestDto(
+    email: email,
+    password: password,
+    fullName: fullName,
+    phoneNumber: phoneNumber,
+    verificationCode: code,
+  );
+
   Map<String, dynamic> toJson() {
     final phone = phoneNumber?.trim();
     return <String, dynamic>{
@@ -44,6 +57,7 @@ class RegisterRequestDto {
       'password': password,
       'fullName': fullName.trim(),
       if (phone != null && phone.isNotEmpty) 'phoneNumber': phone,
+      if (verificationCode case final code?) 'verificationCode': code.trim(),
     };
   }
 }
