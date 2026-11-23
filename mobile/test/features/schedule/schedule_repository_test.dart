@@ -80,6 +80,7 @@ void main() {
         .where((r) => r.path == '/schedules/analyze')
         .toList();
     expect(uploads, hasLength(2));
+    expect(uploads.every((r) => r.receiveTimeout == Duration.zero), isTrue);
     expect(identical(uploads[0].data, uploads[1].data), isFalse);
     expect(uploads[1].headers['Authorization'], 'Bearer new');
   });
@@ -94,4 +95,33 @@ void main() {
       throwsA(isA<UnauthorizedFailure>()),
     );
   });
+  test(
+    'upload returns a queued job without waiting for model inference',
+    () async {
+      final adapter = FakeHttpAdapter(
+        (options) async => jsonResponse({
+          'id': 'job-1',
+          'status': 'QUEUED',
+          'revision': 7,
+          'draft': null,
+        }, statusCode: 202),
+      );
+      final repo = HttpScheduleRepository(
+        AuthenticatedApi(dioWithAdapter(adapter), tokens),
+      );
+      final job = await repo.startImport(
+        Uint8List.fromList([1, 2, 3]),
+        'table.png',
+        'G1',
+        7,
+        CancelToken(),
+      );
+      expect(job.pending, isTrue);
+      expect(job.draft, isNull);
+      expect(adapter.requests, hasLength(1));
+      expect(adapter.requests.single.path, '/schedules/imports');
+      final form = adapter.requests.single.data as FormData;
+      expect(Map.fromEntries(form.fields)['revision'], '7');
+    },
+  );
 }

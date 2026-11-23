@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_assets.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_radius.dart';
@@ -11,9 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/app_badge.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/avatar.dart';
-import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_state.dart';
-import '../../../shared/widgets/section_title.dart';
 import '../../../shared/widgets/skeleton_loader.dart';
 import '../../../shared/widgets/notification_bell.dart';
 import '../application/home_controller.dart';
@@ -29,11 +26,6 @@ const double _tripCardRadius = 18;
 
 /// Gap between the blocks of the page, taken from the mockup (14 px).
 const double _blockGap = 14;
-
-/// Grouping by proximity: a section title sits further from what precedes
-/// it than from the content it introduces.
-const double _sectionGapBefore = 26;
-const double _sectionGapAfter = 8;
 
 /// Entry motion: each block eases out over [_entryItemMs], the next one
 /// starting [_entryStaggerMs] later.
@@ -92,7 +84,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     ref.listen<HomeState>(homeControllerProvider, (previous, next) {
       if (next is HomeLoaded && previous is! HomeLoaded) {
-        _entryController.forward(from: 0);
+        if (MediaQuery.disableAnimationsOf(context)) {
+          _entryController.value = 1;
+        } else {
+          _entryController.forward(from: 0);
+        }
       }
     });
 
@@ -103,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           color: Theme.of(context).colorScheme.primary,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
             children: switch (state) {
               HomeLoading() => _buildSkeleton(),
               HomeError(:final failure) => _buildError(l10n, failure),
@@ -155,30 +151,173 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   List<Widget> _buildContent(AppLocalizations l10n, HomeOverview overview) {
+    final theme = Theme.of(context), colors = theme.colorScheme;
     final blocks = <Widget>[
       _buildGreeting(l10n, overview.displayName),
-      SectionTitle(title: l10n.homeActionsTitle),
-      _HomeActionCard(
-        title: l10n.homeSearchRideTitle,
-        subtitle: l10n.homeSearchRideSubtitle,
-        background: Theme.of(context).colorScheme.primary,
-        foreground: Theme.of(context).colorScheme.onPrimary,
-        onTap: _openSearch,
+      Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colors.primary,
+              Color.lerp(colors.primary, colors.tertiary, .3)!,
+            ],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.homeHeroTitle,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: colors.onPrimary,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.onPrimary.withValues(alpha: .15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Icon(
+                      Icons.directions_car_rounded,
+                      size: 36,
+                      color: colors.onPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.homeSearchRideSubtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onPrimary,
+              ),
+            ),
+            const SizedBox(height: 22),
+            FilledButton.icon(
+              onPressed: _openSearch,
+              style: FilledButton.styleFrom(
+                backgroundColor: colors.surface,
+                foregroundColor: colors.onSurface,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 17,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              icon: const Icon(Icons.search_rounded),
+              label: Text(
+                l10n.homeSearchRideTitle,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
-      _HomeActionCard(
-        title: l10n.homeOfferRideTitle,
-        subtitle: l10n.homeOfferRideSubtitle,
-        background: Theme.of(context).colorScheme.primaryContainer
-            .withValues(alpha: .5),
-        foreground: Theme.of(context).colorScheme.primary,
-        onTap: _openOffer,
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final actions = [
+            _HomeActionCard(
+              title: l10n.homeOfferRideTitle,
+              subtitle: l10n.homeOfferRideSubtitle,
+              icon: Icons.add_road_rounded,
+              background: colors.primaryContainer,
+              foreground: colors.onPrimaryContainer,
+              onTap: _openOffer,
+            ),
+            _HomeActionCard(
+              title: l10n.homePlanTitle,
+              subtitle: l10n.homePlanSubtitle,
+              icon: Icons.calendar_month_outlined,
+              background: colors.secondaryContainer,
+              foreground: colors.onSecondaryContainer,
+              onTap: () => context.go(AppRoutes.planning),
+            ),
+          ];
+          if (MediaQuery.textScalerOf(context).scale(16) > 22 ||
+              constraints.maxWidth < 300) {
+            return Column(
+              spacing: 12,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: actions,
+            );
+          }
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: actions[0]),
+                const SizedBox(width: 12),
+                Expanded(child: actions[1]),
+              ],
+            ),
+          );
+        },
       ),
-      SectionTitle(title: l10n.homeUpcomingTripsTitle),
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.homeUpcomingTripsTitle,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.go('${AppRoutes.rides}?tab=mine'),
+            child: Text(l10n.homeSeeAll),
+          ),
+        ],
+      ),
       if (overview.hasNoUpcomingTrips)
-        EmptyState(
-          title: l10n.homeNoUpcomingTripsTitle,
-          message: l10n.homeNoUpcomingTripsMessage,
-          icon: Icons.directions_car_outlined,
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: colors.outlineVariant),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.route_outlined, color: colors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      l10n.homeNoUpcomingTripsTitle,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    Text(
+                      l10n.homeNoUpcomingTripsMessage,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         )
       else
         ...overview.upcomingTrips.map(
@@ -194,13 +333,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     return Row(
       children: <Widget>[
-        Image.asset(
-          AppAssets.logo,
-          height: 34,
-          fit: BoxFit.contain,
-          semanticLabel: l10n.appName,
-        ),
-        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +354,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ],
           ),
         ),
-        Avatar(name: displayName, size: 46),
+        IconButton(
+          tooltip: l10n.navProfile,
+          onPressed: () => context.go(AppRoutes.profile),
+          icon: Avatar(name: displayName, size: 42),
+        ),
         const NotificationBell(),
       ],
     );
@@ -234,12 +370,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final children = <Widget>[];
     for (var index = 0; index < blocks.length; index++) {
       if (index > 0) {
-        final gap = blocks[index] is SectionTitle
-            ? _sectionGapBefore
-            : blocks[index - 1] is SectionTitle
-            ? _sectionGapAfter
-            : _blockGap;
-        children.add(SizedBox(height: gap));
+        children.add(const SizedBox(height: _blockGap));
       }
       children.add(
         _EntryTransition(
@@ -304,6 +435,7 @@ class _HomeActionCard extends StatelessWidget {
     required this.background,
     required this.foreground,
     required this.onTap,
+    required this.icon,
   });
 
   final String title;
@@ -311,6 +443,7 @@ class _HomeActionCard extends StatelessWidget {
   final Color background;
   final Color foreground;
   final VoidCallback onTap;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -331,10 +464,18 @@ class _HomeActionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Row(
+                  children: [
+                    Icon(icon, color: foreground, size: 28),
+                    const Spacer(),
+                    Icon(Icons.arrow_outward, color: foreground, size: 18),
+                  ],
+                ),
+                const SizedBox(height: 18),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 21,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.42,
                     color: foreground,

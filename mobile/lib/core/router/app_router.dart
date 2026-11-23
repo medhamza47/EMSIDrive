@@ -19,6 +19,7 @@ import '../../features/matching/presentation/suggestion_screens.dart';
 import '../../features/rides/data/demo_drivers.dart';
 import '../../features/rides/domain/marketplace_models.dart';
 import '../../features/rides/presentation/accepted_ride_screen.dart';
+import '../../features/rides/presentation/active_ride_bar.dart';
 import '../../features/rides/presentation/trip_summary_screen.dart';
 import '../../features/rides/presentation/marketplace_screens.dart';
 import '../../features/rides/presentation/driver_screens.dart';
@@ -288,13 +289,19 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: BiometricOfferHost(child: navigationShell),
-      bottomNavigationBar: AppBottomNavBar(
-        currentTab: AppTab.values[navigationShell.currentIndex],
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const ActiveRideBar(),
+          AppBottomNavBar(
+            currentTab: AppTab.values[navigationShell.currentIndex],
 
-        onTabSelected: (tab) => navigationShell.goBranch(
-          tab.index,
-          initialLocation: tab.index == navigationShell.currentIndex,
-        ),
+            onTabSelected: (tab) => navigationShell.goBranch(
+              tab.index,
+              initialLocation: tab.index == navigationShell.currentIndex,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../rides/data/marketplace_api.dart';
 import '../../rides/domain/marketplace_models.dart';
+import '../../auth/data/session_id_provider.dart';
 
 final rideNoticesProvider = StreamProvider.autoDispose<List<RideNotice>>((ref) {
+  ref.watch(sessionIdProvider);
   final api = ref.watch(marketplaceApiProvider);
   final updates = StreamController<List<RideNotice>>();
   var loading = false;

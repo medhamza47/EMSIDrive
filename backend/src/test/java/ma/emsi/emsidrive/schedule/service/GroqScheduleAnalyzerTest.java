@@ -20,6 +20,18 @@ class GroqScheduleAnalyzerTest {
         {"label":"ERP","location":"LI8","weekday":5,"startTime":"08:30","endTime":"10:00","campus":"CENTRE","needsReview":false,
          "timeEvidence":{"source":"EXPLICIT","spanCertain":true}}]}
         """;
+    @Test void globalReadingUsesFridaySpecificHeadersWithoutMovingOtherDays() {
+        String json = """
+                {"isTimetable":true,"ambiguous":false,"columns":[["13:00","16:00"]],
+                "dayColumns":{"5":[["15:00","18:00"]]},"courses":[
+                [null,null,1,null,false,1,1,true,null,null],
+                [null,null,5,null,false,1,1,true,null,null]]}
+                """;
+        var slots = analyzer.parse(json, document).slots();
+        assertThat(slots.get(0).startTime()).isEqualTo("13:00");
+        assertThat(slots.get(1).startTime()).isEqualTo("15:00");
+        assertThat(slots.get(1).endTime()).isEqualTo("18:00");
+    }
     @Test void keepsReadableFieldsAndMarksMissingOrInvalidFieldsForReview() {
         var result = analyzer.parse(valid, document);
         assertThat(result.slots().get(0).needsReview()).isFalse();
@@ -29,9 +41,41 @@ class GroqScheduleAnalyzerTest {
         assertThat(result.slots().get(0).campus()).isNull();
         assertThat(result.slots().get(0).startTime()).isNull();
     }
+    @Test void extractsOnlyTimesWithoutRequiringSubjectOrPlace() {
+        var slot = analyzer.parse(valid.replace("\"ERP\"", "null").replace("\"CENTRE\"", "null"), document).slots().get(0);
+        assertThat(slot.needsReview()).isFalse();
+        assertThat(slot.label()).isNull();
+        assertThat(slot.location()).isNull();
+        assertThat(slot.campus()).isNull();
+        assertThat(slot.weekday()).isEqualTo(5);
+        assertThat(slot.endTime()).isEqualTo("10:00");
+    }
     @Test void rejectsAmbiguousNonTimetableAndMalformedOutput() {
         for (String json : List.of("not json", "[]", "{}", valid.replace("\"label\":\"ERP\"", "\"label\":\"Deep Learning\",\"label\":\"ERP\""), valid.replace("\"ambiguous\":false", "\"ambiguous\":true"), valid.replace("\"isTimetable\":true", "\"isTimetable\":false"))) {
             assertThatThrownBy(() -> analyzer.parse(json, document)).isInstanceOf(ApiException.class);
+        }
+    }
+    @Test void compactVisionOutputPreservesMergedExplicitAndUncertainHours() {
+        String compact = """
+            {"isTimetable":true,"ambiguous":false,"name":null,"warnings":[],
+             "columns":[["08:30","10:00"],["10:15","11:45"]],
+             "courses":[["Deep Learning","LI8",1,"TARGA",false,1,2,true,null,null],
+                        ["Business English","A2",5,"CENTRE",false,null,null,true,"15:00","16:30"],
+                        ["ERP",null,5,"CENTRE",true,1,2,false,null,null]]}
+            """;
+        var result = analyzer.parse(compact, document);
+        assertThat(result.slots()).hasSize(3);
+        assertThat(result.slots().get(0).startTime()).isEqualTo("08:30");
+        assertThat(result.slots().get(0).endTime()).isEqualTo("11:45");
+        assertThat(result.slots().get(0).needsReview()).isFalse();
+        assertThat(result.slots().get(1).startTime()).isEqualTo("15:00");
+        assertThat(result.slots().get(1).endTime()).isEqualTo("16:30");
+        assertThat(result.slots().get(2).endTime()).isNull();
+        assertThat(result.slots().get(2).needsReview()).isTrue();
+        for (String malformed : List.of(compact.replace("1,2,true,null,null", "1,2,true,null"),
+                compact.replace("\"courses\":", "\"slots\":[],\"courses\":"),
+                compact.replace("1,2,true,null,null", "1,2,\"true\",null,null"))) {
+            assertThatThrownBy(() -> analyzer.parse(malformed, document)).isInstanceOf(ApiException.class);
         }
     }
     @Test void parsingRecalculatesTheWholeMergedCellAndKeepsUncertainEndsUnknown() throws Exception {

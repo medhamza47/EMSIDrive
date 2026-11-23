@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/routes.dart';
@@ -15,65 +16,70 @@ class FuelSplitScreen extends StatefulWidget {
 }
 
 class _FuelSplitScreenState extends State<FuelSplitScreen> {
-  bool _confirmed = false;
+  int _passengers = 3;
+  String _amount = '40';
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final total = RegExp(r'^\d{1,7}([.,]\d{1,2})?$').hasMatch(_amount)
+        ? double.tryParse(_amount.replaceAll(',', '.'))
+        : null;
+    final currency = NumberFormat.currency(locale: 'fr', symbol: 'MAD');
     return FlowPage(
       title: l.fuelTitle,
       children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colors.primary,
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: DefaultTextStyle.merge(
-            style: TextStyle(color: colors.onPrimary),
-            textAlign: TextAlign.center,
+        Card.filled(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Text(l.yourShare),
+                Text(l.sharePerPerson),
                 Text(
-                  l.amountMad(10),
-                  style: theme.textTheme.displaySmall?.copyWith(
-                    color: colors.onPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  total == null
+                      ? '—'
+                      : currency.format(total / (_passengers + 1)),
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
-                Text(l.fuelSummary),
               ],
             ),
           ),
         ),
-        SectionTitle(title: l.costBreakdown),
-        FlowValue(l.totalAmount, l.amountMad(40)),
-        FlowValue(l.driverTitle, '1'),
-        FlowValue(l.passengers, '3'),
-        FlowValue(l.sharePerPerson, l.amountMad(10)),
-        SectionTitle(title: l.participants),
-        for (final (name, avatar, confirmed) in [
-          (l.youLabel, 'Yassine Amrani', true),
-          ('Omar K.', 'Omar K.', true),
-          ('Imane R.', 'Imane R.', false),
-        ])
-          AppCard(
-            leading: Avatar(name: avatar),
-            crossAxisAlignment: CrossAxisAlignment.center,
-            trailing: AppBadge(
-              label: confirmed ? l.tripStatusConfirmed : l.tripStatusPending,
-              tone: confirmed ? AppBadgeTone.accent : AppBadgeTone.neutral,
-            ),
-            child: Text(name, style: theme.textTheme.titleSmall),
+        TextFormField(
+          initialValue: _amount,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: l.totalAmount,
+            suffixText: 'MAD',
+            errorText: total == null && _amount.isNotEmpty
+                ? l.fuelAmountError
+                : null,
           ),
-        PrimaryButton(
-          label: _confirmed ? l.reviewTitle : l.confirmShare,
-          onPressed: _confirmed
-              ? () => context.push(AppRoutes.rideReview)
-              : () => setState(() => _confirmed = true),
+          onChanged: (value) => setState(() => _amount = value.trim()),
+        ),
+        ListTile(title: Text(l.driverTitle), trailing: const Text('1')),
+        ListTile(
+          title: Text(l.passengers),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: l.fuelRemovePassenger,
+                onPressed: _passengers > 0
+                    ? () => setState(() => _passengers--)
+                    : null,
+                icon: const Icon(Icons.remove),
+              ),
+              Text('$_passengers'),
+              IconButton(
+                tooltip: l.fuelAddPassenger,
+                onPressed: _passengers < 8
+                    ? () => setState(() => _passengers++)
+                    : null,
+                icon: const Icon(Icons.add),
+              ),
+            ],
+          ),
         ),
       ],
     );

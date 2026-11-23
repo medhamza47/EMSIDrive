@@ -20,8 +20,9 @@ class HttpHomeRepository implements HomeRepository {
           trips
               .where(
                 (t) =>
-                    t.status == 'ONGOING' ||
-                    t.path.departure.isAfter(DateTime.now()),
+                    t.active &&
+                    (t.status == 'ONGOING' ||
+                        t.path.departure.isAfter(DateTime.now())),
               )
               .toList()
             ..sort((a, b) => a.path.departure.compareTo(b.path.departure));

@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 import java.util.*;
 import java.util.List;
 
-/** Finds ruled cells from image pixels; the language model does not decide their column spans. */
+/** Finds ruled cells from image pixels independently of the text recognition engine. */
 final class TimetableGridDetector {
     record Line(double intercept, double slope, int left, int right, int strength) {
         double y(double x) { return intercept + slope * x; }
@@ -17,6 +17,7 @@ final class TimetableGridDetector {
     record Grid(List<Integer> borders, List<Row> rows, int headerTop, int headerBottom) {}
     record Batch(String image, List<Row> rows) {}
     record Plan(Grid grid, List<Batch> batches) {}
+
 
     Optional<Plan> prepare(List<String> images) {
         if (images.size()!=1) return Optional.empty();
@@ -122,7 +123,7 @@ final class TimetableGridDetector {
         for (int start = 0; start < lines.size(); start++) {
             var group = new ArrayList<Line>(); group.add(lines.get(start));
             double mean = 0;
-            for (int j = start + 1; j < lines.size() && group.size() < 8; j++) {
+            for (int j = start + 1; j < lines.size() && group.size() < 9; j++) {
                 double gap = lines.get(j).y(w / 2.0) - group.get(group.size()-1).y(w / 2.0);
                 if (gap < h * .045 || gap > h * .19 || (mean > 0 && (gap < mean * .65 || gap > mean * 1.4))) break;
                 int overlap = Math.min(lines.get(j).right(), group.get(0).right()) - Math.max(lines.get(j).left(),group.get(0).left());

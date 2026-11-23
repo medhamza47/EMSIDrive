@@ -11,6 +11,9 @@ import '../data/marketplace_api.dart';
 import '../domain/marketplace_models.dart';
 import 'marketplace_map.dart';
 import 'ride_summary_card.dart';
+import '../application/active_rides_provider.dart';
+import '../../notifications/data/ride_notices_provider.dart';
+import 'trip_status.dart';
 import 'ride_lifecycle.dart';
 import 'ride_request_screen.dart';
 import '../../home/application/home_controller.dart';
@@ -41,16 +44,32 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
 
   Future<List<Object>> _load() {
     final api = ref.read(marketplaceApiProvider);
-    return _tab == 2
-        ? api.trips(history: _history)
-        : api.listings(ListingKind.values[_tab], mine: _mine);
+    final future = Future<List<Object>>.sync(
+      () => _tab == 2
+          ? api.trips(history: _history)
+          : api.listings(ListingKind.values[_tab], mine: _mine),
+    );
+    // Attach an error listener immediately, before the next frame subscribes
+    // through FutureBuilder. FutureBuilder still receives the original error.
+    future.then<void>((_) {}, onError: (Object error, StackTrace stack) {});
+    return future;
   }
 
-  void _reload() {
-    final items = _load();
+  void _reload() => setState(() {
+    _items = _load();
+  });
+
+  void _select(int tab) {
     setState(() {
-      _items = items;
+      _tab = tab;
+      _items = _load();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant MarketplaceBoard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTab != oldWidget.initialTab) _select(widget.initialTab);
   }
 
   Future<void> _open(String location) async {
@@ -61,22 +80,40 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final active =
+        ref.watch(activeRidesProvider).asData?.value ?? <AcceptedRide>[];
+    ref.listen(activeRidesProvider, (before, after) {
+      String signature(List<AcceptedRide>? rides) =>
+          rides?.map((r) => '${r.id}:${r.stage.name}').join(',') ?? '';
+      if (after.hasValue &&
+          signature(before?.asData?.value) != signature(after.asData?.value)) {
+        _reload();
+      }
+    });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
         SegmentedButton<int>(
+          expandedInsets: EdgeInsets.zero,
           showSelectedIcon: false,
           segments: [
-            ButtonSegment(value: 0, label: Text(l.rideRequests)),
-            ButtonSegment(value: 1, label: Text(l.rideOffers)),
-            ButtonSegment(value: 2, label: Text(l.myAcceptedRides)),
+            for (final entry in [
+              l.rideRequests,
+              l.rideOffers,
+              l.myAcceptedRides,
+            ].asMap().entries)
+              ButtonSegment(
+                value: entry.key,
+                label: Text(
+                  entry.value,
+                  key: ValueKey('rides-tab-${entry.key}'),
+                  textAlign: TextAlign.center,
+                ),
+              ),
           ],
           selected: {_tab},
-          onSelectionChanged: (selection) {
-            _tab = selection.single;
-            _reload();
-          },
+          onSelectionChanged: (values) => _select(values.single),
         ),
         if (_tab < 2)
           Align(
@@ -118,13 +155,41 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
           ),
         ),
         FutureBuilder<List<Object>>(
+          key: ValueKey(_tab),
           future: _items,
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
               return const LinearProgressIndicator();
             }
-            if (snapshot.hasError) return Text(l.marketplaceLoadError);
-            final items = snapshot.data ?? [];
+            if (snapshot.hasError) {
+              return Column(
+                children: [
+                  Text(l.marketplaceLoadError),
+                  TextButton.icon(
+                    onPressed: _reload,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(l.retryLabel),
+                  ),
+                ],
+              );
+            }
+            final promoted = _tab == 2
+                ? <AcceptedRide>[]
+                : active
+                      .where((r) => _tab == 1 || r.requestId != null)
+                      .toList();
+            final items = <Object>[
+              ...promoted,
+              ...(snapshot.data ?? []).where(
+                (item) =>
+                    item is! RideListing ||
+                    !promoted.any(
+                      (r) => _tab == 1
+                          ? r.offerId == item.id
+                          : r.requestId == item.id,
+                    ),
+              ),
+            ];
             if (items.isEmpty) {
               return Text(switch (_tab) {
                 0 => l.noRideRequests,
@@ -148,7 +213,11 @@ class _MarketplaceBoardState extends ConsumerState<MarketplaceBoard> {
                     ),
                     AcceptedRide() => RideSummaryCard(
                       path: item.path,
-                      author: item.partner,
+                      author:
+                          '${item.partner} · ${tripStageLabel(l, item.stage)}',
+                      activeStatus: item.stage.active
+                          ? tripStageLabel(l, item.stage)
+                          : null,
                       status: rideStatusLabel(l, item.status),
                       onTap: () => _open(AppRoutes.acceptedRide(item.id)),
                     ),
@@ -227,6 +296,30 @@ class _ListingDetailScreenState extends ConsumerState<ListingDetailScreen> {
     setState(() => _accepting = true);
     try {
       final booking = await ref.read(marketplaceApiProvider).accept(listing);
+      ref.invalidate(activeRidesProvider);
+      ref.invalidate(rideNoticesProvider);
+      if (!mounted) return;
+      final l = AppLocalizations.of(context);
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          icon: Icon(
+            Icons.check_circle,
+            size: 52,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          title: Text(l.tripBookingConfirmed),
+          content: Text(listing.author),
+          actions: [
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(dialogContext),
+              icon: const Icon(Icons.near_me_outlined),
+              label: Text(l.tripFollow),
+            ),
+          ],
+        ),
+      );
       if (mounted) context.pushReplacement(AppRoutes.acceptedRide(booking));
     } catch (_) {
       if (!mounted) return;

@@ -23,7 +23,6 @@ class RidesScreen extends StatelessWidget {
     return FlowPage(
       title: l.navRides,
       children: [
-        Text(l.ridesIntro),
         MarketplaceBoard(
           initialTab: initialTab,
           initialHistory: initialHistory,
@@ -35,12 +34,12 @@ class RidesScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.local_gas_station_outlined),
               title: Text(l.fuelTitle),
-              onTap: () => context.go(AppRoutes.rideHistory),
+              onTap: () => context.push(AppRoutes.fuelSplit),
             ),
             ListTile(
               leading: const Icon(Icons.star_outline),
               title: Text(l.reviewTitle),
-              onTap: () => context.go(AppRoutes.rideHistory),
+              onTap: () => context.push(AppRoutes.rideReview),
             ),
           ],
         ),

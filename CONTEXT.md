@@ -587,32 +587,148 @@ cd admin-web && npm run build && npm test -- --watch=false
 
 ## 7. Sécurité et configuration
 
-### Emplois du temps — implémentation Groq
+### Emplois du temps — Gemini
 
-Le parcours d’emploi du temps utilise désormais `/api/v1/schedules` et PostgreSQL,
-sans créneaux ni suggestions de démonstration. Import JPEG/PNG/PDF via Groq côté serveur,
-brouillon éditable, confirmation obligatoire, période de validité et campus par cours.
-La clé se configure exclusivement dans `backend/.env.local` (ignoré) ou l’environnement.
-Pour les séances doubles, Groq doit fournir les en-têtes horaires et l’étendue de chaque
-cellule en lecture globale. Pour les photos avec une grille détectable, le serveur mesure
-directement les bordures, crée des cartes de cellules à identifiants opaques, puis utilise
-Groq uniquement pour transcrire leur contenu. Il valide tous les identifiants et dérive
-la fin de la dernière colonne couverte. Les photos sont normalisées en PNG pour éviter
-qu’une seconde compression JPEG efface les traits fins. Il conserve les
-horaires explicites et les pauses, sans durée fixe de 90 minutes. Une étendue incertaine
-laisse l’heure de fin vide et exige une correction avant enregistrement.
-Les suggestions filtrent les annonces marketplace existantes selon les horaires, le
-campus et la durée estimée du trajet. Détails et limites dans [backend/SCHEDULE.md](backend/SCHEDULE.md).
+Le parcours utilise `/api/v1/schedules`, Gemini côté serveur et PostgreSQL.
+L’OCR local Tesseract a été supprimé ; aucune installation OCR ni modèle local
+n’est nécessaire. `GeminiScheduleAnalyzer` utilise l’endpoint compatible de Google
+et `VisionScheduleAnalyzer` porte les instructions, la mesure des grilles et la
+validation stricte des réponses. `GroqScheduleAnalyzer` reste un adaptateur historique
+non enregistré dans Spring, utilisé par les tests de régression.
+
+Créer une clé sur https://aistudio.google.com/api-keys et la placer uniquement dans
+`backend/.env.local` (ignoré) ou l’environnement : `GEMINI_API_KEY`.
+`GEMINI_MODEL` vaut `gemini-3.8-flash` par défaut. `GEMINI_FALLBACK_MODELS` définit
+les modèles de secours (défaut : `gemini-3.5-flash-lite,gemini-3.1-flash-lite`).
+Chaque tentative est limitée à `GEMINI_ATTEMPT_SECONDS` (20 s par défaut), trois
+modèles maximum. Quota atteint, indisponibilité, délai ou JSON invalide déclenchent
+le modèle suivant sans attendre `Retry-After`. Un groupe ambigu n’est pas réinterprété.
+Avec `GROQ_API_KEY`, le deuxième essai utilise Groq (`GROQ_MODEL=qwen/qwen3.8-27b`),
+puis le premier secours Gemini, toujours trois tentatives maximum. La clé reste côté serveur.
+Groq reçoit au maximum trois images par requête ; le budget de temps couvre tous les lots.
+Sans clé, l’analyse renvoie
+`SCHEDULE_AI_NOT_CONFIGURED` et la saisie manuelle reste accessible. L’offre gratuite
+de Google est soumise à ses quotas ; HTTP 429 est traduit en `SCHEDULE_AI_RATE_LIMIT`.
+
+Import JPEG/PNG/PDF (1 à 3 pages), brouillon éditable et confirmation obligatoire.
+L’extraction conserve uniquement les jours et horaires, sans matière, salle, personne
+ou campus. Les cellules doubles et les pauses sont respectées via les colonnes mesurées,
+ou les en-têtes et étendues fournis par Gemini en lecture globale. Une incertitude
+impose une correction avant enregistrement. L’import mobile utilise `POST /schedules/imports`
+qui renvoie 202 dès la validation et la mise en file ; il ne bloque pas sur Gemini.
+V23 ajoute `schedule_import_jobs` et `schedule_travel_preferences`. Le document normalisé
+est retenu en base tant que le travail attend ou tourne, puis supprimé à la réussite,
+à l’échec ou à l’annulation. Les imports et résultats non utilisés expirent après 24 h.
+La transmission à Google et la rétention temporaire sont annoncées dans l’application.
+
+La période de validité d’une semaine type reste à renseigner, sans exceptions datées.
+Le planning numérique affiche, par jour, l’arrivée avant la première séance et le départ
+après la dernière. La recherche moderne `/schedules/matches` exige un campus explicite,
+un point privé sur la carte et un rayon (100 à 10 000 m), enregistrés par compte.
+Elle filtre les offres réellement réservables par campus, jour, horaires et distance
+à vol d’oiseau entre les points en ville. Le point exact du conducteur reste protégé
+par la marketplace ; la réponse ne fournit que la distance et la fiche publique.
+Le profil permet de consulter, modifier, remplacer et supprimer le planning.
+« Enregistrer et réserver un trajet » ouvre les offres compatibles avec réservation
+explicite. Une analyse simultanée par compte, deux workers par instance et au plus
+50 imports actifs dans la file partagée. Les workers prennent un bail PostgreSQL et
+reprennent les travaux dont le processus est mort ; un jeton de bail empêche une réponse
+tardive de remplacer le résultat courant. Annuler supprime le document et interrompt
+le worker local si présent. `GET /imports/latest` permet de récupérer le résultat après
+navigation ou redémarrage du téléphone. L’empreinte du document déduplique les renvois
+identiques pour le même compte pendant 24 h ; aucun cache n’est partagé entre comptes.
+La sauvegarde confirme le planning et consomme le résultat d’import dans la même transaction.
+L’ancien `/analyze` et `/suggestions` restent compatibles mais ne sont plus le parcours mobile.
+Détails dans [backend/SCHEDULE.md](backend/SCHEDULE.md).
+
+Pour un nouvel import sans dates, le mobile propose explicitement les sept prochains
+jours, modifiables avant confirmation. Les horaires complets marqués à vérifier peuvent
+être validés par la confirmation globale, sans rééditer chaque séance. Les jours/heures
+manquants, chevauchements et périodes invalides bloquent toujours l’enregistrement avec
+un motif précis. Le nom par défaut est initialisé après disponibilité des traductions.
+Gemini reçoit toutes les cartes d’une grille dans un seul appel et utilise
+`reasoning_effort=low` afin de réduire l’attente ; les contrôles des cellules restent actifs.
 
 `AuthenticatedApi` est partagé par les emplois du temps et la marketplace pour
 coordonner le renouvellement des JWT. Il clone les formulaires multipart lors d’un
 nouvel essai après 401 et rejette les réponses d’une session déjà déconnectée.
 
+Le planning affiche la semaine du lundi au dimanche avec une arrivée et un départ
+par jour et un bouton de réservation. Les séances sont retriées après chaque ajout
+ou modification. Les horaires particuliers imprimés pour une ligne sont conservés
+(`dayColumns` en lecture globale, `rowColumns` sur les cartes mesurées) ; un vendredi
+après-midi détecté avant 15 h est signalé pour vérification, sans imposer une règle
+nationale. L’éditeur propose explicitement un début à 15 h pour le vendredi.
+
+La réservation restaure le point et le campus, calcule automatiquement le trajet
+routier avec OSRM et enregistre sa durée estimée pour le matching. Si OSRM échoue,
+la durée manuelle reste disponible avec un message explicite. La carte montre les
+points de rendez-vous approximatifs des offres compatibles, jamais des positions
+GPS en direct avant réservation. Toucher une voiture sélectionne son offre et son
+itinéraire ; la réservation utilise le parcours marketplace existant.
+
+En debug, « Ajouter 3 trajets de test » appelle `POST /api/v1/schedules/demo-rides`.
+Le contrôleur et le service n’existent que dans le profil Spring `dev`. Les trois
+conducteurs sont fictifs, identifiés TEST, avec des identifiants stables par compte.
+Les horaires s’alignent sur la prochaine présence dans les sept jours. Répéter l’ajout
+ne crée pas de doublon et ne réinitialise jamais les réservations ou leurs places.
+
+Le suivi des réservations utilise `tracking_state` (migration V24) : réservé,
+en route, arrivé, trajet commencé, terminé ou annulé. Le conducteur fait avancer
+les étapes ; un passager peut annuler avant le départ effectif. Les étapes d'une
+même offre sont synchronisées entre ses passagers. Les annulations libèrent les
+places une seule fois et les notifications sont privées aux participants.
+
+Après réservation, une confirmation ouvre le suivi ; une barre de trajet actif
+permet d'y revenir. Les alertes et l'historique fonctionnent dans l'application.
+Les notifications push lorsque l'application passager est fermée ne sont pas
+implémentées (FCM/APNs reste à connecter).
+
+Le conducteur active explicitement le GPS. Android utilise un service de premier
+plan avec notification persistante pour continuer hors de l'écran du trajet.
+Les permissions et restrictions du téléphone restent applicables ; un processus
+tué ne partage plus sa position. Le partage s'arrête à la fin du trajet, à la
+déconnexion ou après quatre heures. Les positions de plus de 30 secondes sont
+masquées côté serveur et mobile. L'estimation OSRM est routière, sans trafic en
+direct ; aucune estimation n'est inventée lorsque le GPS ou le routage manque.
+Les trois conducteurs TEST sont statiques et ne simulent pas de GPS en direct.
+
+Le bouton Appeler reste accessible depuis les onglets suivi et chat d'une
+réservation active. Un menu propose Téléphone (composeur `tel:`, sans appel
+automatique) ou WhatsApp (conversation via le lien officiel `wa.me`, puis
+bouton d'appel dans WhatsApp). Les numéros marocains 05/06/07 sont convertis
+en format 212 pour WhatsApp ; les autres nécessitent un indicatif explicite.
+Le numéro du partenaire provient de son profil, n'est jamais
+exposé dans les annonces publiques et est masqué après clôture du trajet.
+Un numéro absent ou invalide affiche une explication. La carte distingue
+la prise en charge (repère passager, couleur tertiaire) de la destination
+(drapeau, couleur primaire). Avant « Passager à bord », le calcul GPS vise
+le rendez-vous ; ensuite, il vise la destination de la réservation.
+
+Les boutons Demandes / Offres / Mes trajets changent explicitement de liste.
+L'accueil présente une action principale Trouver un trajet, deux cartes compactes
+Proposer un trajet / Mon planning, puis les prochains trajets avec Tout voir.
+L'avatar ouvre le profil ; les notifications restent accessibles en haut.
+Les cartes secondaires s'empilent avec un texte fortement agrandi. Le thème
+clair/sombre et la préférence de réduction des animations sont respectés.
+Les réservations annulées ou terminées sont exclues des prochains trajets.
+Les rafraîchissements utilisent un bloc synchrone dans `setState` : retourner
+directement l'affectation d'un Future provoquait une assertion en debug et
+empêchait l'affichage du nouvel onglet. Les erreurs offrent un bouton Réessayer.
+Les réservations actives sont remontées dans les offres (et dans les demandes
+liées via `ride_request_id`), avec bordure, halo discret, statut et accès Suivre.
+L'actualisation des états retire cette mise en évidence à l'annulation ou à la
+fin ; les anciennes réservations restent consultables dans Mes trajets.
+
+`themeModeProvider` applique le choix clair, sombre ou système depuis le profil.
+Le choix est local au téléphone et persiste dans le stockage sécurisé sous
+`appearance.themeMode`, indépendamment des jetons de session.
+
 - Authentification par **JWT** (access token court + refresh token).
 - Deux rôles seulement : `STUDENT` (inscription publique) et `ADMIN` (créé côté serveur). Toute autre valeur est refusée par la contrainte `chk_users_role`.
 - Les refresh tokens sont **persistés côté serveur** (seul le hash SHA-256 est stocké) et **rotatifs** : chaque `/auth/refresh` révoque le token présenté et en émet un nouveau.
 - `POST /auth/logout` révoque le refresh token présenté. La réponse est toujours `204`, même pour un jeton inconnu ou déjà révoqué, pour ne rien révéler.
-- **Connexion par empreinte** : `POST /me/biometric-devices` (session requise) lie le téléphone et renvoie une clé d'appareil de 32 octets aléatoires, affichée une seule fois. La table `biometric_devices` (V24) ne garde que son hash SHA-256.
+- **Connexion par empreinte** : `POST /me/biometric-devices` (session requise) lie le téléphone et renvoie une clé d'appareil de 32 octets aléatoires, affichée une seule fois. La table `biometric_devices` (V26) ne garde que son hash SHA-256.
 - `POST /auth/biometric/login` compare la clé en temps constant, verrouille la ligne (`PESSIMISTIC_WRITE`), remplace la clé et émet une session. Une clé déjà remplacée qui revient révoque le téléphone : la révocation est conservée malgré l'erreur (`noRollbackFor`).
 - `POST /auth/biometric/revoke` délie le téléphone si la clé correspond et répond `204` dans tous les cas. L'empreinte elle-même ne quitte jamais l'appareil.
 - L'inscription est limitée aux domaines étudiants, configurables via `app.security.student-email-domains`.
@@ -672,7 +788,7 @@ nouvel essai après 401 et rejette les réponses d’une session déjà déconne
 
 ## Cycle de vie marketplace
 
-La migration V23 ajoute les horodatages réels de départ et de fin aux offres.
+La migration V25 ajoute les horodatages réels de départ et de fin aux offres.
 Une réservation reste `CONFIRMED` pendant le trajet, avec un statut exposé
 `ONGOING` lorsque l’offre est en cours. Le conducteur démarre et termine l’offre
 pour tous ses passagers confirmés. Les réservations terminées deviennent

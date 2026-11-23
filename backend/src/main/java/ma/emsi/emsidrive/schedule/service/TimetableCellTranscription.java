@@ -24,14 +24,30 @@ final class TimetableCellTranscription {
             header.put("startTime",time(columns.get(i).get(0)));header.put("endTime",time(columns.get(i).get(1)));
         }
         var slots=root.putArray("slots");var days=result.path("weekdays");var cells=result.path("cells");
+        var overrides = root.putObject("dayTimeColumns");
         if(!days.isObject() || !cells.isObject())throw invalid();
         var expectedDays=new HashSet<String>();batch.rows().forEach(r->expectedDays.add(String.valueOf(r.index())));
         var actualDays=new HashSet<String>();days.fieldNames().forEachRemaining(actualDays::add);
         var expectedCells=new HashSet<String>();batch.rows().forEach(r->r.cells().forEach(c->expectedCells.add(c.id())));
         var actualCells=new HashSet<String>();cells.fieldNames().forEachRemaining(actualCells::add);
         if(!expectedDays.equals(actualDays) || !expectedCells.equals(actualCells))throw invalid();
+        var rowColumns = result.path("rowColumns");
+        if (!rowColumns.isMissingNode() && !rowColumns.isObject()) throw invalid();
+        var overrideKeys = rowColumns.fieldNames();
+        while (overrideKeys.hasNext()) if (!expectedDays.contains(overrideKeys.next())) throw invalid();
         for(var physical:batch.rows()) {
             Integer day=weekday(days.get(String.valueOf(physical.index())));
+            var special = rowColumns.path(String.valueOf(physical.index()));
+            if (!special.isMissingNode()) {
+                if (day == null || !special.isArray() || special.size() != columns.size()) throw invalid();
+                var specialHeaders = overrides.putArray(String.valueOf(day));
+                for (int i = 0; i < special.size(); i++) {
+                    var pair = special.get(i);
+                    if (!pair.isArray() || pair.size() != 2 || time(pair.get(0)) == null || time(pair.get(1)) == null) throw invalid();
+                    var header = specialHeaders.addObject(); header.put("index", i + 1);
+                    header.put("startTime", time(pair.get(0))); header.put("endTime", time(pair.get(1)));
+                }
+            }
             for(var cell:physical.cells()) {
                 var value=cells.get(cell.id());
                 if(value.isNull())continue;
