@@ -27,6 +27,9 @@ Document de référence du projet : contexte, architecture, structure des dossie
 - Validation de l’intégration avec 156 tests backend, 254 tests Flutter et 11 tests
   Angular réussis, analyse Flutter propre et compilation Angular réussie. La base
   locale a appliqué V28 à V30 au démarrage de l’API sur 8081.
+- L’APK debug embarquant l’OCR compile sur le poste. Un écran noir au retour de
+  l’ancien état de l’émulateur a nécessité un démarrage à froid de Pixel_5 avec
+  `-no-snapshot-load -gpu swiftshader_indirect`, puis une relance Flutter sur 8081.
 - L’estimation reste à 87 % pendant cette intégration. Les essais complets sur deux
   téléphones et le déploiement restent les validations principales du périmètre.
 
