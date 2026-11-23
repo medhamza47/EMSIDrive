@@ -5,6 +5,32 @@ Windows + Android team presentation: [ready-to-run package and source setup](pre
 Application de covoiturage pour les étudiants de l’EMSI Marrakech. Chaque trajet relie
 l’un des deux campus à un point situé dans Marrakech ou Méchouar-Kasba.
 
+## Dernières modifications intégrées (23 novembre 2026)
+
+Cette version unifie l’ensemble des travaux de l’équipe (**Hamza, Nabil, Youssef, Ali**) :
+
+1. **Analyse d’emploi du temps sur le téléphone (PaddleOCR v6 ONNX) & En ligne (OpenRouter / PaddleOCR-VL)** :
+   - **Mode « Sur ce téléphone »** : lecture 100 % hors-ligne des images (JPEG/PNG) et PDF (1 à 3 pages) directement sur Android grâce au moteur `mobile/android/paddleocr-sdk/` et à la détection géométrique des grilles et cellules fusionnées (`LocalTimetableGridDetector`), sans aucune clé API requise.
+   - **Mode « En ligne »** : import asynchrone en arrière-plan (`ScheduleImportJobs`, table SQL `schedule_import_jobs`) avec support multi-fournisseurs (`OpenRouterScheduleAnalyzer`, `PaddleScheduleAnalyzer` sous Docker dans `deploy/paddleocr-vl/`).
+2. **Suivi GPS en direct, cycle de vie étendu & contact rapide** :
+   - Partage de position GPS conducteur en arrière-plan (`driver_tracking_provider.dart`), calcul dynamique de l’ETA routier (OSRM), étapes guidées (*Confirmé → En route → Au rendez-vous → En cours → Terminé*), barre de trajet actif permanente (`active_ride_bar.dart`), chat privé et boutons d’appel téléphonique / **WhatsApp** direct.
+3. **Fusion complète avec les fonctionnalités de `develop`** :
+   - **Back-office Web Angular 21 (`admin-web/`)** : tableau de bord, gestion des comptes, supervision des trajets, traitement des signalements et journal d’audit (proxy configuré sur le port `8080`).
+   - **Gestion des véhicules (`vehicles_screen.dart`)**, **Bilan de fin de trajet, évaluations & partage des frais d’essence (`trip_summary_screen.dart`)** et **Notifications Push Android (Firebase)**.
+   - **Migrations Flyway harmonisées (`V1` à `V29`)** dans `backend/src/main/resources/db/migration/` pour éviter tout conflit de version en base PostgreSQL.
+4. **Présentation officielle du projet (`presentation/`)** :
+   - Diaporama PowerPoint 15 slides (`presentation/EMSIDrive_Presentation.pptx` et version interactive `presentation/EMSIDrive_Presentation.html`) accompagné des captures d’écran réelles dans `presentation/screenshots/`.
+
+### Configuration rapide de l’IA en ligne pour l’équipe
+
+Le mode **« Sur ce téléphone »** fonctionne immédiatement sans configuration. Pour activer en plus le mode **« En ligne » (OpenRouter)** sur votre machine locale, créez le fichier `backend/.env.local` (ignoré par Git pour la sécurité) à partir de `backend/.env.example` :
+
+```env
+OPENROUTER_API_KEY=<cle_openrouter_partagee_en_equipe>
+OPENROUTER_MODEL=particle-ai/particle-1:free
+OPENROUTER_TIMEOUT_SECONDS=120
+```
+
 ## État du projet
 
 ### Mise à jour du 23 novembre 2026
