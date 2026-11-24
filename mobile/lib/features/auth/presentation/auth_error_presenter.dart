@@ -24,6 +24,10 @@ class AuthErrorPresenter {
       AuthErrorCodes.emailDomainNotAllowed => _l10n.emailDomainNotAllowedErrorMessage,
       AuthErrorCodes.emailAlreadyUsed => _l10n.emailAlreadyUsedErrorMessage,
       AuthErrorCodes.accountDisabled => _l10n.accountDisabledErrorMessage,
+      AuthErrorCodes.invalidResetCode => _l10n.invalidResetCodeErrorMessage,
+      AuthErrorCodes.invalidVerificationCode ||
+      AuthErrorCodes.emailVerificationRequired => _l10n.invalidVerificationCodeErrorMessage,
+      AuthErrorCodes.verificationCodeLimit => _l10n.verificationCodeLimitErrorMessage,
       _ => switch (failure) {
         NetworkFailure() => _l10n.networkErrorMessage,
         TimeoutFailure() => _l10n.timeoutErrorMessage,

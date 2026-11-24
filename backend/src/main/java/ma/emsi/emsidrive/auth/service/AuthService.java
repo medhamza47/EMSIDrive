@@ -30,6 +30,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailVerificationService emailVerification;
     private final List<String> studentEmailDomains;
 
     public AuthService(
@@ -37,23 +38,39 @@ public class AuthService {
             RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
+            EmailVerificationService emailVerification,
             SecurityProperties securityProperties) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailVerification = emailVerification;
         this.studentEmailDomains = securityProperties.studentEmailDomains().stream()
                 .map(domain -> domain.trim().toLowerCase(Locale.ROOT))
                 .toList();
     }
 
+    /**
+     * Checks the registration form, then emails a code proving the address exists.
+     * Nothing is stored about the account until {@link #register} receives the code.
+     */
     @Transactional
+    public void requestRegistrationCode(RegisterRequest request) {
+        String email = normalizeEmail(request.email());
+        requireRegistrableEmail(email);
+        emailVerification.sendCode(email, request.fullName().trim());
+    }
+
+    /**
+     * Creates the account once the emailed code is confirmed. A wrong code is counted
+     * as an attempt, so business errors keep the transaction's writes.
+     */
+    @Transactional(noRollbackFor = ApiException.class)
     public AuthResponse register(RegisterRequest request) {
         String email = normalizeEmail(request.email());
-        requireStudentDomain(email);
-
-        if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw ApiException.conflict("EMAIL_ALREADY_USED", "An account already exists for this email address");
+        requireRegistrableEmail(email);
+        if (emailVerification.isRequired()) {
+            emailVerification.confirm(email, request.verificationCode());
         }
 
         User user = User.builder()
@@ -152,6 +169,13 @@ public class AuthService {
             throw ApiException.unauthorized("INVALID_REFRESH_TOKEN", "Provided token is not a refresh token");
         }
         return claims;
+    }
+
+    private void requireRegistrableEmail(String email) {
+        requireStudentDomain(email);
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw ApiException.conflict("EMAIL_ALREADY_USED", "An account already exists for this email address");
+        }
     }
 
     private void requireStudentDomain(String email) {

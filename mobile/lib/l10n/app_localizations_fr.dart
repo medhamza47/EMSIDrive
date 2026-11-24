@@ -76,8 +76,68 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgotPasswordLabel => 'Mot de passe oublié ?';
 
   @override
-  String get forgotPasswordUnavailableMessage =>
-      'La réinitialisation du mot de passe sera disponible prochainement.';
+  String get forgotPasswordTitle => 'Mot de passe oublié';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Saisissez votre adresse EMSI. Nous vous enverrons un code à 6 chiffres pour choisir un nouveau mot de passe.';
+
+  @override
+  String get forgotPasswordSubmitLabel => 'Envoyer le code';
+
+  @override
+  String get resetPasswordTitle => 'Nouveau mot de passe';
+
+  @override
+  String resetPasswordSubtitle(String email) {
+    return 'Si un compte existe pour $email, un code à 6 chiffres vient d’y être envoyé. Il est valable 15 minutes.';
+  }
+
+  @override
+  String get resetPasswordSignOutNote =>
+      'Après le changement, tous vos appareils seront déconnectés et la connexion par empreinte devra être réactivée.';
+
+  @override
+  String get resetCodeLabel => 'Code reçu par e-mail';
+
+  @override
+  String get resetCodeHint => '6 chiffres';
+
+  @override
+  String get newPasswordLabel => 'Nouveau mot de passe';
+
+  @override
+  String get confirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get resetPasswordSubmitLabel => 'Changer le mot de passe';
+
+  @override
+  String get resendCodeLabel => 'Renvoyer le code';
+
+  @override
+  String resendCodeCountdown(int seconds) {
+    return 'Renvoyer le code dans $seconds s';
+  }
+
+  @override
+  String get resetCodeResentMessage =>
+      'Si un compte existe, un nouveau code vient d’être envoyé.';
+
+  @override
+  String get resetPasswordSuccessMessage =>
+      'Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.';
+
+  @override
+  String get validationResetCodeInvalid => 'Saisissez les 6 chiffres du code.';
+
+  @override
+  String get validationPasswordMismatch =>
+      'Les deux mots de passe ne correspondent pas.';
+
+  @override
+  String get invalidResetCodeErrorMessage =>
+      'Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.';
 
   @override
   String get loginSubmitLabel => 'Se connecter';
@@ -122,6 +182,32 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get registerSuccessMessage =>
       'Votre compte a été créé. Bienvenue sur EMSIDrive !';
+
+  @override
+  String get verifyEmailTitle => 'Vérifiez votre e-mail';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'Nous avons envoyé un code à 6 chiffres à $email. Saisissez-le pour créer votre compte. Il est valable 15 minutes.';
+  }
+
+  @override
+  String get verifyEmailSubmitLabel => 'Confirmer et créer mon compte';
+
+  @override
+  String get verifyEmailChangeAddressLabel => 'Modifier l’adresse e-mail';
+
+  @override
+  String get verifyEmailCodeResentMessage =>
+      'Un nouveau code vient d’être envoyé.';
+
+  @override
+  String get invalidVerificationCodeErrorMessage =>
+      'Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.';
+
+  @override
+  String get verificationCodeLimitErrorMessage =>
+      'Trop de codes demandés pour cette adresse. Réessayez dans une heure.';
 
   @override
   String get validationEmailRequired => 'L\'adresse email est obligatoire.';

@@ -7,6 +7,65 @@ Document de référence du projet : contexte, architecture, structure des dossie
 
 ## 1. Le projet
 
+### Confirmation de l’adresse à l’inscription du 23 novembre 2026
+
+- `POST /api/v1/auth/register/code` valide tout le `RegisterRequest` (domaine,
+  doublon, contraintes) puis envoie un code (`CodePurpose.REGISTRATION`). Aucune
+  ligne `users` n’existe avant `POST /auth/register` avec `verificationCode`.
+- `EmailVerificationService` : table `email_verification_codes` (V32), HMAC salé par
+  l’adresse normalisée, 15 minutes, 5 essais, 60 secondes entre deux envois, 5 par
+  heure (429 `VERIFICATION_CODE_LIMIT`). Un verrou consultatif PostgreSQL par adresse
+  sérialise les demandes. Codes d’erreur : `EMAIL_VERIFICATION_REQUIRED`,
+  `INVALID_VERIFICATION_CODE`.
+- `AuthService.register` et `EmailVerificationService.confirm` utilisent
+  `noRollbackFor = ApiException.class` : un mauvais code reste compté. Les deux
+  annotations sont nécessaires, sinon la méthode interne marque la transaction
+  `rollback-only` et la réponse devient une 500.
+- `app.security.email-verification.required` vaut `true` par défaut. Seul
+  `src/test/resources/config/application.properties` le désactive pour les tests qui
+  créent des comptes directement ; `EmailVerificationIntegrationTest` le réactive.
+- E-mails : `CodeMailer`/`SmtpCodeMailer` et `CodeMailDispatcher` (envoi après commit,
+  fil séparé) servent la réinitialisation et l’inscription ; le texte varie par
+  `CodePurpose` dans le modèle commun `resources/mail/code.html`.
+- Mobile : `RegisterScreen` appelle `requestRegistrationCode` puis pousse
+  `/register/verify` avec le formulaire en `extra` (sans `extra`, retour à
+  `/register`). `EmailVerificationScreen` crée le compte via `RegisterController`.
+  `EmailCodeField` et `ResendCodeButton` sont partagés avec la réinitialisation.
+
+### Mot de passe oublié et e-mails du 23 novembre 2026
+
+- `POST /api/v1/auth/password/forgot` répond toujours 202 et
+  `POST /api/v1/auth/password/reset` 204 ou 400 `INVALID_RESET_CODE`. Le serveur ne
+  révèle jamais si une adresse possède un compte. V31 crée `password_reset_codes`.
+- Code à 6 chiffres, 15 minutes, usage unique, bloqué après 5 essais. Seul un HMAC
+  (clé `JWT_SECRET`, sel : identifiant du compte) est stocké. Limites : un envoi par
+  minute et cinq par heure et par compte. Un nouveau code ferme les précédents.
+- Une réinitialisation révoque refresh tokens, liens d’empreinte et appareils push,
+  et invalide les access tokens via `users.access_invalidated_at`.
+- L’e-mail part après le commit, sur un fil séparé (`PasswordResetService`), pour
+  ne pas exposer l’existence d’un compte par le temps de réponse. Une erreur SMTP
+  est seulement journalisée : « PASSWORD_RESET email could not be sent ».
+- `MailConfiguration` choisit `SmtpCodeMailer` si `spring.mail.host` est
+  défini, sinon un expéditeur qui journalise sans jamais écrire le code. Le message
+  est HTML vert et blanc (`resources/mail/code.html`, logo inline
+  `cid:emsidrive-logo`) avec une alternative texte. Le nom est échappé.
+- Profil `dev` : Mailpit (`docker-compose.yml`, boîte sur le port 8025). Chaque
+  développeur peut utiliser son propre SMTP Brevo dans `backend/.env.local`, jamais
+  committé. Brevo refuse les IP non autorisées avec `525 5.7.1 Unauthorized IP
+  address` : autoriser l’IP publique dans Sécurité → IP autorisées. Procédure et
+  dépannage complets dans le README.
+- Mobile : `ForgotPasswordScreen` et `ResetPasswordScreen`
+  (`/forgot-password`, `/reset-password?email=`) font partie de
+  `AppRoutes.signedOutOnly`, accessibles sans session. Renvoi après 60 secondes.
+- `DatabaseMigrationIntegrationTest` cible désormais V30 pour son scénario de
+  montée de version : les migrations suivantes restent couvertes par les autres
+  tests d’intégration.
+- Point d’attention : sur un poste dont le JDK a des données de fuseau anciennes,
+  `Africa/Casablanca` vaut UTC+1 côté Java alors que PostgreSQL et Windows récents
+  donnent UTC+0. Les dates du planning sont alors décalées d’une heure et deux tests
+  de `ScheduleIntegrationTest` échouent. Mettre à jour les données de fuseau du JDK
+  (TZUpdater d’Oracle ou JDK plus récent, y compris le JBR d’Android Studio).
+
 ### Configuration locale OpenRouter du 23 novembre 2026
 
 - Les trois paramètres OpenRouter sont configurés dans `backend/.env.local`,
@@ -499,6 +558,14 @@ elles passent par des tokens partagés entre mobile et admin web.
 - Texte secondaire : contraste d’au moins 4,5:1 (WCAG AA) ; les cartes de l’accueil
   visent 7:1.
 
+### Logo clair et sombre
+
+`assets/images/logo.png` (fond transparent, thème clair) et
+`assets/images/logo_dark.png` (texte blanc, vert éclairci `#2EA85E`, thème sombre)
+sont choisis par `AppAssets.logoFor(theme.brightness)`. Ne plus utiliser de logo
+sur fond blanc dans l’app : il apparaît comme un rectangle blanc en mode sombre.
+L’e-mail garde `backend/src/main/resources/mail/logo.jpg`, toujours sur fond blanc.
+
 ### Mouvement
 
 - Entrées en *ease-out* ; les listes et blocs arrivent décalés de 30 ms.
@@ -825,6 +892,9 @@ Le choix est local au téléphone et persiste dans le stockage sécurisé sous
 | `JWT_ACCESS_TOKEN_TTL` | `PT15M` | Durée de vie de l'access token |
 | `JWT_REFRESH_TOKEN_TTL` | `P7D` | Durée de vie du refresh token |
 | `STUDENT_EMAIL_DOMAINS` | `emsi-edu.ma` | Domaines autorisés à l'inscription, séparés par des virgules |
+| `SPRING_MAIL_HOST` / `SPRING_MAIL_PORT` | aucun (profil `dev` : Mailpit `localhost:1025`) | Serveur SMTP des codes envoyés par e-mail |
+| `SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD` | aucun | Identifiants SMTP, jamais committés |
+| `MAIL_FROM` | `EMSIDrive <no-reply@emsidrive.local>` | Expéditeur, vérifié chez le fournisseur SMTP |
 
 ## Cycle de vie marketplace
 

@@ -10,6 +10,7 @@ import 'package:emsidrive_mobile/features/auth/data/dto/auth_response_dto.dart';
 import 'package:emsidrive_mobile/features/auth/data/token_storage.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/auth_validators.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/login_screen.dart';
+import 'package:emsidrive_mobile/features/auth/presentation/password_reset_screens.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/register_screen.dart';
 import 'package:emsidrive_mobile/features/auth/presentation/widgets/auth_error_banner.dart';
 import 'package:emsidrive_mobile/l10n/app_localizations.dart';
@@ -219,13 +220,16 @@ void main() {
       expect(find.text(l10n.registerTitle), findsOneWidget);
     });
 
-    testWidgets('explains that the password reset is not available yet', (tester) async {
+    testWidgets('opens the password reset with the typed email', (tester) async {
       await openLoginScreen(tester, FakeAuthApi());
 
+      await tester.enterText(input(0), 'yassine.elamrani@emsi-edu.ma');
       await tester.tap(find.text(l10n.forgotPasswordLabel));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.forgotPasswordUnavailableMessage), findsOneWidget);
+      expect(find.byType(ForgotPasswordScreen), findsOneWidget);
+      expect(find.text(l10n.forgotPasswordTitle), findsOneWidget);
+      expect(find.text('yassine.elamrani@emsi-edu.ma'), findsOneWidget);
     });
   });
 }

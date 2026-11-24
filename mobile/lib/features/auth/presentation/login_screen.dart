@@ -139,14 +139,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  void _showForgotPasswordPlaceholder() {
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(l10n.forgotPasswordUnavailableMessage)),
-      );
+  void _openForgotPassword() {
+    _clearServerErrors();
+    context.push(AppRoutes.forgotPasswordFor(_emailController.text.trim()));
   }
 
   @override
@@ -228,7 +223,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: TextButton(
                                 onPressed: state.isSubmitting
                                     ? null
-                                    : _showForgotPasswordPlaceholder,
+                                    : _openForgotPassword,
                                 child: Text(l10n.forgotPasswordLabel),
                               ),
                             ),

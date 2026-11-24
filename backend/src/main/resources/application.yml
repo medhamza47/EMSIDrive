@@ -34,6 +34,11 @@ spring:
     baseline-on-migrate: true
 
 app:
+  # Sender of password reset emails. The SMTP server itself is configured with the
+  # standard SPRING_MAIL_HOST, SPRING_MAIL_PORT, SPRING_MAIL_USERNAME and
+  # SPRING_MAIL_PASSWORD variables; without a host, no email is sent.
+  mail:
+    from: ${MAIL_FROM:EMSIDrive <no-reply@emsidrive.local>}
   push:
     enabled: ${PUSH_ENABLED:false}
   schedule:

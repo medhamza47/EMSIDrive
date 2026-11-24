@@ -57,7 +57,7 @@ Map<String, dynamic> apiErrorJson({
 
 /// Stub [AuthApi] returning canned responses, errors or a pending future.
 class FakeAuthApi implements AuthApi {
-  FakeAuthApi({this.response, this.error, this.pending});
+  FakeAuthApi({this.response, this.error, this.pending, this.registerError});
 
   /// Response returned when neither [error] nor [pending] is set.
   final AuthResponseDto? response;
@@ -67,6 +67,10 @@ class FakeAuthApi implements AuthApi {
 
   /// When set, every call waits on it so tests can observe the loading state.
   final Completer<AuthResponseDto>? pending;
+
+  /// Error thrown by `register` only, e.g. a rejected verification code while
+  /// asking for the code still succeeds.
+  final Object? registerError;
 
   /// Login bodies received, in call order.
   final List<LoginRequestDto> loginRequests = <LoginRequestDto>[];
@@ -83,6 +87,9 @@ class FakeAuthApi implements AuthApi {
   @override
   Future<AuthResponseDto> register(RegisterRequestDto request) {
     registerRequests.add(request);
+    if (registerError case final failure?) {
+      return Future<AuthResponseDto>.error(failure);
+    }
     return _answer();
   }
 
@@ -105,6 +112,38 @@ class FakeAuthApi implements AuthApi {
     required String deviceId,
     required String deviceKey,
   }) async {}
+
+  /// Forms sent to `requestRegistrationCode`, in call order.
+  final List<RegisterRequestDto> registrationCodeRequests = <RegisterRequestDto>[];
+
+  @override
+  Future<void> requestRegistrationCode(RegisterRequestDto request) async {
+    registrationCodeRequests.add(request);
+    await _answer();
+  }
+
+  /// Emails sent to `requestPasswordReset`, in call order.
+  final List<String> passwordResetRequests = <String>[];
+
+  /// Bodies sent to `resetPassword`, in call order.
+  final List<({String email, String code, String newPassword})> resetRequests =
+      <({String email, String code, String newPassword})>[];
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    passwordResetRequests.add(email);
+    await _answer();
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    resetRequests.add((email: email, code: code, newPassword: newPassword));
+    await _answer();
+  }
 
   Future<AuthResponseDto> _answer() {
     final pendingCall = pending;

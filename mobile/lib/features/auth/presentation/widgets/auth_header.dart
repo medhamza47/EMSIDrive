@@ -27,7 +27,7 @@ class AuthHeader extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xl, bottom: AppSpacing.xl),
             child: Image.asset(
-              AppAssets.logo,
+              AppAssets.logoFor(theme.brightness),
               width: 220,
               fit: BoxFit.contain,
               semanticLabel: title,

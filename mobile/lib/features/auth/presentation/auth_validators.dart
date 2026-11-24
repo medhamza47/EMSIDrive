@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import '../../../l10n/app_localizations.dart';
 import '../data/dto/auth_requests.dart';
 
@@ -17,6 +19,8 @@ class AuthValidators {
 
   /// Matches the backend `RegisterRequest.phoneNumber` pattern.
   static final RegExp _phonePattern = RegExp(r'^\+?[0-9]{9,20}$');
+
+  static final RegExp _resetCodePattern = RegExp(r'^[0-9]{6}$');
 
   static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -57,6 +61,26 @@ class AuthValidators {
     }
     return null;
   }
+
+  /// Validates the 6-digit code emailed for a password reset.
+  String? resetCode(String? value) {
+    if (!_resetCodePattern.hasMatch(value?.trim() ?? '')) {
+      return _l10n.validationResetCodeInvalid;
+    }
+    return null;
+  }
+
+  /// Returns a validator checking the confirmation matches [password].
+  FormFieldValidator<String> passwordConfirmation(String Function() password) =>
+      (value) {
+        if ((value ?? '').isEmpty) {
+          return _l10n.validationPasswordRequired;
+        }
+        if (value != password()) {
+          return _l10n.validationPasswordMismatch;
+        }
+        return null;
+      };
 
   /// Validates the full name field.
   String? fullName(String? value) {

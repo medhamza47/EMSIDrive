@@ -56,7 +56,7 @@ et **11 tests Angular** réussis. L’analyse Flutter et la compilation Angular 
 
 | Partie | Disponible |
 | --- | --- |
-| Comptes | Inscription avec un domaine étudiant autorisé, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
+| Comptes | Inscription avec un domaine étudiant autorisé et **adresse confirmée par un code reçu par e-mail**, connexion, stockage sécurisé des jetons et déconnexion révoquée côté serveur. Après une première connexion par mot de passe, le téléphone peut être lié pour se reconnecter **par empreinte**. Un mot de passe oublié se réinitialise avec un **code reçu par e-mail**. L’API renouvelle les jetons et permet de consulter ou modifier son profil et de gérer ses véhicules. |
 | Mobile | Interface Flutter avec les onglets **Accueil**, **Trajets**, **Planning** et **Profil**. Les notifications restent accessibles par la cloche. L’accueil conserve les deux actions **Trouver un trajet** et **Proposer un trajet**. |
 | Profil | Consultation et modification du nom, téléphone, filière, année universitaire et préférences de campus/véhicule. Les données sont enregistrées par compte dans PostgreSQL et rechargées à la connexion. |
 | Véhicules | **Profil → Mes véhicules** permet de consulter, ajouter, modifier et supprimer ses véhicules avec confirmation. Type, marque, modèle, couleur facultative et places passagers sont enregistrés par compte via l’API existante. |
@@ -564,6 +564,140 @@ Sur l’émulateur, définir un code (`adb shell locksettings set-pin 1234`), aj
 empreinte dans **Réglages → Sécurité → Déverrouillage**, puis simuler le doigt avec
 `adb emu finger touch 1` (un autre numéro simule un doigt inconnu).
 
+### Confirmation de l’adresse à l’inscription
+
+Une adresse au bon format peut ne correspondre à aucune boîte réelle. L’inscription
+se fait donc en deux étapes, et **aucun compte n’est créé tant que l’adresse n’est
+pas confirmée** :
+
+1. **Inscription** : le serveur vérifie tout le formulaire (domaine EMSI, adresse
+   déjà utilisée, mot de passe…) puis envoie un code à 6 chiffres à l’adresse.
+2. **Vérifiez votre e-mail** : l’étudiant saisit le code. Le compte est créé, la
+   session ouverte et l’accueil s’affiche, comme avant.
+
+Le code est valable 15 minutes, utilisable une seule fois et lié à l’adresse qui l’a
+reçu. Il est bloqué après cinq essais erronés. **Renvoyer le code** redevient
+disponible après 60 secondes, et le nouveau code remplace le précédent ; au-delà de
+cinq codes par heure pour une adresse, le serveur répond 429. **Modifier l’adresse
+e-mail** revient au formulaire, toujours rempli. Les comptes existants ne sont pas
+concernés : la connexion ne change pas.
+
+| Action API | Route |
+| --- | --- |
+| Vérifier le formulaire et envoyer le code | `POST /api/v1/auth/register/code` (202, ou les erreurs habituelles du formulaire, 429 `VERIFICATION_CODE_LIMIT`) |
+| Créer le compte | `POST /api/v1/auth/register` avec `verificationCode` (201, ou 400 `INVALID_VERIFICATION_CODE` / `EMAIL_VERIFICATION_REQUIRED`) |
+
+En local avec Mailpit, n’importe quelle adresse `@emsi-edu.ma` reçoit le code dans
+[la boîte Mailpit](http://localhost:8025) : des comptes d’essai fictifs restent
+possibles. Avec un vrai SMTP (Brevo), seule une adresse réelle reçoit le code.
+La migration **V32** crée `email_verification_codes`. Les tests d’intégration
+désactivent l’exigence par `src/test/resources/config/application.properties`,
+sauf `EmailVerificationIntegrationTest` qui couvre le vrai parcours.
+
+### Mot de passe oublié
+
+Sur l’écran de connexion, **Mot de passe oublié ?** ouvre un formulaire prérempli
+avec l’adresse saisie. Le serveur envoie par e-mail un code à **6 chiffres**, valable
+**15 minutes** et utilisable une seule fois. L’écran suivant demande le code, le
+nouveau mot de passe (8 caractères minimum) et sa confirmation. **Renvoyer le code**
+redevient disponible après 60 secondes ; le nouveau code remplace le précédent.
+
+La réponse est identique qu’un compte existe ou non, et un compte suspendu ne reçoit
+rien. Le serveur conserve seulement une empreinte HMAC du code, bloque le code après
+cinq essais erronés et limite les envois à un par minute et cinq par heure. Une
+réinitialisation réussie ferme toutes les sessions du compte : jetons d’accès et de
+renouvellement, liens d’empreinte et appareils de notification. L’étudiant se
+reconnecte ensuite avec le nouveau mot de passe.
+
+| Action API | Route |
+| --- | --- |
+| Demander un code | `POST /api/v1/auth/password/forgot` (toujours 202) |
+| Changer le mot de passe | `POST /api/v1/auth/password/reset` (204, ou 400 `INVALID_RESET_CODE`) |
+
+L’e-mail reprend les couleurs de l’application : bandeau et pied de page vert
+`#015629`, logo EMSIDrive intégré au message, code en grands chiffres dans un cadre
+vert clair bordé de `#7ECC18`, puis un rappel « vous n’avez pas demandé… ? ». Une
+version texte accompagne le HTML pour les messageries qui ne l’affichent pas. Le
+code n’apparaît jamais dans l’objet, visible sur l’écran verrouillé. Le modèle se
+trouve dans `backend/src/main/resources/mail/code.html` avec `logo.jpg` ; il sert aussi
+à la confirmation d’adresse de l’inscription, avec un titre et un texte adaptés.
+La migration **V31** crée la table `password_reset_codes`.
+
+#### Lire les e-mails en local avec Mailpit
+
+Sans configuration, `docker compose up -d` (lancé aussi par
+`scripts\start-backend.ps1`) démarre **Mailpit** à côté de PostgreSQL. Le profil
+`dev` lui envoie les e-mails : ouvrir [la boîte Mailpit](http://localhost:8025)
+pour lire le code. Aucun e-mail ne quitte le poste. Sur l’émulateur Android, l’API
+reste `http://10.0.2.2:8081`.
+
+#### Envoyer de vrais e-mails avec votre propre SMTP (Brevo)
+
+Chaque développeur utilise **son propre compte** ; la clé SMTP ne doit jamais être
+partagée ni committée. Brevo offre 300 e-mails par jour gratuitement.
+
+1. Créer un compte sur [Brevo](https://www.brevo.com).
+2. Ouvrir [Clés SMTP](https://app.brevo.com/settings/keys/smtp) (menu du compte,
+   **SMTP & API → SMTP**). Noter le **Login** affiché (forme `xxxx@smtp-brevo.com`,
+   différent de l’adresse du compte), puis **Générer une nouvelle clé SMTP**. La clé
+   n’est affichée qu’une fois.
+3. Vérifier l’adresse d’expédition dans [Expéditeurs](https://app.brevo.com/senders)
+   (**Senders, Domains & Dedicated IPs → Senders**) : **Add sender**, puis cliquer le
+   lien de confirmation reçu. Brevo refuse tout expéditeur non vérifié.
+4. Autoriser l’IP du poste dans
+   [IP autorisées](https://app.brevo.com/security/authorised_ips) (voir le dépannage).
+5. Créer `backend/.env.local` (ignoré par Git, chargé au démarrage du backend) :
+
+```properties
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_FROM=EMSIDrive <adresse-verifiee@example.com>
+spring.mail.username=votre-login@smtp-brevo.com
+spring.mail.password=votre-cle-smtp
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+```
+
+6. Redémarrer le backend (arrêter le processus Java du port 8081, puis
+   `.\scripts\start-backend.ps1 -Port 8081`). Ces valeurs remplacent Mailpit.
+
+Tout fournisseur SMTP fonctionne de la même façon (Gmail avec un mot de passe
+d’application, Mailjet…) : seuls l’hôte, le port et les identifiants changent.
+En production, utiliser les variables d’environnement `SPRING_MAIL_HOST`,
+`SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, `MAIL_FROM` et
+`SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true`,
+`SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true`. Sans hôte SMTP, les
+demandes sont acceptées mais aucun e-mail n’est envoyé, et un avertissement
+apparaît dans les journaux.
+
+#### Dépannage des e-mails
+
+L’envoi a lieu en arrière-plan : l’API répond 202 même si l’e-mail échoue. Chercher
+la cause dans le journal du backend :
+
+```powershell
+Select-String -Path "$env:TEMP\emsidrive-api.log" -Pattern "could not be sent|Caused by" | Select-Object -Last 5
+```
+
+| Message ou symptôme | Cause | Solution |
+| --- | --- | --- |
+| `525 5.7.1 Unauthorized IP address` | Brevo bloque les connexions SMTP depuis une IP inconnue. | Brevo envoie un e-mail « connexion bloquée » au propriétaire du compte : cliquer **Autoriser**. Sinon, ouvrir [IP autorisées](https://app.brevo.com/security/authorised_ips) (menu du compte → **Sécurité**), **Ajouter une IP** et saisir l’IP publique du poste, obtenue avec `curl https://api.ipify.org`. Le même écran permet de désactiver le blocage par IP. |
+| L’erreur 525 revient après quelques jours | L’IP publique d’une connexion domestique change au redémarrage du routeur. | Autoriser la nouvelle IP, ou désactiver le blocage par IP pour un compte de développement. |
+| `535 Authentication failed` | Login ou clé SMTP incorrects. | Utiliser le **Login** de la page SMTP (pas l’adresse du compte) et une clé SMTP (`xsmtpsib-…`), pas une clé API (`xkeysib-…`). |
+| `Sender ... is not valid` ou e-mail refusé | `MAIL_FROM` n’est pas un expéditeur vérifié. | Vérifier l’adresse dans [Expéditeurs](https://app.brevo.com/senders), puis redémarrer. |
+| `spring.mail.host is not set` au démarrage | Aucun SMTP configuré hors profil `dev`. | Définir les variables ci-dessus. |
+| Aucune erreur mais rien dans la boîte | Filtre anti-spam, ou adresse sans compte actif (le serveur ne répond rien dans ce cas, volontairement). | Regarder les **Spam**, vérifier que le compte existe et n’est pas suspendu, et respecter le délai de 60 secondes entre deux codes. |
+| Rien dans Mailpit | `.env.local` redirige vers Brevo, ou le conteneur est arrêté. | Retirer `MAIL_HOST` de `.env.local` ou lancer `docker compose up -d` dans `backend/`. |
+
+### Logo en thème clair et sombre
+
+Les écrans de connexion, d’inscription et de code affichent le logo adapté au
+thème du téléphone : `assets/images/logo.png` (fond transparent) en thème clair et
+`assets/images/logo_dark.png` en thème sombre, avec « Drive » et le slogan en blanc
+et un vert plus lumineux. Le choix passe par `AppAssets.logoFor(theme.brightness)`.
+Ne pas réutiliser l’ancien logo sur fond blanc : il apparaît comme un rectangle
+blanc en mode sombre.
+
 ### Accueil
 
 Les cartes **Trouver un trajet** et **Proposer un trajet** sont plus compactes pour
@@ -748,6 +882,36 @@ Les textes d’interface sont en français et passent par les fichiers de locali
 | Parcours à deux comptes | `mvn -Dtest=RideMarketplaceIntegrationTest test` depuis `backend/`. Le test couvre les deux types d’annonce, les accès privés, les notifications, le chat et la position. |
 | Mobile | `flutter analyze` puis `flutter test` depuis `mobile/`. Les tests couvrent aussi la confirmation des cours, les champs incertains et les réponses vides. |
 | Administration | `npm run build` puis `npm test -- --watch=false` depuis `admin-web/`. |
+
+### Validation du 23 novembre 2026
+
+- `mvn test` : **175 tests sur 177** passent, dont 7 parcours PostgreSQL de
+  réinitialisation du mot de passe, 7 de confirmation d’adresse à l’inscription et
+  les tests de l’e-mail HTML. Les 2 échecs viennent du fuseau horaire du JDK
+  (voir ci-dessous), pas du code.
+- `flutter test` : **269 tests** passent (écrans mot de passe oublié, code
+  d’inscription, renvoi du code, logo clair et sombre) et `flutter analyze` ne
+  signale aucun problème.
+- Essais réels : code de réinitialisation et code d’inscription reçus par e-mail
+  via Brevo, mot de passe changé depuis l’émulateur, ancien mot de passe refusé.
+
+#### Deux tests de planning échouent sur certains postes
+
+Si `ScheduleIntegrationTest.matchesOnlyNearbyOffersAtTheChosenCampusAndCompatibleTimes`
+et `threeDevelopmentOffersMatchThePlanAndStayBookableWithoutResettingReservations`
+échouent (« expected: 2 but was: 1 », « expected: 3 but was: 0 »), comparer le
+décalage de `Africa/Casablanca` côté Java et côté PostgreSQL :
+
+```powershell
+'System.out.println(java.time.ZoneId.of("Africa/Casablanca").getRules().getOffset(java.time.Instant.now()))' | jshell -q
+docker exec emsidrive-postgres psql -U emsidrive -At -c "SELECT now() AT TIME ZONE 'Africa/Casablanca' - now() AT TIME ZONE 'UTC';"
+```
+
+Des résultats différents (par exemple `+01:00` contre `00:00:00`) signifient que
+les données de fuseau du JDK sont anciennes : les horaires du planning sont alors
+décalés d’une heure, dans les tests comme dans l’application lancée sur ce poste.
+Mettre à jour le JDK, ou ses données de fuseau avec l’outil TZUpdater d’Oracle,
+sans oublier le JBR d’Android Studio utilisé par `scripts\start-backend.ps1`.
 
 ### Validation du 22 novembre 2026
 

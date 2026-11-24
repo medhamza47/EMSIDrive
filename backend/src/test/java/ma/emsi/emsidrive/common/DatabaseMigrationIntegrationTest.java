@@ -39,8 +39,9 @@ class DatabaseMigrationIntegrationTest {
                            '00000000-0000-0000-0000-000000000002'::uuid,status
                     FROM (VALUES ('COMPLETED'),('CANCELLED'),('CONFIRMED')) AS existing(status);
                     """);
+            // Pinned to V30: later migrations are exercised by every other integration test.
             var upgraded = Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                    .load();
+                    .target("30").load();
             assertThat(upgraded.migrate().migrationsExecuted).isEqualTo(3);
             upgraded.validate();
             assertThat(upgraded.info().current().getVersion().toString()).isEqualTo("30");

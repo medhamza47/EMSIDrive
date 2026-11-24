@@ -8,8 +8,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/primary_button.dart';
-import '../application/auth_submission_state.dart';
-import '../application/register_controller.dart';
+import '../data/auth_repository_provider.dart';
+import '../data/dto/auth_requests.dart';
 import 'auth_error_presenter.dart';
 import 'auth_validators.dart';
 import 'widgets/auth_error_banner.dart';
@@ -19,7 +19,9 @@ import 'widgets/auth_header.dart';
 /// Registration screen.
 ///
 /// Follows the visual language of the login mockup while adding the two extra
-/// fields the backend requires (full name and optional phone number).
+/// fields the backend requires (full name and optional phone number). The
+/// server checks the form and emails a code; the account is only created on
+/// the next screen, once that code proves the address exists.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -35,6 +37,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
 
   bool _submitted = false;
+  bool _sending = false;
   String? _bannerMessage;
   Map<String, String> _serverErrors = const <String, String>{};
 
@@ -67,19 +70,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _serverErrors = const <String, String>{};
     });
 
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    if (_sending || !(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
     final phone = _phoneController.text.trim();
-    await ref
-        .read(registerControllerProvider.notifier)
-        .submit(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          fullName: _fullNameController.text.trim(),
-          phoneNumber: phone.isEmpty ? null : phone,
-        );
+    final form = RegisterRequestDto(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      fullName: _fullNameController.text.trim(),
+      phoneNumber: phone.isEmpty ? null : phone,
+    );
+    setState(() => _sending = true);
+    try {
+      await ref.read(authRepositoryProvider).requestRegistrationCode(form);
+      if (!mounted) return;
+      // Pushed, so going back keeps the form filled to fix the address.
+      await context.push(AppRoutes.verifyEmail, extra: form);
+    } on AppFailure catch (failure) {
+      if (mounted) _handleFailure(failure);
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   void _handleFailure(AppFailure failure) {
@@ -93,26 +105,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(registerControllerProvider);
-
-    ref.listen<AuthSubmissionState>(registerControllerProvider, (previous, next) {
-      switch (next) {
-        case AuthSucceeded():
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(l10n.registerSuccessMessage)));
-          context.go(AppRoutes.home);
-        case AuthFailed(:final failure):
-          _handleFailure(failure);
-        case AuthIdle() || AuthSubmitting():
-          break;
-      }
-    });
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: state.isSubmitting
+          onPressed: _sending
               ? null
               : () {
                   if (context.canPop()) {
@@ -210,14 +207,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       PrimaryButton(
                         label: l10n.registerSubmitLabel,
                         expanded: true,
-                        isLoading: state.isSubmitting,
+                        isLoading: _sending,
                         onPressed: _submit,
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       AuthFooterLink(
                         prompt: l10n.registerHasAccountPrompt,
                         action: l10n.loginLinkLabel,
-                        onPressed: state.isSubmitting
+                        onPressed: _sending
                             ? null
                             : () {
                                 if (context.canPop()) {

@@ -7,7 +7,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * Registration payload. The email domain must belong to an allowed student domain.
+ * Registration payload. The email domain must belong to an allowed student domain, and
+ * the account is only created with the code emailed to that address.
  */
 @Schema(description = "Student registration request")
 public record RegisterRequest(
@@ -30,5 +31,15 @@ public record RegisterRequest(
 
         @Schema(description = "Moroccan phone number", example = "+212612345678")
         @Pattern(regexp = "^$|^\\+?[0-9]{9,20}$", message = "Phone number must contain between 9 and 20 digits")
-        String phoneNumber) {
+        String phoneNumber,
+
+        @Schema(description = "6-digit code emailed by POST /auth/register/code; required to create the account",
+                example = "482913")
+        @Pattern(regexp = "^[0-9]{6}$", message = "Code must contain 6 digits")
+        String verificationCode) {
+
+    /** Form without code, as sent to request the verification code. */
+    public RegisterRequest(String email, String password, String fullName, String phoneNumber) {
+        this(email, password, fullName, phoneNumber, null);
+    }
 }
